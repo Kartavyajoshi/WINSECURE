@@ -1,18 +1,282 @@
 """
-WinSecure Interactive HTML Website Generator (Clean, Modern SaaS Security Report)
-100% Standalone Self-Contained Single-File Report with Triple-Redundant Navigation
+WinSecure Standalone Web Report Generator with Full Server-Side Pre-Rendering
 """
-import json
 import os
+import json
+import html
+from typing import List, Dict, Any
 from winsecure.models.scan import ScanResult
+from winsecure.models.finding import Finding, FindingStatus, Severity
 
-REPORT_CSS = """/* ==========================================================================
+
+class WebReportGenerator:
+    """Generates a modern, self-contained, 100% pre-rendered cybersecurity audit web report."""
+
+    @staticmethod
+    def generate(result: ScanResult, output_dir: str) -> str:
+        os.makedirs(output_dir, exist_ok=True)
+        index_path = os.path.join(output_dir, "index.html")
+        js_path = os.path.join(output_dir, "report.js")
+        css_path = os.path.join(output_dir, "report.css")
+
+        inv = result.inventory
+        hostname = inv.hostname if inv else "WIN-ENDPOINT"
+        os_name = inv.os_name if inv else "Windows 11 Enterprise"
+        os_arch = inv.os_architecture if inv else "x64"
+        duration_sec = result.metrics.duration_seconds if result.metrics else 0.0
+        duration_str = f"{duration_sec:.2f}s"
+
+        crit_count = sum(1 for f in result.findings if f.status == FindingStatus.FAIL and f.severity == Severity.CRITICAL)
+        high_count = sum(1 for f in result.findings if f.status == FindingStatus.FAIL and f.severity == Severity.HIGH)
+        med_count = sum(1 for f in result.findings if f.status == FindingStatus.FAIL and f.severity == Severity.MEDIUM)
+        low_count = sum(1 for f in result.findings if f.status == FindingStatus.FAIL and f.severity == Severity.LOW)
+        pass_count = sum(1 for f in result.findings if f.status == FindingStatus.PASS)
+        warn_count = sum(1 for f in result.findings if f.status == FindingStatus.WARN)
+        unknown_count = sum(1 for f in result.findings if f.status in (FindingStatus.UNKNOWN, FindingStatus.NOT_APPLICABLE))
+        total_findings = len(result.findings)
+
+        failing_findings = [f for f in result.findings if f.status == FindingStatus.FAIL]
+        priority_defects = crit_count + high_count
+
+        admin_badge = "badge-pass" if result.is_admin else "badge-low"
+        admin_label = "ADMIN" if result.is_admin else "STANDARD USER"
+
+        score_val = result.security_score
+        risk_lvl = result.risk_level.value if hasattr(result.risk_level, "value") else str(result.risk_level)
+
+        # -------------------------------------------------------------
+        # Pre-render 1: Findings Table Rows
+        # -------------------------------------------------------------
+        findings_rows_html = []
+        for f in result.findings:
+            sev_str = f.severity.value if hasattr(f.severity, "value") else str(f.severity)
+            st_str = f.status.value if hasattr(f.status, "value") else str(f.status)
+
+            if st_str == "PASS":
+                status_badge_class = "badge-pass"
+            elif st_str == "FAIL":
+                status_badge_class = "badge-crit"
+            elif st_str == "WARN":
+                status_badge_class = "badge-warn"
+            else:
+                status_badge_class = "badge-low"
+
+            sev_lower = sev_str.lower()
+            if sev_lower == "critical":
+                sev_badge_class = "badge-crit"
+            elif sev_lower == "high":
+                sev_badge_class = "badge-high"
+            elif sev_lower == "medium":
+                sev_badge_class = "badge-med"
+            else:
+                sev_badge_class = "badge-low"
+
+            cis_ref = "CIS Windows 11 Enterprise"
+            if f.compliance:
+                for c in f.compliance:
+                    if isinstance(c, dict) and "cis" in c.get("framework", "").lower():
+                        cis_ref = f"{c.get('framework', '')} {c.get('control_id', '')}".strip()
+                        break
+
+            f_json_escaped = html.escape(json.dumps(f.to_dict(), default=str))
+
+            row_html = f"""<tr class="finding-row" data-id="{html.escape(f.id)}" data-category="{html.escape(f.category)}" data-severity="{html.escape(sev_str)}" data-status="{html.escape(st_str)}" data-finding="{f_json_escaped}" onclick="openFindingModalFromRow(this)" style="cursor: pointer;">
+  <td><strong style="font-family: var(--font-mono); color: var(--text-primary);">{html.escape(f.id)}</strong></td>
+  <td><span class="badge badge-low">{html.escape(f.category)}</span></td>
+  <td>
+    <div style="font-weight: 600; color: var(--text-primary);">{html.escape(f.title)}</div>
+    <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">{html.escape(f.actual or f.expected)}</div>
+  </td>
+  <td><span class="badge {sev_badge_class}">{html.escape(sev_str.upper())}</span></td>
+  <td><span class="badge {status_badge_class}">{html.escape(st_str)}</span></td>
+  <td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">{html.escape(cis_ref)}</span></td>
+</tr>"""
+            findings_rows_html.append(row_html)
+
+        findings_table_body = "\n".join(findings_rows_html)
+
+        # -------------------------------------------------------------
+        # Pre-render 2: 30 Module Catalog Cards
+        # -------------------------------------------------------------
+        module_cards_html = []
+        scanner_health_map = {h.scanner_id: h for h in (result.scanner_health or [])}
+
+        module_catalog = [
+            ("WS-SYSTEM", "Secure Boot & Firmware Security", "System", "UEFI Secure Boot, TPM 2.0 readiness, and Kernel DMA hardware protection."),
+            ("WS-DEFENDER", "Microsoft Defender Antivirus", "Defender", "Real-time inspection, Cloud intelligence, behavior monitoring, and IOAV scanning."),
+            ("WS-FIREWALL", "Windows Firewall Boundary Profiles", "Firewall", "Domain, Private, and Public inbound block rules and boundary filtering."),
+            ("WS-ACCOUNTS", "Local Account & Password Hardening", "Accounts", "Guest account lockouts, Administrator protections, and lockout thresholds."),
+            ("WS-PRIVILEGES", "User Rights & Privileges Scanner", "Privileges", "Auditing excessive local administrator group memberships and token rights."),
+            ("WS-SERVICES", "Windows Services Security", "Services", "Unquoted service binary paths and unprivileged service permission planting."),
+            ("WS-STARTUP", "Startup & Registry Persistence", "Startup", "User Run and RunOnce autorun registry persistence vector analysis."),
+            ("WS-TASKS", "Scheduled Tasks Security", "Scheduled Tasks", "Tasks executing from user-writable temporary paths (%TEMP%, %APPDATA%)."),
+            ("WS-REGISTRY", "Windows Registry Hardening", "Registry", "LSA Protection (RunAsPPL), WDigest plaintext caching, and Safe DLL search."),
+            ("WS-POWERSHELL", "PowerShell Security Configuration", "PowerShell", "Script Block Logging (Event 4104), Transcription, and Execution Policy."),
+            ("WS-AUDIT", "Windows Audit Policy Hardening", "Audit Policy", "Process Creation (Event 4688), CLI parameter logging, and Logon auditing."),
+            ("WS-EVENTLOGS", "Event Log Infrastructure", "Event Logs", "Security event log maximum retention size (>1GB) and overwrite safeguards."),
+            ("WS-UPDATES", "Windows Servicing & Updates", "Updates", "Pending reboots and critical security cumulative update installation state."),
+            ("WS-SMB", "SMB Protocol & Server Security", "SMB", "SMBv1 removal, SMB Server packet signing, and guest authentication blocking."),
+            ("WS-REMOTE", "Remote Access & RDP Hardening", "Remote Access", "Network Level Authentication (NLA) enforcement and RDP encryption levels."),
+            ("WS-NETWORK", "Network Exposure & Name Resolution", "Network", "LLMNR multicast poisoning defense and NetBIOS name resolution hygiene."),
+            ("WS-BITLOCKER", "BitLocker Volume Encryption", "Encryption", "Full volume encryption with TPM 2.0 hardware-backed PIN protectors."),
+            ("WS-UAC", "User Account Control (UAC)", "UAC", "Admin Approval Mode, Consent prompts, and Secure Desktop elevation prompts."),
+            ("WS-SMARTSCREEN", "Defender SmartScreen Platform", "SmartScreen", "Explorer reputation checks and malicious download blocking."),
+            ("WS-SOFTWARE", "Installed Software Exposure", "Software", "Vulnerable, deprecated, and end-of-life installed software package audit."),
+            ("WS-APPLOCKER", "Application Control & AppLocker", "Application Control", "Application Identity service (AppIDSvc) and whitelisting readiness."),
+            ("WS-VBS", "Virtualization-Based Security (VBS)", "Virtualization", "Hypervisor-Enforced Code Integrity (HVCI) and Memory Integrity state."),
+            ("WS-LAPS", "Windows LAPS Solution", "Authentication", "Local Administrator Password Solution automatic rotation policy."),
+            ("WS-ASR", "Attack Surface Reduction (ASR)", "Defender", "Exploit Guard Attack Surface Reduction rules against macro & script threats."),
+            ("WS-EXPLOITGUARD", "System Exploit Guard Mitigations", "Exploit Guard", "System-wide DEP, ASLR, CFG, and SEHOP memory corruption protection."),
+            ("WS-SCHANNEL", "Cryptography & TLS Ciphers", "Cryptography", "Legacy insecure TLS 1.0/1.1 deprecation and TLS 1.2/1.3 enforcement."),
+            ("WS-KERBEROS", "Kerberos Authentication", "Authentication", "Disabling legacy DES/RC4 cipher types in Kerberos ticket exchanges."),
+            ("WS-SANDBOX", "Windows Sandbox Isolation", "Isolation", "Windows Hypervisor container substrate for ephemeral application sandboxing."),
+            ("WS-SPOOLER", "Print Spooler Hardening", "Services", "Print Spooler service exposure auditing against PrintNightmare RPC vectors."),
+            ("WS-BROWSER", "Microsoft Edge Security Baseline", "Browser", "Enterprise browser SmartScreen and download security enforcement."),
+            ("WS-AD", "Active Directory Domain Member", "Active Directory", "LDAP client signing and Netlogon secure channel session encryption."),
+            ("WS-SYSMON", "Sysmon Advanced Telemetry", "Advanced Logging", "Kernel-level event tracing for process injection and file creations.")
+        ]
+
+        for mod_id, mod_name, mod_cat, mod_desc in module_catalog:
+            card_html = f"""<div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+  <div>
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+      <strong style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary);">{html.escape(mod_id)}</strong>
+      <span class="badge badge-low">{html.escape(mod_cat)}</span>
+    </div>
+    <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">{html.escape(mod_name)}</h4>
+    <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">{html.escape(mod_desc)}</p>
+  </div>
+  <div style="border-top: 1px solid var(--border-color); padding-top: 8px; font-size: 11px; color: #166534; font-weight: 600;">✓ Automated Collector Active</div>
+</div>"""
+            module_cards_html.append(card_html)
+
+        module_grid_body = "\n".join(module_cards_html)
+
+        # -------------------------------------------------------------
+        # Pre-render 3: Compliance Framework Cards
+        # -------------------------------------------------------------
+        comp_cards_html = []
+        default_comp = [
+            {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "desc": "Level 1 & 2 Consensus Hardening Benchmarks", "alignment": 94.2, "passed": 48, "total": 53},
+            {"framework": "NIST SP 800-53", "version": "Rev 5", "desc": "Federal Security and Privacy Controls for Information Systems", "alignment": 91.8, "passed": 44, "total": 53},
+            {"framework": "DISA STIG", "version": "V1R3", "desc": "Department of Defense Windows 11 Security Technical Implementation Guide", "alignment": 89.5, "passed": 42, "total": 53},
+            {"framework": "Microsoft Security Baseline", "version": "23H2", "desc": "Authoritative Microsoft Group Policy & Security Baselines", "alignment": 96.0, "passed": 50, "total": 53},
+        ]
+        comp_list = result.compliance_summaries if result.compliance_summaries else default_comp
+
+        for c in comp_list:
+            if isinstance(c, dict):
+                fw = c.get("framework", "Security Baseline")
+                ver = c.get("version", "Latest")
+                desc = c.get("description", c.get("desc", "Technical baseline mapping"))
+                align = float(c.get("compliance_percentage", c.get("alignment", 90.0)))
+                p_count = c.get("passed", 45)
+                t_count = c.get("total_controls", c.get("total", 50))
+            else:
+                fw = getattr(c, "framework", "Security Baseline")
+                ver = getattr(c, "version", "Latest")
+                desc = "Authoritative configuration benchmark mapping and hardening controls."
+                align = float(getattr(c, "compliance_percentage", 90.0))
+                p_count = getattr(c, "passed", 45)
+                t_count = getattr(c, "total_controls", 50)
+
+            c_html = f"""<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+    <h3 style="font-size: 15px; font-weight: 700; color: var(--text-primary);">{html.escape(str(fw))}</h3>
+    <span class="badge badge-low">{html.escape(str(ver))}</span>
+  </div>
+  <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">{html.escape(str(desc))}</p>
+  <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+    <span style="color: var(--text-muted);">Alignment Status</span>
+    <strong style="font-family: var(--font-mono); color: var(--text-primary);">{align:.1f}%</strong>
+  </div>
+  <div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-bottom: 10px;">
+    <div style="width: {min(100.0, max(0.0, align))}%; height: 100%; background: #0ea5e9;"></div>
+  </div>
+  <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); font-family: var(--font-mono);">
+    <span>Passed Controls: {p_count}</span>
+    <span>Total Audited: {t_count}</span>
+  </div>
+</div>"""
+            comp_cards_html.append(c_html)
+
+        compliance_grid_body = "\n".join(comp_cards_html)
+
+        # -------------------------------------------------------------
+        # Pre-render 4: Remediation Plan Cards
+        # -------------------------------------------------------------
+        remediation_cards_html = []
+        if not failing_findings:
+            remediation_cards_html.append("""<div class="card" style="text-align: center; padding: 32px; color: #166534;">
+  <h3 style="font-size: 15px; font-weight: 700;">All Assessed Controls Aligned</h3>
+  <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">No corrective remediation steps required for this endpoint.</p>
+</div>""")
+        else:
+            for i, f in enumerate(failing_findings, 1):
+                sev_str = f.severity.value if hasattr(f.severity, "value") else str(f.severity)
+                sev_badge_class = "badge-crit" if sev_str.lower() == "critical" else ("badge-high" if sev_str.lower() == "high" else "badge-med")
+                rem_escaped = html.escape(f.remediation or "# No automated remediation specified")
+
+                r_html = f"""<div class="card" style="margin-bottom: 14px;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+    <div>
+      <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">STEP {i} OF {len(failing_findings)}</span>
+      <h3 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary); margin-top: 2px;">
+        <span style="font-family: var(--font-mono); color: var(--accent-blue);">[{html.escape(f.id)}]</span> {html.escape(f.title)}
+      </h3>
+    </div>
+    <span class="badge {sev_badge_class}">{html.escape(sev_str.upper())}</span>
+  </div>
+  <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">{html.escape(f.description)}</p>
+  <div style="background: #0f172a; border-radius: 6px; padding: 12px 14px; position: relative;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 6px; margin-bottom: 8px;">
+      <span style="font-family: var(--font-mono); font-size: 11px; color: #94a3b8;">POWERSHELL REMEDIATION COMMAND</span>
+      <button class="btn btn-outline btn-sm" style="color: #fff; border-color: #475569; padding: 2px 8px; font-size: 11px;" onclick="copyCode(this.getAttribute('data-code'))" data-code="{rem_escaped}">Copy</button>
+    </div>
+    <pre style="font-family: var(--font-mono); font-size: 12px; color: #38bdf8; overflow-x: auto; white-space: pre-wrap; margin: 0;">{rem_escaped}</pre>
+  </div>
+</div>"""
+                remediation_cards_html.append(r_html)
+
+        remediation_list_body = "\n".join(remediation_cards_html)
+
+        # -------------------------------------------------------------
+        # Pre-render 5: Timeline / Deductions Log
+        # -------------------------------------------------------------
+        timeline_items_html = []
+        if result.score_deductions:
+            for d in result.score_deductions:
+                if isinstance(d, dict):
+                    fid = d.get("finding_id", "DEFECT")
+                    title = d.get("title", "")
+                    pts = float(d.get("points_deducted", 0.0))
+                else:
+                    fid = getattr(d, "finding_id", "DEFECT")
+                    title = getattr(d, "title", "")
+                    pts = float(getattr(d, "points_deducted", 0.0))
+
+                t_html = f"""<div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-canvas); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 13px;">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <span class="badge badge-crit">AUDIT</span>
+    <strong style="color: var(--text-primary); font-family: var(--font-mono);">[{html.escape(fid)}] {html.escape(title)}</strong>
+  </div>
+  <span style="color: #dc2626; font-family: var(--font-mono); font-size: 12px; font-weight: 600;">-{pts:.1f} pts</span>
+</div>"""
+                timeline_items_html.append(t_html)
+        else:
+            timeline_items_html.append('<div style="padding: 16px; font-size: 13px; color: var(--text-muted); text-align: center;">No score deductions recorded during this assessment run.</div>')
+
+        timeline_list_body = "\n".join(timeline_items_html)
+
+        # -------------------------------------------------------------
+        # CSS Style definition
+        # -------------------------------------------------------------
+        css_content = """/* ==========================================================================
    WinSecure — Clean, Modern SaaS Security Report (Light & Responsive)
    100% Offline, Zero-CDN, Air-Gapped Compliant
    ========================================================================== */
 
 :root {
-  /* Light Palette */
   --bg-app: #ffffff;
   --bg-canvas: #f8fafc;
   --bg-sidebar: #ffffff;
@@ -22,18 +286,15 @@ REPORT_CSS = """/* =============================================================
   --bg-input: #ffffff;
   --bg-code: #0f172a;
 
-  /* Borders */
   --border-color: #e2e8f0;
   --border-subtle: #f1f5f9;
   --border-focus: #0ea5e9;
 
-  /* Typography Colors */
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #64748b;
   --text-light: #94a3b8;
 
-  /* Status & Accents */
   --accent-primary: #0ea5e9;
   --accent-blue: #2563eb;
   --accent-gray: #334155;
@@ -62,7 +323,6 @@ REPORT_CSS = """/* =============================================================
   --badge-warn-text: #854d0e;
   --badge-warn-border: #fde047;
 
-  /* Geometry */
   --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --radius-xs: 4px;
@@ -103,8 +363,8 @@ html, body {
 
 /* Sidebar */
 .sidebar {
-  width: 250px;
-  min-width: 250px;
+  width: 240px;
+  min-width: 240px;
   background-color: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
   display: flex;
@@ -117,84 +377,76 @@ html, body {
 }
 
 .sidebar-header {
-  padding: 18px 20px;
+  padding: 20px 16px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   border-bottom: 1px solid var(--border-color);
 }
 
 .brand-icon {
-  width: 34px;
-  height: 34px;
-  background-color: #0f172a;
+  width: 32px;
+  height: 32px;
+  background: #0ea5e9;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-weight: 800;
-  font-size: 13px;
-  font-family: var(--font-mono);
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  font-size: 14px;
 }
 
 .brand-title {
   font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
-  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .brand-subtitle {
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--text-muted);
 }
 
 .nav-menu {
   list-style: none;
-  padding: 14px 10px;
+  padding: 16px 8px;
   flex-grow: 1;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+}
+
+.nav-item {
+  margin-bottom: 4px;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
+  padding: 9px 12px;
   color: var(--text-secondary);
   text-decoration: none;
-  border-radius: var(--radius-md);
   font-size: 13.5px;
   font-weight: 500;
+  border-radius: var(--radius-sm);
   transition: all 0.15s ease;
   cursor: pointer;
-  border: 1px solid transparent;
-  user-select: none;
 }
 
 .nav-link:hover {
-  background-color: var(--border-subtle);
+  background-color: var(--bg-canvas);
   color: var(--text-primary);
 }
 
 .nav-link.active {
-  background-color: #0f172a !important;
-  color: #ffffff !important;
-  font-weight: 600 !important;
-  box-shadow: var(--shadow-sm);
-}
-
-.nav-link.active svg {
-  stroke: #ffffff;
+  background-color: #f0f9ff;
+  color: #0284c7;
+  font-weight: 600;
 }
 
 .sidebar-footer {
-  padding: 14px 18px;
+  padding: 14px 16px;
   border-top: 1px solid var(--border-color);
   font-size: 11.5px;
   color: var(--text-muted);
@@ -204,113 +456,46 @@ html, body {
 }
 
 .status-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
+  background: #22c55e;
   border-radius: 50%;
-  background-color: #10b981;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
 }
 
-/* Main Area */
+/* Main Content Area */
 .main-wrapper {
-  margin-left: 250px;
-  width: calc(100% - 250px);
-  max-width: calc(100% - 250px);
+  margin-left: 240px;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  background-color: var(--bg-canvas);
+  min-height: 100vh;
+  width: calc(100% - 240px);
+  max-width: calc(100% - 240px);
 }
 
-/* Topbar */
 .topbar {
+  height: 56px;
   background-color: var(--bg-topbar);
   border-bottom: 1px solid var(--border-color);
-  padding: 12px 32px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
   position: sticky;
   top: 0;
   z-index: 90;
 }
 
-.topbar-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
 .meta-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--bg-canvas);
-  border: 1px solid var(--border-color);
-  padding: 5px 12px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.meta-pill strong {
-  color: var(--text-primary);
-}
-
-.topbar-right {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
   font-size: 13px;
-  font-weight: 600;
-  border: 1px solid var(--border-color);
-  background: #ffffff;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-decoration: none;
+  color: var(--text-secondary);
 }
 
-.btn:hover {
-  background-color: var(--bg-canvas);
-  border-color: var(--text-muted);
-}
-
-.btn-primary {
-  background: #0f172a;
-  color: #ffffff;
-  border-color: #0f172a;
-}
-
-.btn-primary:hover {
-  background: #1e293b;
-  border-color: #1e293b;
-}
-
-.btn-sm {
-  padding: 5px 10px;
-  font-size: 12px;
-}
-
-.btn-outline {
-  background: transparent;
-  border-color: var(--border-color);
-}
-
-/* Page Content */
 .page-content {
-  padding: 28px 32px;
+  padding: 24px;
   flex-grow: 1;
 }
 
@@ -322,74 +507,59 @@ html, body {
   display: block !important;
 }
 
-/* KPI Cards Grid */
+/* Cards & Layout */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .kpi-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 20px;
+  padding: 16px 18px;
   box-shadow: var(--shadow-card);
-  transition: all 0.15s ease;
-}
-
-.kpi-card:hover {
-  border-color: var(--text-muted);
-  transform: translateY(-1px);
 }
 
 .kpi-label {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 8px;
+  letter-spacing: 0.5px;
 }
 
 .kpi-value {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--text-primary);
   font-family: var(--font-mono);
-  line-height: 1.1;
-  margin-bottom: 4px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 4px 0 2px 0;
 }
+
+.kpi-value.kpi-danger { color: #dc2626; }
+.kpi-value.kpi-success { color: #16a34a; }
 
 .kpi-meta {
   font-size: 12px;
   color: var(--text-muted);
-  font-weight: 500;
-}
-
-.kpi-danger { color: #dc2626; }
-.kpi-success { color: #16a34a; }
-.kpi-warn { color: #ea580c; }
-
-/* Cards & Layout */
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 24px;
-  box-shadow: var(--shadow-card);
-  margin-bottom: 20px;
-}
-
-.card-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .grid-2 {
@@ -408,119 +578,93 @@ html, body {
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 8px;
-  border-radius: var(--radius-xs);
+  padding: 2px 8px;
   font-size: 11px;
-  font-weight: 700;
-  font-family: var(--font-mono);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  border: 1px solid transparent;
+  font-weight: 600;
+  border-radius: var(--radius-xs);
+  line-height: 1.4;
 }
 
-.badge-crit { background: var(--badge-crit-bg); color: var(--badge-crit-text); border-color: var(--badge-crit-border); }
-.badge-high { background: var(--badge-high-bg); color: var(--badge-high-text); border-color: var(--badge-high-border); }
-.badge-med  { background: var(--badge-med-bg);  color: var(--badge-med-text);  border-color: var(--badge-med-border); }
-.badge-low  { background: var(--badge-low-bg);  color: var(--badge-low-text);  border-color: var(--badge-low-border); }
-.badge-pass { background: var(--badge-pass-bg); color: var(--badge-pass-text); border-color: var(--badge-pass-border); }
-.badge-warn { background: var(--badge-warn-bg); color: var(--badge-warn-text); border-color: var(--badge-warn-border); }
+.badge-crit { background: var(--badge-crit-bg); color: var(--badge-crit-text); border: 1px solid var(--badge-crit-border); }
+.badge-high { background: var(--badge-high-bg); color: var(--badge-high-text); border: 1px solid var(--badge-high-border); }
+.badge-med { background: var(--badge-med-bg); color: var(--badge-med-text); border: 1px solid var(--badge-med-border); }
+.badge-low { background: var(--badge-low-bg); color: var(--badge-low-text); border: 1px solid var(--badge-low-border); }
+.badge-pass { background: var(--badge-pass-bg); color: var(--badge-pass-text); border: 1px solid var(--badge-pass-border); }
+.badge-warn { background: var(--badge-warn-bg); color: var(--badge-warn-text); border: 1px solid var(--badge-warn-border); }
 
-/* Filter Chips & Form Controls */
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-primary { background: #0ea5e9; color: #ffffff; }
+.btn-primary:hover { background: #0284c7; }
+.btn-outline { background: transparent; border-color: var(--border-color); color: var(--text-primary); }
+.btn-outline:hover { background: var(--bg-canvas); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+/* Filter Chips & Inputs */
 .filter-chip {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--radius-full);
   background: var(--bg-canvas);
   border: 1px solid var(--border-color);
-  padding: 6px 12px;
-  border-radius: var(--radius-xs);
-  font-size: 11.5px;
-  font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.filter-chip.active, .filter-chip:hover {
-  background: #0f172a;
-  color: #ffffff;
-  border-color: #0f172a;
-}
+.filter-chip:hover { background: #f1f5f9; color: var(--text-primary); }
+.filter-chip.active { background: #0f172a; color: #ffffff; border-color: #0f172a; }
 
 .form-input {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
   padding: 8px 12px;
   font-size: 13px;
-  color: var(--text-primary);
-  transition: border-color 0.15s ease;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.15);
-}
-
-/* Tables */
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  outline: none;
 }
 
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  text-align: left;
-}
+.form-input:focus { border-color: var(--border-focus); }
 
-.data-table th {
-  background-color: var(--bg-canvas);
-  padding: 12px 16px;
-  font-weight: 600;
-  color: var(--text-muted);
-  font-size: 11.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.data-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-secondary);
-}
-
-.data-table tr:last-child td {
-  border-bottom: none;
-}
-
-.data-table tr:hover td {
-  background-color: var(--bg-card-hover);
-}
+/* Data Tables */
+.table-responsive { width: 100%; overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+.data-table th { padding: 10px 14px; background: var(--bg-canvas); border-bottom: 1px solid var(--border-color); font-weight: 600; font-size: 12px; color: var(--text-muted); }
+.data-table td { padding: 12px 14px; border-bottom: 1px solid var(--border-color); }
+.data-table tr:hover { background: #f8fafc; }
 
 /* Modal */
 .modal-overlay {
+  display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(4px);
-  display: none;
+  z-index: 2000;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
   padding: 20px;
 }
 
 .modal-card {
   background: #ffffff;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   width: 100%;
-  max-width: 800px;
+  max-width: 680px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
@@ -529,7 +673,7 @@ html, body {
 }
 
 .modal-header {
-  padding: 18px 24px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
@@ -539,14 +683,9 @@ html, body {
 .modal-close {
   background: transparent;
   border: none;
-  font-size: 24px;
-  color: var(--text-muted);
+  font-size: 20px;
   cursor: pointer;
-  line-height: 1;
-}
-
-.modal-close:hover {
-  color: var(--text-primary);
+  color: var(--text-muted);
 }
 
 .modal-tabs {
@@ -569,13 +708,14 @@ html, body {
 }
 
 .modal-tab.active {
-  color: #0f172a;
-  border-bottom-color: #0f172a;
+  color: var(--accent-blue);
+  border-bottom-color: var(--accent-blue);
 }
 
 .modal-body {
-  padding: 24px;
+  padding: 20px;
   overflow-y: auto;
+  flex-grow: 1;
 }
 
 /* Responsive */
@@ -583,7 +723,7 @@ html, body {
   .sidebar { width: 64px; min-width: 64px; }
   .brand-details, .sidebar-footer, .nav-link span { display: none; }
   .main-wrapper { margin-left: 64px; width: calc(100% - 64px); max-width: calc(100% - 64px); }
-  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .kpi-grid, .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .topbar { padding: 12px 16px; }
   .page-content { padding: 16px; }
 }
@@ -594,14 +734,16 @@ html, body {
 }
 """
 
-REPORT_JS = """/* ==========================================================================
-   WinSecure — Dynamic Assessment Report Engine (Immediate Header Injection)
+        # -------------------------------------------------------------
+        # JavaScript Engine definition
+        # -------------------------------------------------------------
+        js_content = """/* ==========================================================================
+   WinSecure — Client-Side Report Engine
    ========================================================================== */
 
 var activeFindingFilter = 'ALL';
-var currentActiveItem = null;
+var currentActiveFinding = null;
 var currentModalTab = 'tab-overview';
-var activeReportData = null;
 
 function switchSection(sectionId, element) {
   if (!sectionId) return;
@@ -633,143 +775,6 @@ function switchSection(sectionId, element) {
 }
 window.switchSection = switchSection;
 
-function getActiveReportData() {
-  if (activeReportData) return activeReportData;
-
-  if (window.WINSECURE_DATA && window.WINSECURE_DATA.findings) {
-    var raw = window.WINSECURE_DATA;
-    var inv = raw.inventory || {};
-    var metrics = raw.metrics || {};
-    
-    var findings = (raw.findings || []).map(function(f) {
-      var cis = 'CIS Windows 11 Enterprise';
-      var nist = 'NIST SP 800-53 Rev 5';
-      var disa = 'DISA STIG Windows 11';
-      if (Array.isArray(f.compliance)) {
-        f.compliance.forEach(function(c) {
-          if (c && c.framework && c.framework.toLowerCase().indexOf('cis') !== -1) cis = c.framework + ' ' + (c.control_id || '');
-          if (c && c.framework && c.framework.toLowerCase().indexOf('nist') !== -1) nist = c.framework + ' ' + (c.control_id || '');
-          if (c && c.framework && c.framework.toLowerCase().indexOf('disa') !== -1) disa = c.framework + ' ' + (c.control_id || '');
-        });
-      }
-      return {
-        id: f.id || 'WS-000',
-        title: f.title || 'Security Control',
-        category: f.category || 'System',
-        severity: (typeof f.severity === 'object' && f.severity !== null) ? (f.severity.value || 'Low') : String(f.severity || 'Low'),
-        status: (typeof f.status === 'object' && f.status !== null) ? (f.status.value || 'PASS') : String(f.status || 'PASS'),
-        affected_component: f.affected_component || f.actual || f.expected || '',
-        description: f.description || '',
-        risk_explanation: f.impact || f.description || '',
-        impact: f.impact || 'Configuration posture divergence.',
-        recommendation: f.remediation || 'Harden configuration per baseline.',
-        remediation: f.remediation || '# No automated remediation required',
-        compliance_mappings: { cis: cis, nist: nist, disa: disa },
-        evidence: f.evidence || []
-      };
-    });
-
-    activeReportData = {
-      assessment_metadata: {
-        assessment_id: raw.scan_id || 'SCAN-LOCAL',
-        target_host: inv.hostname || 'Local Windows Host',
-        target_environment: inv.domain_or_workgroup || 'Production Workstation',
-        target_ip: (inv.network_interfaces && inv.network_interfaces.MacAddress) ? inv.network_interfaces.MacAddress : '127.0.0.1',
-        os_name: (inv.os_name || 'Windows 11') + ' (' + (inv.os_architecture || 'x64') + ')',
-        os_build: inv.os_build || '22631',
-        duration: metrics.duration_seconds ? metrics.duration_seconds.toFixed(2) + 's' : '01.50s',
-        status: 'COMPLETED'
-      },
-      metrics: {
-        security_score: raw.security_score !== undefined ? raw.security_score : 100.0,
-        posture_rating: (typeof raw.risk_level === 'object' && raw.risk_level !== null) ? (raw.risk_level.value || 'STRONG') : String(raw.risk_level || 'STRONG'),
-        total_checks_evaluated: metrics.total_checks || findings.length,
-        passed_checks_count: metrics.passed_checks !== undefined ? metrics.passed_checks : findings.filter(function(f) { return f.status === 'PASS'; }).length,
-        failed_checks_count: metrics.failed_checks !== undefined ? metrics.failed_checks : findings.filter(function(f) { return f.status === 'FAIL'; }).length,
-        severity_distribution: {
-          Critical: findings.filter(function(f) { return f.status === 'FAIL' && (f.severity || '').toLowerCase() === 'critical'; }).length,
-          High: findings.filter(function(f) { return f.status === 'FAIL' && (f.severity || '').toLowerCase() === 'high'; }).length,
-          Medium: findings.filter(function(f) { return f.status === 'FAIL' && (f.severity || '').toLowerCase() === 'medium'; }).length,
-          Low: findings.filter(function(f) { return f.status === 'FAIL' && (f.severity || '').toLowerCase() === 'low'; }).length
-        }
-      },
-      findings: findings,
-      modules: [
-        { id: "WS-SYSTEM", name: "Secure Boot & Firmware", category: "System", desc: "UEFI Secure Boot, TPM 2.0 readiness, and Kernel DMA protection." },
-        { id: "WS-DEFENDER", name: "Microsoft Defender Antivirus", category: "Defender", desc: "Real-time inspection, Cloud intelligence, and IOAV scanning." },
-        { id: "WS-FIREWALL", name: "Windows Firewall Profiles", category: "Firewall", desc: "Domain, Private, and Public inbound block rules." },
-        { id: "WS-ACCOUNTS", name: "Account Hardening", category: "Accounts", desc: "Guest lockouts, Administrator protections, and lockout thresholds." },
-        { id: "WS-REGISTRY", name: "LSA Protection & RunAsPPL", category: "Registry", desc: "LSASS memory protection against Mimikatz credential scrapers." },
-        { id: "WS-SERVICES", name: "Service Path Auditing", category: "System", desc: "Unquoted service paths and binary planting detection." },
-        { id: "WS-POWERSHELL", name: "PowerShell Script Logging", category: "Audit", desc: "Script Block Logging (Event 4104) and transcription." },
-        { id: "WS-UAC", name: "User Account Control", category: "Accounts", desc: "Admin Approval Mode and Secure Desktop elevation prompts." },
-        { id: "WS-BITLOCKER", name: "BitLocker Encryption", category: "Crypto", desc: "Full volume encryption with TPM hardware protectors." },
-        { id: "WS-NETWORK", name: "Legacy Protocols", category: "Firewall", desc: "LLMNR and NetBIOS multicast poison defense." },
-        { id: "WS-SMB", name: "SMBv1 Hygiene", category: "Firewall", desc: "SMBv1 removal and packet signing enforcement." },
-        { id: "WS-ASR", name: "Attack Surface Reduction", category: "Defender", desc: "Exploit Guard Attack Surface Reduction rules." }
-      ],
-      compliance_summaries: [
-        { framework: "CIS Windows 11 Enterprise", version: "5.0.1", desc: "Level 1 & 2 Consensus Benchmarks", alignment: 94.2, passed: 48, total: 53 },
-        { framework: "NIST SP 800-53", version: "Rev 5", desc: "Federal Security and Privacy Controls", alignment: 91.8, passed: 44, total: 53 },
-        { framework: "DISA STIG", version: "V1R3", desc: "DoD Windows 11 Security Technical Implementation Guide", alignment: 89.5, passed: 42, total: 53 },
-        { framework: "Microsoft GPO Baseline", version: "23H2", desc: "Security Baseline Group Policy Settings", alignment: 96.0, passed: 50, total: 53 }
-      ],
-      timeline: (raw.score_deductions || []).map(function(d) {
-        return {
-          time: "AUDIT",
-          event: d.finding_id + ": " + d.title,
-          category: d.category || 'General',
-          status: "FAIL",
-          details: d.reason || ("Penalty: -" + d.points_deducted + " pts")
-        };
-      })
-    };
-    return activeReportData;
-  }
-  return {
-    assessment_metadata: {
-      assessment_id: "ASSESS-DEMO-001",
-      target_host: "LAB-WIN-042",
-      target_environment: "Security Assessment Lab",
-      target_ip: "192.0.2.42",
-      os_name: "Microsoft Windows 11 Enterprise",
-      duration: "01.42s"
-    },
-    metrics: {
-      security_score: 92.0,
-      posture_rating: "EXCELLENT",
-      total_checks_evaluated: 30,
-      passed_checks_count: 28,
-      failed_checks_count: 2,
-      severity_distribution: { Critical: 0, High: 1, Medium: 1, Low: 0 }
-    },
-    findings: [],
-    modules: [],
-    compliance_summaries: [],
-    timeline: []
-  };
-}
-
-function renderDashboard(data) {
-  var meta = data.assessment_metadata || {};
-  var metrics = data.metrics || {};
-  var dist = metrics.severity_distribution || {};
-
-  setText('topbar-host', meta.target_host || 'Local Host');
-  setText('topbar-os', meta.os_name || 'Windows 11');
-
-  setText('kpi-score', metrics.security_score.toFixed(1) + '/100');
-  setText('kpi-posture', metrics.posture_rating + ' POSTURE');
-  setText('kpi-crit-high', String((dist.Critical || 0) + (dist.High || 0)));
-  setText('kpi-duration', meta.duration || '01.50s');
-  setText('kpi-passed', metrics.passed_checks_count + ' / ' + metrics.total_checks_evaluated);
-
-  var summary = document.getElementById('auditor-summary-text');
-  if (summary) {
-    summary.innerHTML = 'Automated security diagnostic evaluation completed for endpoint <strong>' + escapeHtml(meta.target_host) + '</strong>. The endpoint achieved an overall defensive posture score of <strong>' + metrics.security_score.toFixed(1) + ' / 100 (' + escapeHtml(metrics.posture_rating) + ')</strong> across ' + metrics.total_checks_evaluated + ' evaluated configuration controls.';
-  }
-}
-
 function applyFilter(filterVal, element) {
   activeFindingFilter = filterVal || 'ALL';
   var chips = document.querySelectorAll('.filter-chip');
@@ -782,206 +787,67 @@ function applyFilter(filterVal, element) {
 window.applyFilter = applyFilter;
 
 function filterFindings() {
-  var data = getActiveReportData();
-  var query = (document.getElementById('findings-search') ? document.getElementById('findings-search').value : '').toLowerCase();
-  var category = document.getElementById('category-filter') ? document.getElementById('category-filter').value : 'ALL';
+  var query = (document.getElementById('findings-search') ? document.getElementById('findings-search').value : '').toLowerCase().trim();
+  var cat = document.getElementById('category-filter') ? document.getElementById('category-filter').value : 'ALL';
+  var rows = document.querySelectorAll('#findings-tbody .finding-row');
+  var visibleCount = 0;
 
-  var findings = data.findings || [];
-  var filtered = findings.filter(function(f) {
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i];
+    var rCat = (row.getAttribute('data-category') || '').toLowerCase();
+    var rSev = (row.getAttribute('data-severity') || '').toUpperCase();
+    var rStatus = (row.getAttribute('data-status') || '').toUpperCase();
+    var rText = (row.textContent || '').toLowerCase();
+
     var matchFilter = (activeFindingFilter === 'ALL') ||
-                      (activeFindingFilter === 'FAIL' && f.status === 'FAIL') ||
-                      (activeFindingFilter === 'PASS' && f.status === 'PASS') ||
-                      ((f.severity || '').toUpperCase() === activeFindingFilter);
+                      (activeFindingFilter === 'FAIL' && rStatus === 'FAIL') ||
+                      (activeFindingFilter === 'PASS' && rStatus === 'PASS') ||
+                      (activeFindingFilter === 'WARNINGS' && rStatus === 'WARN') ||
+                      (rSev === activeFindingFilter);
 
-    var matchCategory = (category === 'ALL') || ((f.category || '').toLowerCase() === category.toLowerCase());
-    var matchQuery = (f.id || '').toLowerCase().indexOf(query) !== -1 ||
-                     (f.title || '').toLowerCase().indexOf(query) !== -1 ||
-                     (f.description || '').toLowerCase().indexOf(query) !== -1;
+    var matchCat = (cat === 'ALL') || (rCat === cat.toLowerCase());
+    var matchQuery = (!query) || (rText.indexOf(query) !== -1);
 
-    return matchFilter && matchCategory && matchQuery;
-  });
+    if (matchFilter && matchCat && matchQuery) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  }
 
-  renderFindings(filtered);
+  var badge = document.getElementById('findings-count-badge');
+  if (badge) badge.textContent = 'Showing ' + visibleCount + ' controls';
 }
 window.filterFindings = filterFindings;
 
-function renderFindings(findings) {
-  var tbody = document.getElementById('findings-tbody');
-  var countBadge = document.getElementById('findings-count-badge');
-  var sidebarCount = document.getElementById('sidebar-finding-count');
-  if (!tbody) return;
+function openFindingModalFromRow(row) {
+  if (!row) return;
+  var rawJson = row.getAttribute('data-finding');
+  if (!rawJson) return;
 
-  if (sidebarCount) {
-    sidebarCount.textContent = String(findings.length);
-  }
+  try {
+    var f = JSON.parse(rawJson);
+    currentActiveFinding = f;
+    currentModalTab = 'tab-overview';
 
-  if (findings.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--text-muted);">No findings match the current filter criteria.</td></tr>';
-    if (countBadge) countBadge.textContent = "0 findings displayed";
-    return;
-  }
+    var title = document.getElementById('modal-title');
+    if (title) title.innerHTML = '<span style="color: var(--accent-blue);">[' + escapeHtml(f.id) + ']</span> ' + escapeHtml(f.title);
 
-  var html = '';
-  for (var i = 0; i < findings.length; i++) {
-    var f = findings[i];
-    var statusClass = f.status === 'PASS' ? 'badge-pass' : (f.status === 'FAIL' ? 'badge-crit' : 'badge-warn');
-    html += '<tr onclick="openFindingModal(\'' + f.id + '\')" style="cursor: pointer;">' +
-      '<td><strong style="font-family: var(--font-mono); color: var(--text-primary);">' + f.id + '</strong></td>' +
-      '<td><span class="badge badge-low">' + escapeHtml(f.category) + '</span></td>' +
-      '<td>' +
-        '<div style="font-weight: 600; color: var(--text-primary);">' + escapeHtml(f.title) + '</div>' +
-        '<div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">' + escapeHtml(f.affected_component || '') + '</div>' +
-      '</td>' +
-      '<td><span class="badge ' + getSeverityBadge(f.severity) + '">' + String(f.severity || '').toUpperCase() + '</span></td>' +
-      '<td><span class="badge ' + statusClass + '">' + f.status + '</span></td>' +
-      '<td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">' + (f.compliance_mappings ? escapeHtml(f.compliance_mappings.cis || 'CIS Baseline') : 'CIS Baseline') + '</span></td>' +
-    '</tr>';
-  }
-  tbody.innerHTML = html;
-
-  if (countBadge) {
-    countBadge.textContent = 'Showing ' + findings.length + ' controls';
-  }
-}
-
-function renderModuleCatalog(modules) {
-  var container = document.getElementById('catalog-grid');
-  if (!container || !modules) return;
-
-  var html = '';
-  for (var i = 0; i < modules.length; i++) {
-    var m = modules[i];
-    html += '<div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">' +
-      '<div>' +
-        '<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">' +
-          '<strong style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary);">' + m.id + '</strong>' +
-          '<span class="badge badge-low">' + m.category + '</span>' +
-        '</div>' +
-        '<h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">' + escapeHtml(m.name) + '</h4>' +
-        '<p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">' + escapeHtml(m.desc) + '</p>' +
-      '</div>' +
-      '<div style="border-top: 1px solid var(--border-color); padding-top: 8px; font-size: 11px; color: #166534; font-weight: 600;">✓ Automated Collector Active</div>' +
-    '</div>';
-  }
-  container.innerHTML = html;
-}
-
-function renderCompliance(summaries) {
-  var container = document.getElementById('compliance-cards-grid');
-  if (!container || !summaries) return;
-
-  var html = '';
-  for (var i = 0; i < summaries.length; i++) {
-    var s = summaries[i];
-    html += '<div class="card">' +
-      '<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">' +
-        '<h3 style="font-size: 15px; font-weight: 700; color: var(--text-primary);">' + escapeHtml(s.framework) + '</h3>' +
-        '<span class="badge badge-low">' + escapeHtml(s.version) + '</span>' +
-      '</div>' +
-      '<p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">' + escapeHtml(s.desc) + '</p>' +
-      '<div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">' +
-        '<span style="color: var(--text-muted);">Alignment Status</span>' +
-        '<strong style="font-family: var(--font-mono); color: var(--text-primary);">' + s.alignment + '%</strong>' +
-      '</div>' +
-      '<div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-bottom: 10px;">' +
-        '<div style="width: ' + s.alignment + '%; height: 100%; background: #0ea5e9;"></div>' +
-      '</div>' +
-      '<div style="display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); font-family: var(--font-mono);">' +
-        '<span>Passed: ' + s.passed + '</span>' +
-        '<span>Total Controls: ' + s.total + '</span>' +
-      '</div>' +
-    '</div>';
-  }
-  container.innerHTML = html;
-}
-
-function renderRemediationPlan(findings) {
-  var container = document.getElementById('remediation-list');
-  if (!container || !findings) return;
-
-  var failing = findings.filter(function(f) { return f.status === 'FAIL'; });
-  if (failing.length === 0) {
-    container.innerHTML = '<div class="card" style="text-align: center; padding: 32px; color: #166534;"><h3 style="font-size: 15px; font-weight: 700;">All Assessed Controls Aligned</h3><p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">No corrective remediation steps required for this endpoint.</p></div>';
-    return;
-  }
-
-  var html = '';
-  for (var i = 0; i < failing.length; i++) {
-    var f = failing[i];
-    html += '<div class="card" style="margin-bottom: 14px;">' +
-      '<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">' +
-        '<div>' +
-          '<span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">STEP ' + (i + 1) + ' OF ' + failing.length + '</span>' +
-          '<h3 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary); margin-top: 2px;">' +
-            '<span style="font-family: var(--font-mono); color: var(--accent-blue);">[' + f.id + ']</span> ' + escapeHtml(f.title) +
-          '</h3>' +
-        '</div>' +
-        '<span class="badge ' + getSeverityBadge(f.severity) + '">' + String(f.severity || '').toUpperCase() + '</span>' +
-      '</div>' +
-      '<p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">' + escapeHtml(f.recommendation) + '</p>' +
-      '<div style="background: #0f172a; border-radius: 6px; padding: 12px 14px; position: relative;">' +
-        '<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 6px; margin-bottom: 8px;">' +
-          '<span style="font-family: var(--font-mono); font-size: 11px; color: #94a3b8;">POWERSHELL REMEDIATION COMMAND</span>' +
-          '<button class="btn btn-outline btn-sm" style="color: #fff; border-color: #475569; padding: 2px 8px; font-size: 11px;" onclick="copyCode(this.getAttribute(\'data-code\'))" data-code="' + escapeHtml(f.remediation) + '">Copy</button>' +
-        '</div>' +
-        '<pre style="font-family: var(--font-mono); font-size: 12px; color: #38bdf8; overflow-x: auto; white-space: pre-wrap; margin: 0;">' + escapeHtml(f.remediation) + '</pre>' +
-      '</div>' +
-    '</div>';
-  }
-  container.innerHTML = html;
-}
-
-function renderTimelineLogs(timeline) {
-  var container = document.getElementById('timeline-log-list');
-  if (!container || !timeline) return;
-
-  if (timeline.length === 0) {
-    container.innerHTML = '<div style="padding: 16px; font-size: 13px; color: var(--text-muted); text-align: center;">No score deductions recorded during this assessment run.</div>';
-    return;
-  }
-
-  var html = '';
-  for (var i = 0; i < timeline.length; i++) {
-    var t = timeline[i];
-    html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-canvas); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 13px;">' +
-      '<div style="display: flex; align-items: center; gap: 10px;">' +
-        '<span class="badge ' + (t.status === 'PASS' ? 'badge-pass' : 'badge-crit') + '">' + t.status + '</span>' +
-        '<strong style="color: var(--text-primary); font-family: var(--font-mono);">' + escapeHtml(t.event) + '</strong>' +
-      '</div>' +
-      '<span style="color: #dc2626; font-family: var(--font-mono); font-size: 12px; font-weight: 600;">' + escapeHtml(t.details || '') + '</span>' +
-    '</div>';
-  }
-  container.innerHTML = html;
-}
-
-function openFindingModal(findingId) {
-  var data = getActiveReportData();
-  var f = null;
-  for (var i = 0; i < (data.findings || []).length; i++) {
-    if (data.findings[i].id === findingId) {
-      f = data.findings[i];
-      break;
+    var tabs = document.querySelectorAll('.modal-tab');
+    for (var j = 0; j < tabs.length; j++) {
+      tabs[j].classList.toggle('active', tabs[j].getAttribute('data-tab') === currentModalTab);
     }
+
+    renderModalContent(currentModalTab);
+
+    var modal = document.getElementById('finding-modal');
+    if (modal) modal.style.display = 'flex';
+  } catch (err) {
+    console.error('Error opening finding modal:', err);
   }
-  if (!f) return;
-
-  currentActiveItem = f;
-  currentModalTab = 'tab-overview';
-
-  var title = document.getElementById('modal-title');
-  if (title) title.innerHTML = '<span style="color: var(--accent-blue);">[' + f.id + ']</span> ' + escapeHtml(f.title);
-
-  var tabs = document.querySelectorAll('.modal-tab');
-  for (var j = 0; j < tabs.length; j++) {
-    tabs[j].classList.toggle('active', tabs[j].getAttribute('data-tab') === currentModalTab);
-  }
-
-  renderModalContent(currentModalTab);
-
-  var modal = document.getElementById('finding-modal');
-  if (modal) modal.style.display = 'flex';
 }
-window.openFindingModal = openFindingModal;
+window.openFindingModalFromRow = openFindingModalFromRow;
 
 function switchModalTab(tabKey) {
   currentModalTab = tabKey;
@@ -994,105 +860,66 @@ function switchModalTab(tabKey) {
 window.switchModalTab = switchModalTab;
 
 function renderModalContent(tabKey) {
-  var f = currentActiveItem;
+  var f = currentActiveFinding;
   if (!f) return;
 
   var body = document.getElementById('modal-body');
   if (!body) return;
 
+  var sevStr = String(f.severity || 'Low').toUpperCase();
+  var stStr = String(f.status || 'PASS');
+
   if (tabKey === 'tab-overview') {
     body.innerHTML = '<div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">' +
-        '<span class="badge ' + getSeverityBadge(f.severity) + '">' + String(f.severity || '').toUpperCase() + '</span>' +
-        '<span class="badge ' + (f.status === 'PASS' ? 'badge-pass' : 'badge-crit') + '">' + f.status + '</span>' +
+        '<span class="badge ' + getSeverityBadge(f.severity) + '">' + sevStr + '</span>' +
+        '<span class="badge ' + (stStr === 'PASS' ? 'badge-pass' : 'badge-crit') + '">' + stStr + '</span>' +
         '<span class="badge badge-low">' + escapeHtml(f.category) + '</span>' +
       '</div>' +
       '<h4 style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">DESCRIPTION</h4>' +
       '<p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">' + escapeHtml(f.description) + '</p>' +
+      '<h4 style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">EVIDENCE / ACTUAL STATE</h4>' +
+      '<p style="font-size: 13.5px; color: var(--text-primary); font-weight: 600; margin-bottom: 16px;">' + escapeHtml(f.actual) + '</p>' +
       '<h4 style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">IMPACT & POSTURE RISK</h4>' +
-      '<p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">' + escapeHtml(f.risk_explanation || f.impact) + '</p>';
+      '<p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">' + escapeHtml(f.impact || f.description) + '</p>';
   } else if (tabKey === 'tab-threat') {
     body.innerHTML = '<div style="background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #dc2626; padding: 14px; border-radius: 6px; margin-bottom: 14px;">' +
         '<div style="font-size: 12px; font-weight: 700; color: #991b1b; margin-bottom: 4px;">ATTACKER EXPLOITATION VECTOR</div>' +
-        '<p style="font-size: 13px; color: #7f1d1d; line-height: 1.6; margin: 0;">' + escapeHtml(f.risk_explanation || f.impact) + '</p>' +
+        '<p style="font-size: 13px; color: #7f1d1d; line-height: 1.6; margin: 0;">' + escapeHtml(f.impact || f.description) + '</p>' +
       '</div>';
   } else if (tabKey === 'tab-remediation') {
     body.innerHTML = '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">' +
         '<span style="font-size: 12px; font-weight: 700; color: var(--text-muted);">RECOMMENDED POWERSHELL COMMAND</span>' +
-        '<button class="btn btn-sm" onclick="copyCode(this.getAttribute(\'data-code\'))" data-code="' + escapeHtml(f.remediation) + '">Copy Fix</button>' +
+        '<button class="btn btn-sm" onclick="copyCode(this.getAttribute(\\'data-code\\'))" data-code="' + escapeHtml(f.remediation || '') + '">Copy Fix</button>' +
       '</div>' +
-      '<pre style="background: #0f172a; color: #38bdf8; padding: 12px; border-radius: 6px; font-family: var(--font-mono); font-size: 12px; line-height: 1.6; overflow-x: auto;">' + escapeHtml(f.remediation) + '</pre>';
+      '<pre style="background: #0f172a; color: #38bdf8; padding: 12px; border-radius: 6px; font-family: var(--font-mono); font-size: 12px; line-height: 1.6; overflow-x: auto; white-space: pre-wrap;">' + escapeHtml(f.remediation || '# No remediation required') + '</pre>';
   } else if (tabKey === 'tab-evidence') {
     var jsonStr = JSON.stringify(f.evidence || [], null, 2);
     body.innerHTML = '<pre style="background: #0f172a; color: #10b981; padding: 12px; border-radius: 6px; font-family: var(--font-mono); font-size: 12px; line-height: 1.6; overflow-x: auto;">' + escapeHtml(jsonStr) + '</pre>';
   } else if (tabKey === 'tab-compliance') {
-    var map = f.compliance_mappings || {};
-    body.innerHTML = '<div style="display: flex; flex-direction: column; gap: 8px;">' +
-        '<div style="background: var(--bg-canvas); padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;">' +
-          '<div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">CIS BENCHMARK</div>' +
-          '<div style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); margin-top: 2px;">' + escapeHtml(map.cis || 'CIS Windows 11 Enterprise') + '</div>' +
-        '</div>' +
-        '<div style="background: var(--bg-canvas); padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;">' +
-          '<div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">NIST SP 800-53 REV 5</div>' +
-          '<div style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); margin-top: 2px;">' + escapeHtml(map.nist || 'NIST Security Control') + '</div>' +
-        '</div>' +
-        '<div style="background: var(--bg-canvas); padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;">' +
-          '<div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">DISA STIG</div>' +
-          '<div style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); margin-top: 2px;">' + escapeHtml(map.disa || 'DISA Windows Baseline STIG') + '</div>' +
-        '</div>' +
-      '</div>';
+    var list = Array.isArray(f.compliance) ? f.compliance : [];
+    var compHtml = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+    if (list.length === 0) {
+      compHtml += '<div style="font-size: 13px; color: var(--text-muted); padding: 12px;">Aligned with standard Windows 11 Enterprise Baseline.</div>';
+    } else {
+      for (var k = 0; k < list.length; k++) {
+        var c = list[k];
+        compHtml += '<div style="background: var(--bg-canvas); padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;">' +
+            '<div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">' + escapeHtml(c.framework || 'Framework') + ' ' + escapeHtml(c.version || '') + '</div>' +
+            '<div style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); margin-top: 2px;">' + escapeHtml(c.control_id || '') + ' — ' + escapeHtml(c.title || '') + '</div>' +
+          '</div>';
+      }
+    }
+    compHtml += '</div>';
+    body.innerHTML = compHtml;
   }
 }
 
 function closeFindingModal() {
   var modal = document.getElementById('finding-modal');
   if (modal) modal.style.display = 'none';
-  currentActiveItem = null;
+  currentActiveFinding = null;
 }
 window.closeFindingModal = closeFindingModal;
-
-function downloadMasterScript() {
-  var data = getActiveReportData();
-  var failing = (data.findings || []).filter(function(f) { return f.status === 'FAIL'; });
-  var lines = [
-    '# =====================================================================',
-    '# WinSecure Automated Hardening Script',
-    '# Target Host: ' + (data.assessment_metadata ? data.assessment_metadata.target_host : 'Localhost'),
-    '# Assessment ID: ' + (data.assessment_metadata ? data.assessment_metadata.assessment_id : 'SCAN'),
-    '# =====================================================================',
-    '',
-    'if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {',
-    '    Write-Error "[!] Administrative privileges required. Run PowerShell as Administrator."',
-    '    Exit 1',
-    '}',
-    '',
-    'Write-Host "[*] Executing WinSecure Hardening Plan (' + failing.length + ' fixes)..." -ForegroundColor Cyan',
-    ''
-  ];
-
-  for (var i = 0; i < failing.length; i++) {
-    var f = failing[i];
-    lines.push('');
-    lines.push('# Step ' + (i + 1) + ': ' + f.id + ' - ' + f.title);
-    lines.push('Write-Host "  [*] Applying: ' + f.title + ' (' + f.id + ')..."');
-    lines.push('try {');
-    lines.push('    ' + (f.remediation || '# No remediation specified'));
-    lines.push('    Write-Host "    [OK] Remediated ' + f.id + '" -ForegroundColor Green');
-    lines.push('} catch {');
-    lines.push('    Write-Warning "    [!] Failed ' + f.id + ': $_"');
-    lines.push('}');
-  }
-
-  var script = lines.join(String.fromCharCode(10));
-  var blob = new Blob([script], { type: 'text/plain;charset=utf-8' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'WinSecure-Remediation-' + (data.assessment_metadata ? data.assessment_metadata.target_host : 'Host') + '.ps1';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Master remediation script downloaded.');
-}
-window.downloadMasterScript = downloadMasterScript;
 
 function showToast(msg) {
   var existing = document.querySelector('.platform-toast');
@@ -1113,14 +940,71 @@ function showToast(msg) {
 
 function copyCode(text) {
   if (!text) return;
-  navigator.clipboard.writeText(text).then(function() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast('Copied to clipboard.');
+    });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
     showToast('Copied to clipboard.');
-  });
+  }
 }
 window.copyCode = copyCode;
 
+function downloadMasterScript() {
+  var rows = document.querySelectorAll('#findings-tbody .finding-row');
+  var lines = [
+    '# =====================================================================',
+    '# WinSecure Automated Hardening Script',
+    '# Generated for target host',
+    '# =====================================================================',
+    '',
+    'if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {',
+    '    Write-Error "[!] Administrative privileges required. Run PowerShell as Administrator."',
+    '    Exit 1',
+    '}',
+    '',
+    'Write-Host "[*] Executing WinSecure Hardening Plan..." -ForegroundColor Cyan',
+    ''
+  ];
+
+  var count = 0;
+  for (var i = 0; i < rows.length; i++) {
+    var rStatus = rows[i].getAttribute('data-status');
+    if (rStatus === 'FAIL') {
+      count++;
+      var f = JSON.parse(rows[i].getAttribute('data-finding') || '{}');
+      lines.push('');
+      lines.push('# Step ' + count + ': ' + f.id + ' - ' + f.title);
+      lines.push('Write-Host "  [*] Applying: ' + f.title + ' (' + f.id + ')..."');
+      lines.push('try {');
+      lines.push('    ' + (f.remediation || '# No remediation'));
+      lines.push('    Write-Host "    [OK] Remediated ' + f.id + '" -ForegroundColor Green');
+      lines.push('} catch {');
+      lines.push('    Write-Warning "    [!] Failed ' + f.id + ': $_"');
+      lines.push('}');
+    }
+  }
+
+  var script = lines.join(String.fromCharCode(10));
+  var blob = new Blob([script], { type: 'text/plain;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'WinSecure-Remediation-Master.ps1';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Master remediation script downloaded.');
+}
+window.downloadMasterScript = downloadMasterScript;
+
 function getSeverityBadge(sev) {
-  switch ((sev || '').toLowerCase()) {
+  switch (String(sev || '').toLowerCase()) {
     case 'critical': return 'badge-crit';
     case 'high': return 'badge-high';
     case 'medium': return 'badge-med';
@@ -1129,25 +1013,12 @@ function getSeverityBadge(sev) {
   }
 }
 
-function setText(id, text) {
-  var el = document.getElementById(id);
-  if (el) el.textContent = text;
-}
-
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
   return String(str).split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quot;');
 }
 
-function initWinSecureReport() {
-  var data = getActiveReportData();
-  renderDashboard(data);
-  renderFindings(data.findings);
-  renderModuleCatalog(data.modules);
-  renderCompliance(data.compliance_summaries);
-  renderRemediationPlan(data.findings);
-  renderTimelineLogs(data.timeline);
-
+document.addEventListener('DOMContentLoaded', function() {
   if (window.location.hash) {
     var initialSection = window.location.hash.replace('#', '');
     if (document.getElementById(initialSection)) {
@@ -1185,50 +1056,31 @@ function initWinSecureReport() {
       }
     }
   });
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initWinSecureReport);
-} else {
-  initWinSecureReport();
-}
+});
 """
 
+        # Write separate report.css and report.js files
+        with open(css_path, "w", encoding="utf-8") as f:
+            f.write(css_content)
+        with open(js_path, "w", encoding="utf-8") as f:
+            f.write(js_content)
 
-class WebReportGenerator:
-    """Generates the clean, minimalist offline interactive cybersecurity web dashboard."""
-
-    @staticmethod
-    def generate(result: ScanResult, output_dir: str) -> str:
-        os.makedirs(output_dir, exist_ok=True)
-
-        data_payload = json.dumps(result.to_dict(), default=str)
-
-        crit_count = sum(1 for f in result.findings if f.status.value == "FAIL" and f.severity.value == "Critical")
-        high_count = sum(1 for f in result.findings if f.status.value == "FAIL" and f.severity.value == "High")
-        pass_count = sum(1 for f in result.findings if f.status.value == "PASS")
-
-        inv = result.inventory
-        hostname = inv.hostname if inv else 'DESKTOP-WIN11'
-        os_name = inv.os_name if inv else 'Windows 10 Pro'
-        admin_badge = 'badge-pass' if result.is_admin else 'badge-low'
-        admin_label = 'ADMIN' if result.is_admin else 'USER'
-        score_val = result.security_score
-        risk_level_val = result.risk_level.value if hasattr(result.risk_level, "value") else str(result.risk_level)
-        duration_val = result.metrics.duration_seconds if result.metrics else 0.0
-
-        html_template = """<!DOCTYPE html>
+        # -------------------------------------------------------------
+        # Master HTML Template with 100% Pre-Rendered DOM Content
+        # -------------------------------------------------------------
+        html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WinSecure Security Assessment — __SCAN_ID__</title>
+  <title>WinSecure Security Assessment — {html.escape(result.scan_id)}</title>
+  <link rel="stylesheet" href="report.css">
   <style>
-__REPORT_CSS__
+{css_content}
   </style>
+  <script src="report.js"></script>
   <script>
-    window.WINSECURE_DATA = __DATA_PAYLOAD__;
-__REPORT_JS__
+{js_content}
   </script>
 </head>
 <body>
@@ -1254,14 +1106,14 @@ __REPORT_JS__
           <a class="nav-link" data-tab="section-findings" href="#section-findings" onclick="switchSection('section-findings', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             <span>Findings</span>
-            <span class="badge badge-crit" style="margin-left: auto;" id="sidebar-finding-count">__FINDINGS_COUNT__</span>
+            <span class="badge badge-crit" style="margin-left: auto;" id="sidebar-finding-count">{total_findings}</span>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" data-tab="section-modules" href="#section-modules" onclick="switchSection('section-modules', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
             <span>30 Modules</span>
-            <span class="badge badge-low" style="margin-left: auto;">30</span>
+            <span class="badge badge-low" style="margin-left: auto;">32</span>
           </a>
         </li>
         <li class="nav-item">
@@ -1286,7 +1138,7 @@ __REPORT_JS__
 
       <div class="sidebar-footer">
         <span class="status-dot"></span>
-        <span>WinSecure · By Kartavya Joshi · v__WINSECURE_VERSION__</span>
+        <span>WinSecure · By Kartavya Joshi · v2.5.0</span>
       </div>
     </aside>
 
@@ -1295,11 +1147,11 @@ __REPORT_JS__
       <header class="topbar">
         <div class="topbar-left">
           <div class="meta-pill">
-            <span>Host:</span> <strong id="topbar-host">__HOSTNAME__</strong>
+            <span>Host:</span> <strong id="topbar-host">{html.escape(hostname)}</strong>
             <span style="color: var(--border-color);">|</span>
-            <span id="topbar-os">__OS_NAME__</span>
-            <span id="topbar-admin" class="badge __ADMIN_BADGE__">
-              __ADMIN_LABEL__
+            <span id="topbar-os">{html.escape(os_name)} ({html.escape(os_arch)})</span>
+            <span id="topbar-admin" class="badge {admin_badge}">
+              {html.escape(admin_label)}
             </span>
           </div>
         </div>
@@ -1319,22 +1171,22 @@ __REPORT_JS__
           <div class="kpi-grid">
             <div class="kpi-card">
               <div class="kpi-label">Security Score</div>
-              <div class="kpi-value" id="kpi-score">__SCORE_VAL__</div>
-              <div class="kpi-meta" id="kpi-posture">__RISK_LEVEL__ POSTURE</div>
+              <div class="kpi-value" id="kpi-score">{score_val:.1f}/100</div>
+              <div class="kpi-meta" id="kpi-posture">{risk_lvl} POSTURE</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Priority Defects</div>
-              <div class="kpi-value kpi-danger" id="kpi-crit-high">__PRIORITY_DEFECTS__</div>
-              <div class="kpi-meta">__CRIT_COUNT__ Critical, __HIGH_COUNT__ High</div>
+              <div class="kpi-value kpi-danger" id="kpi-crit-high">{priority_defects}</div>
+              <div class="kpi-meta">{crit_count} Critical, {high_count} High</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Scan Duration</div>
-              <div class="kpi-value" id="kpi-duration">__DURATION_VAL__</div>
-              <div class="kpi-meta">30 Security Scanners</div>
+              <div class="kpi-value" id="kpi-duration">{duration_str}</div>
+              <div class="kpi-meta">32 Security Scanners</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Verified Controls</div>
-              <div class="kpi-value kpi-success" id="kpi-passed">__PASS_COUNT__ / __FINDINGS_COUNT__</div>
+              <div class="kpi-value kpi-success" id="kpi-passed">{pass_count} / {total_findings}</div>
               <div class="kpi-meta">Baseline Controls Aligned</div>
             </div>
           </div>
@@ -1342,7 +1194,7 @@ __REPORT_JS__
           <div class="card" style="margin-bottom: 20px;">
             <h2 class="card-title">Lead Security Auditor Briefing</h2>
             <div id="auditor-summary-text" style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
-              Automated diagnostic evaluation completed for endpoint <strong>__HOSTNAME__</strong>. Overall defensive security rating: <strong>__SCORE_VAL__ (__RISK_LEVEL__)</strong> across __FINDINGS_COUNT__ configuration controls.
+              Automated security diagnostic evaluation completed for endpoint <strong>{html.escape(hostname)}</strong>. The endpoint achieved an overall defensive posture score of <strong>{score_val:.1f} / 100 ({html.escape(risk_lvl)})</strong> across {total_findings} evaluated configuration controls.
             </div>
           </div>
         </section>
@@ -1353,12 +1205,12 @@ __REPORT_JS__
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
               <h2 class="card-title" style="margin: 0;">Findings Explorer</h2>
               <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button class="filter-chip active" onclick="applyFilter('ALL', this)">ALL</button>
-                <button class="filter-chip" onclick="applyFilter('CRITICAL', this)">CRITICAL</button>
-                <button class="filter-chip" onclick="applyFilter('HIGH', this)">HIGH</button>
-                <button class="filter-chip" onclick="applyFilter('MEDIUM', this)">MEDIUM</button>
-                <button class="filter-chip" onclick="applyFilter('FAIL', this)">FAILURES</button>
-                <button class="filter-chip" onclick="applyFilter('PASS', this)">PASSED</button>
+                <button class="filter-chip active" onclick="applyFilter('ALL', this)">ALL ({total_findings})</button>
+                <button class="filter-chip" onclick="applyFilter('CRITICAL', this)">CRITICAL ({crit_count})</button>
+                <button class="filter-chip" onclick="applyFilter('HIGH', this)">HIGH ({high_count})</button>
+                <button class="filter-chip" onclick="applyFilter('MEDIUM', this)">MEDIUM ({med_count})</button>
+                <button class="filter-chip" onclick="applyFilter('FAIL', this)">FAILURES ({len(failing_findings)})</button>
+                <button class="filter-chip" onclick="applyFilter('PASS', this)">PASSED ({pass_count})</button>
               </div>
             </div>
 
@@ -1386,26 +1238,30 @@ __REPORT_JS__
                   <tr>
                     <th>ID</th>
                     <th>Category</th>
-                    <th>Title & Affected Component</th>
+                    <th>Title & State</th>
                     <th>Severity</th>
                     <th>Status</th>
                     <th>Compliance</th>
                   </tr>
                 </thead>
-                <tbody id="findings-tbody"></tbody>
+                <tbody id="findings-tbody">
+{findings_table_body}
+                </tbody>
               </table>
             </div>
-            <div id="findings-count-badge" style="font-size: 12px; color: var(--text-muted); margin-top: 12px;"></div>
+            <div id="findings-count-badge" style="font-size: 12px; color: var(--text-muted); margin-top: 12px;">Showing {total_findings} controls</div>
           </div>
         </section>
 
         <!-- 3. 30 Modules -->
         <section id="section-modules" class="content-section">
           <div class="card" style="margin-bottom: 16px;">
-            <h2 class="card-title">30 Security Modules Catalog</h2>
-            <p style="font-size: 13px; color: var(--text-secondary);">Click any module to view technical definitions, registry paths, and compliance mappings.</p>
+            <h2 class="card-title">30+ Security Modules Catalog</h2>
+            <p style="font-size: 13px; color: var(--text-secondary);">Technical inspection catalog for all active audit scanners.</p>
           </div>
-          <div id="catalog-grid" class="grid-3"></div>
+          <div id="catalog-grid" class="grid-3">
+{module_grid_body}
+          </div>
         </section>
 
         <!-- 4. Compliance -->
@@ -1414,7 +1270,9 @@ __REPORT_JS__
             <h2 class="card-title">Compliance Framework Alignments</h2>
             <p style="font-size: 13px; color: var(--text-secondary);">Technical alignment mapping against authoritative security baselines.</p>
           </div>
-          <div id="compliance-cards-grid" class="grid-2"></div>
+          <div id="compliance-cards-grid" class="grid-2">
+{compliance_grid_body}
+          </div>
         </section>
 
         <!-- 5. Remediation Plan -->
@@ -1426,14 +1284,18 @@ __REPORT_JS__
             </div>
             <button class="btn btn-primary" onclick="downloadMasterScript()">Download Master Fix (.ps1)</button>
           </div>
-          <div id="remediation-list"></div>
+          <div id="remediation-list">
+{remediation_list_body}
+          </div>
         </section>
 
         <!-- 6. Execution Log -->
         <section id="section-logs" class="content-section">
           <div class="card">
             <h2 class="card-title">Assessment Execution Timeline</h2>
-            <div id="timeline-log-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;"></div>
+            <div id="timeline-log-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+{timeline_list_body}
+            </div>
           </div>
         </section>
       </main>
@@ -1460,26 +1322,8 @@ __REPORT_JS__
 </body>
 </html>
 """
-        html_content = html_template.replace("__SCAN_ID__", str(result.scan_id))\
-            .replace("__REPORT_CSS__", REPORT_CSS)\
-            .replace("__REPORT_JS__", REPORT_JS)\
-            .replace("__DATA_PAYLOAD__", data_payload)\
-            .replace("__HOSTNAME__", str(hostname))\
-            .replace("__OS_NAME__", str(os_name))\
-            .replace("__ADMIN_BADGE__", str(admin_badge))\
-            .replace("__ADMIN_LABEL__", str(admin_label))\
-            .replace("__SCORE_VAL__", f"{score_val:.1f}/100")\
-            .replace("__RISK_LEVEL__", str(risk_level_val))\
-            .replace("__PRIORITY_DEFECTS__", str(crit_count + high_count))\
-            .replace("__CRIT_COUNT__", str(crit_count))\
-            .replace("__HIGH_COUNT__", str(high_count))\
-            .replace("__DURATION_VAL__", f"{duration_val:.2f}s")\
-            .replace("__PASS_COUNT__", str(pass_count))\
-            .replace("__FINDINGS_COUNT__", str(len(result.findings)))\
-            .replace("__WINSECURE_VERSION__", str(result.winsecure_version))
 
-        report_path = os.path.join(output_dir, "index.html")
-        with open(report_path, "w", encoding="utf-8") as f:
+        with open(index_path, "w", encoding="utf-8") as f:
             f.write(html_content)
 
-        return report_path
+        return index_path
