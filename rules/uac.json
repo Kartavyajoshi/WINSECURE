@@ -1,0 +1,75 @@
+[
+  {
+    "id": "WS-UAC-001",
+    "title": "User Account Control (UAC) is Disabled",
+    "category": "UAC",
+    "severity": "Critical",
+    "description": "User Account Control prevents unauthorized malware and processes from silently acquiring administrator privileges.",
+    "expected": "EnableLUA = 1",
+    "impact": "All applications run with full administrative rights without prompt or isolation, neutralizing Windows security boundaries.",
+    "remediation_guidance": "Set HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\EnableLUA to 1 and restart the computer.",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "EnableLUA",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "2.3.17.1", "title": "Ensure 'User Account Control: Run all administrators in Admin Approval Mode' is set to 'Enabled'"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "AC-6", "title": "Least Privilege"},
+      {"framework": "Microsoft Security Baseline", "version": "Win11-23H2", "control_id": "MS-UAC-01", "title": "Enable UAC Admin Approval Mode"}
+    ],
+    "mitre_attack": ["T1548.002"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-UAC-002",
+    "title": "UAC Secure Desktop Elevation is Disabled",
+    "category": "UAC",
+    "severity": "High",
+    "description": "The Secure Desktop isolates credential prompts from standard desktop windows, preventing spoofing and clickjacking.",
+    "expected": "PromptOnSecureDesktop = 1",
+    "impact": "Malicious background processes can spoof UAC prompts or inject simulated clicks to gain silent privilege escalation.",
+    "remediation_guidance": "Set HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\PromptOnSecureDesktop to 1.",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "PromptOnSecureDesktop",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "2.3.17.6", "title": "Ensure 'User Account Control: Switch to the secure desktop when prompting for elevation' is set to 'Enabled'"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "AC-6", "title": "Least Privilege"}
+    ],
+    "mitre_attack": ["T1548.002"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/how-user-account-control-works"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-UAC-003",
+    "title": "UAC Administrator Elevation Behavior Set to Elevate Without Prompting",
+    "category": "UAC",
+    "severity": "Critical",
+    "description": "ConsentPromptBehaviorAdmin must be set to prompt for consent (2 or 5) rather than automatically elevating silently.",
+    "expected": "ConsentPromptBehaviorAdmin in [2, 5]",
+    "impact": "Software running in user context can escalate directly to SYSTEM/High-Integrity without administrative review.",
+    "remediation_guidance": "Set HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\ConsentPromptBehaviorAdmin to 2 or 5.",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "ConsentPromptBehaviorAdmin",
+      "allowed": [2, 5]
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "2.3.17.2", "title": "Ensure 'User Account Control: Behavior of the elevation prompt for administrators' is set to 'Prompt for consent'"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "AC-6", "title": "Least Privilege"}
+    ],
+    "mitre_attack": ["T1548.002"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/user-account-control-behavior-of-the-elevation-prompt-for-administrators"],
+    "requires_admin": true
+  }
+]

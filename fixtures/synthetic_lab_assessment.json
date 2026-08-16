@@ -1,0 +1,415 @@
+{
+  "assessment_metadata": {
+    "data_type": "Synthetic Assessment Data",
+    "assessment_id": "ASSESS-2026-00142",
+    "assessment_title": "Enterprise Windows Security Posture Assessment",
+    "target_host": "LAB-WIN-042",
+    "target_environment": "Security Assessment Lab",
+    "target_ip": "192.0.2.42",
+    "domain": "LAB.INTERNAL",
+    "os_name": "Microsoft Windows 11 Enterprise (23H2)",
+    "os_build": "22631.3007",
+    "os_architecture": "64-bit",
+    "tpm_status": "TPM 2.0 (Discrete)",
+    "secure_boot": true,
+    "vbs_status": "Enabled (HVCI Active)",
+    "bitlocker_status": "Protected (XTS-AES 256-bit)",
+    "assessment_profile": "Enterprise Comprehensive Audit",
+    "assessment_date": "2026-08-16T18:00:00Z",
+    "duration": "08m 42s",
+    "status": "COMPLETED",
+    "scope": "Local Host Configuration & Surface Analysis"
+  },
+  "metrics": {
+    "security_score": 72.0,
+    "posture_rating": "MODERATE",
+    "coverage_percent": 100.0,
+    "compliance_alignment_percent": 80.05,
+    "total_checks_evaluated": 53,
+    "passed_checks_count": 33,
+    "failed_checks_count": 20,
+    "severity_distribution": {
+      "Critical": 2,
+      "High": 7,
+      "Medium": 14,
+      "Low": 19,
+      "Informational": 11
+    }
+  },
+  "timeline": [
+    {"time": "18:02:14", "event": "Assessment initialized", "module": "orchestrator", "status": "INFO"},
+    {"time": "18:02:18", "event": "Host and hardware discovery completed", "module": "host_discovery", "status": "OK"},
+    {"time": "18:03:01", "event": "Configuration analysis started across 30 hives", "module": "config_auditor", "status": "INFO"},
+    {"time": "18:04:37", "event": "Service and listening port analysis completed", "module": "service_analyzer", "status": "OK"},
+    {"time": "18:05:21", "event": "Vulnerability and attack surface analysis completed", "module": "vulnerability_analyzer", "status": "OK"},
+    {"time": "18:06:44", "event": "Compliance baseline mapping completed", "module": "policy_compliance", "status": "OK"},
+    {"time": "18:07:03", "event": "Multi-attribute risk deduction calculation completed", "module": "risk_engine", "status": "OK"},
+    {"time": "18:07:11", "event": "Normalized report artifacts generated", "module": "report_generator", "status": "OK"}
+  ],
+  "compliance_frameworks": [
+    {
+      "name": "CIS Microsoft Windows 11 Benchmark",
+      "version": "v3.0.0",
+      "alignment_percent": 78.4,
+      "passed_controls": 28,
+      "total_controls": 36,
+      "description": "Center for Internet Security consensus-driven configuration baseline."
+    },
+    {
+      "name": "NIST SP 800-53 Rev 5",
+      "version": "Rev 5",
+      "alignment_percent": 81.2,
+      "passed_controls": 30,
+      "total_controls": 37,
+      "description": "Security and Privacy Controls for Federal Information Systems."
+    },
+    {
+      "name": "DISA Windows 11 STIG",
+      "version": "v1r4",
+      "alignment_percent": 74.6,
+      "passed_controls": 26,
+      "total_controls": 35,
+      "description": "Defense Information Systems Agency Security Technical Implementation Guide."
+    },
+    {
+      "name": "Microsoft Security Baseline",
+      "version": "23H2",
+      "alignment_percent": 86.0,
+      "passed_controls": 31,
+      "total_controls": 36,
+      "description": "Vendor recommended hardening and Group Policy Object baselines."
+    }
+  ],
+  "findings": [
+    {
+      "id": "SEC-001",
+      "title": "Unauthenticated Remote Desktop Protocol (NLA Disabled)",
+      "category": "Network Services",
+      "severity": "Critical",
+      "confidence": "High",
+      "status": "FAIL",
+      "affected_component": "TermService (Port 3389)",
+      "detection_method": "Registry Query: HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp",
+      "description": "Remote Desktop Protocol accepts incoming network connections without enforcing Network Level Authentication (NLA).",
+      "risk_explanation": "Adversaries on the local network can initiate pre-authentication RDP sessions, exposing the host to credential harvesting, denial of service, or remote code execution vulnerabilities.",
+      "impact": "Unrestricted exposure of RDP protocol stack to unauthenticated network traffic.",
+      "recommendation": "Enforce Network Level Authentication for all incoming Remote Desktop sessions.",
+      "remediation": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -Name 'UserAuthentication' -Value 1 -Type DWord",
+      "compliance_mappings": {
+        "cis": "CIS 18.9.65.3.2",
+        "nist": "NIST SP 800-53 AC-17(2)",
+        "disa": "WN11-CC-000280"
+      },
+      "evidence": [
+        {"property": "UserAuthentication", "expected": 1, "actual": 0}
+      ],
+      "first_detected": "2026-08-16T18:04:37Z"
+    },
+    {
+      "id": "SEC-002",
+      "title": "Local Security Authority Subsystem (LSASS) Unprotected",
+      "category": "Credential Protection",
+      "severity": "Critical",
+      "confidence": "High",
+      "status": "FAIL",
+      "affected_component": "LSASS.exe Process Memory",
+      "detection_method": "Registry Query: HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "description": "LSASS process is not running as Protected Process Light (RunAsPPL).",
+      "risk_explanation": "Administrative processes or compromised service accounts can inject code into LSASS or read memory buffers to extract cached password hashes and Kerberos tickets.",
+      "impact": "Plaintext credential dumping and lateral movement via Mimikatz / Sekurlsa.",
+      "recommendation": "Enable RunAsPPL in LSA configuration to enforce kernel-level process protection.",
+      "remediation": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name 'RunAsPPL' -Value 1 -Type DWord",
+      "compliance_mappings": {
+        "cis": "CIS 2.3.7.4",
+        "nist": "NIST SP 800-53 IA-5(1)",
+        "disa": "WN11-RG-000020"
+      },
+      "evidence": [
+        {"property": "RunAsPPL", "expected": 1, "actual": 0}
+      ],
+      "first_detected": "2026-08-16T18:03:01Z"
+    },
+    {
+      "id": "SEC-003",
+      "title": "Link-Local Multicast Name Resolution (LLMNR) Enabled",
+      "category": "Network Protocol",
+      "severity": "High",
+      "confidence": "High",
+      "status": "FAIL",
+      "affected_component": "DNS Client Multi-cast Subsystem",
+      "detection_method": "Registry Query: HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient",
+      "description": "LLMNR allows the system to broadcast multicast queries across the local subnet when standard DNS resolution fails.",
+      "risk_explanation": "Adversaries running network poisoning tools (such as Responder) can respond to mistyped host queries and capture NTLMv2 challenge-response hashes.",
+      "impact": "Offline cracking of captured user credentials and lateral network movement.",
+      "recommendation": "Disable LLMNR via Group Policy across all network interfaces.",
+      "remediation": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient' -Name 'EnableMulticast' -Value 0 -Type DWord",
+      "compliance_mappings": {
+        "cis": "CIS 18.4.4",
+        "nist": "NIST SP 800-53 SC-8",
+        "disa": "WN11-CC-000180"
+      },
+      "evidence": [
+        {"property": "EnableMulticast", "expected": 0, "actual": 1}
+      ],
+      "first_detected": "2026-08-16T18:05:21Z"
+    },
+    {
+      "id": "SEC-004",
+      "title": "SMBv1 Legacy Protocol Driver Active",
+      "category": "Network Protocol",
+      "severity": "High",
+      "confidence": "High",
+      "status": "FAIL",
+      "affected_component": "LanmanServer / SMB1Protocol",
+      "detection_method": "WMI Query: Win32_OptionalFeature SMB1Protocol",
+      "description": "The legacy Server Message Block version 1 (SMBv1) protocol driver is installed and available on the system.",
+      "risk_explanation": "SMBv1 is vulnerable to remote code execution vulnerabilities (such as MS17-010 / EternalBlue) and lacks modern cryptographic message signing.",
+      "impact": "Remote unauthenticated kernel exploit exposure and ransomware propagation.",
+      "recommendation": "Completely remove the SMBv1 protocol driver package from the Windows installation.",
+      "remediation": "Disable-WindowsOptionalFeature -Online -FeatureName 'SMB1Protocol' -NoRestart",
+      "compliance_mappings": {
+        "cis": "CIS 18.4.11",
+        "nist": "NIST SP 800-53 SC-8(1)",
+        "disa": "WN11-CC-000190"
+      },
+      "evidence": [
+        {"feature": "SMB1Protocol", "expected": "Disabled", "actual": "Enabled"}
+      ],
+      "first_detected": "2026-08-16T18:05:21Z"
+    },
+    {
+      "id": "SEC-005",
+      "title": "Process Creation Command-Line Auditing Disabled",
+      "category": "Audit & Logging",
+      "severity": "High",
+      "confidence": "High",
+      "status": "FAIL",
+      "affected_component": "Audit Policy / Event 4688",
+      "detection_method": "Registry Query: HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit",
+      "description": "Process creation event logging (Event 4688) does not include execution command-line parameters in security event records.",
+      "risk_explanation": "Security operations teams cannot view full arguments passed to command interpreters (cmd.exe, powershell.exe, wmic.exe), hindering threat detection.",
+      "impact": "Forensic visibility gap during incident response and threat hunting operations.",
+      "recommendation": "Enable process command line auditing in System Audit policy.",
+      "remediation": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit' -Name 'ProcessCreationIncludeCmdLine_Enabled' -Value 1 -Type DWord",
+      "compliance_mappings": {
+        "cis": "CIS 17.1.1",
+        "nist": "NIST SP 800-53 AU-12",
+        "disa": "WN11-AU-000050"
+      },
+      "evidence": [
+        {"property": "ProcessCreationIncludeCmdLine_Enabled", "expected": 1, "actual": 0}
+      ],
+      "first_detected": "2026-08-16T18:03:01Z"
+    },
+    {
+      "id": "SEC-006",
+      "title": "PowerShell Script Block Logging Disabled",
+      "category": "Audit & Logging",
+      "severity": "High",
+      "confidence": "High",
+      "status": "FAIL",
+      "affected_component": "PowerShell Engine / Event 4104",
+      "detection_method": "Registry Query: HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging",
+      "description": "PowerShell Script Block Logging (Event ID 4104) is not enabled.",
+      "risk_explanation": "Adversaries using Base64-encoded download cradles and obfuscated scripts in memory can bypass standard logging without leaving script code traces.",
+      "impact": "Loss of execution telemetry for memory-resident fileless attacks.",
+      "recommendation": "Configure Script Block Logging via Group Policy to record all script block invocations.",
+      "remediation": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging' -Name 'EnableScriptBlockLogging' -Value 1 -Type DWord",
+      "compliance_mappings": {
+        "cis": "CIS 18.9.84.1",
+        "nist": "NIST SP 800-53 AU-2",
+        "disa": "WN11-CC-000310"
+      },
+      "evidence": [
+        {"property": "EnableScriptBlockLogging", "expected": 1, "actual": 0}
+      ],
+      "first_detected": "2026-08-16T18:03:01Z"
+    },
+    {
+      "id": "SEC-007",
+      "title": "Defender Potentially Unwanted Application (PUA) Protection Disabled",
+      "category": "Endpoint Defense",
+      "severity": "High",
+      "confidence": "High",
+      "status": "FAIL",
+      "affected_component": "Microsoft Defender Antivirus Engine",
+      "detection_method": "PowerShell Query: Get-MpPreference PUAProtection",
+      "description": "PUA protection is not enabled in Defender configuration.",
+      "risk_explanation": "Adware, coin miners, and commercial keyloggers bundled into software installers will not be blocked prior to installation.",
+      "impact": "Unwanted software execution and endpoint degradation.",
+      "recommendation": "Set PUA protection to Enabled in Defender settings.",
+      "remediation": "Set-MpPreference -PUAProtection Enabled",
+      "compliance_mappings": {
+        "cis": "CIS 2.3.1.5",
+        "nist": "NIST SP 800-53 SI-3",
+        "disa": "WN11-CC-000125"
+      },
+      "evidence": [
+        {"property": "PUAProtection", "expected": 1, "actual": 0}
+      ],
+      "first_detected": "2026-08-16T18:03:01Z"
+    },
+    {
+      "id": "SEC-008",
+      "title": "Account Lockout Threshold Not Configured",
+      "category": "Account Policy",
+      "severity": "High",
+      "confidence": "High",
+      "status": "FAIL",
+      "affected_component": "SAM Account Policy Subsystem",
+      "detection_method": "SAM API Query: NetUserModalsGet",
+      "description": "The local account lockout threshold is set to 0 (unlimited failed logon attempts allowed).",
+      "risk_explanation": "Adversaries can perform continuous brute-force and password guessing attacks against local accounts without account suspension.",
+      "impact": "Unchecked password spray and dictionary attack exposure.",
+      "recommendation": "Configure the account lockout threshold to lock accounts after 5 consecutive invalid attempts.",
+      "remediation": "net accounts /lockoutthreshold:5 /lockoutduration:30 /lockoutwindow:30",
+      "compliance_mappings": {
+        "cis": "CIS 2.3.1.1",
+        "nist": "NIST SP 800-53 AC-7",
+        "disa": "WN11-SO-000020"
+      },
+      "evidence": [
+        {"property": "LockoutThreshold", "expected": 5, "actual": 0}
+      ],
+      "first_detected": "2026-08-16T18:03:01Z"
+    },
+    {
+      "id": "SEC-009",
+      "title": "Unquoted Service Executable Path Detected",
+      "category": "Service Configuration",
+      "severity": "High",
+      "confidence": "High",
+      "status": "FAIL",
+      "affected_component": "Service: AppManagementHelper (Path: C:\\Program Files\\App Helper\\service.exe)",
+      "detection_method": "WMI Query: Win32_Service PathName",
+      "description": "The service executable path contains space characters and is not enclosed in double quotes.",
+      "risk_explanation": "Local unprivileged users with write access to C:\\ or C:\\Program Files can drop a malicious C:\\Program.exe binary that executes with SYSTEM rights on service startup.",
+      "impact": "Local privilege escalation (MITRE ATT&CK T1574.009).",
+      "recommendation": "Wrap the binary path in quotation marks within the service registry ImagePath definition.",
+      "remediation": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\AppManagementHelper' -Name 'ImagePath' -Value '\"C:\\Program Files\\App Helper\\service.exe\"'",
+      "compliance_mappings": {
+        "cis": "CIS 5.1.1",
+        "nist": "NIST SP 800-53 CM-7",
+        "disa": "WN11-SV-000010"
+      },
+      "evidence": [
+        {"service": "AppManagementHelper", "path": "C:\\Program Files\\App Helper\\service.exe", "is_quoted": false}
+      ],
+      "first_detected": "2026-08-16T18:04:37Z"
+    },
+    {
+      "id": "SEC-010",
+      "title": "Windows Firewall Public Profile Inbound Connection Action Set to Allow",
+      "category": "Firewall Configuration",
+      "severity": "Medium",
+      "confidence": "High",
+      "status": "FAIL",
+      "affected_component": "MpsSvc Public Firewall Profile",
+      "detection_method": "NetFirewall API Query: Get-NetFirewallProfile -Profile Public",
+      "description": "Default inbound action for the Public network profile is not configured to Block.",
+      "risk_explanation": "Connecting to untrusted or public Wi-Fi networks exposes unmanaged local listener ports to other clients on the subnet.",
+      "impact": "Unsolicited inbound network probe exposure.",
+      "recommendation": "Configure Public firewall profile default inbound action to Block.",
+      "remediation": "Set-NetFirewallProfile -Profile Public -DefaultInboundAction Block",
+      "compliance_mappings": {
+        "cis": "CIS 9.3.1",
+        "nist": "NIST SP 800-53 SC-7",
+        "disa": "WN11-CC-000210"
+      },
+      "evidence": [
+        {"profile": "Public", "expected_inbound": "Block", "actual_inbound": "Allow"}
+      ],
+      "first_detected": "2026-08-16T18:03:01Z"
+    },
+    {
+      "id": "SEC-011",
+      "title": "Windows Defender Real-Time Scanning Active",
+      "category": "Endpoint Defense",
+      "severity": "Informational",
+      "confidence": "High",
+      "status": "PASS",
+      "affected_component": "MsMpEng Real-Time Filter Engine",
+      "detection_method": "API Query: Get-MpPreference DisableRealtimeMonitoring",
+      "description": "Real-time behavioral and file system monitoring is actively enforced.",
+      "risk_explanation": "Defensive baseline control verified.",
+      "impact": "Files and processes are scanned on execution.",
+      "recommendation": "Maintain real-time protection enabled.",
+      "remediation": "# Control aligned with baseline.",
+      "compliance_mappings": {
+        "cis": "CIS 2.3.1.2",
+        "nist": "NIST SP 800-53 SI-3",
+        "disa": "WN11-CC-000120"
+      },
+      "evidence": [
+        {"property": "DisableRealtimeMonitoring", "expected": false, "actual": false}
+      ],
+      "first_detected": "2026-08-16T18:03:01Z"
+    },
+    {
+      "id": "SEC-012",
+      "title": "UEFI Secure Boot State Active",
+      "category": "Firmware & Kernel",
+      "severity": "Informational",
+      "confidence": "High",
+      "status": "PASS",
+      "affected_component": "UEFI Firmware Signature Verification",
+      "detection_method": "WMI Query: Confirm-SecureBootUEFI",
+      "description": "Secure Boot is enabled and verifying digital signatures for all bootloader stages.",
+      "risk_explanation": "Defensive baseline control verified.",
+      "impact": "Protects against pre-OS bootkits and unauthorized kernel modules.",
+      "recommendation": "Maintain Secure Boot enabled in firmware.",
+      "remediation": "# Control aligned with baseline.",
+      "compliance_mappings": {
+        "cis": "CIS 1.1.1",
+        "nist": "NIST SP 800-53 SI-7",
+        "disa": "WN11-00-000010"
+      },
+      "evidence": [
+        {"property": "SecureBootEnabled", "expected": true, "actual": true}
+      ],
+      "first_detected": "2026-08-16T18:02:18Z"
+    }
+  ],
+  "remediation_plan": [
+    {
+      "priority": "P1 - Critical",
+      "finding_id": "SEC-001",
+      "title": "Enforce RDP Network Level Authentication (NLA)",
+      "estimated_effort": "5 minutes",
+      "action": "Configure RDP UserAuthentication to 1 in system registry.",
+      "remediation_script": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -Name 'UserAuthentication' -Value 1 -Type DWord"
+    },
+    {
+      "priority": "P1 - Critical",
+      "finding_id": "SEC-002",
+      "title": "Enable LSA Protection (RunAsPPL)",
+      "estimated_effort": "5 minutes (Reboot Required)",
+      "action": "Set RunAsPPL to 1 in LSA registry hive.",
+      "remediation_script": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name 'RunAsPPL' -Value 1 -Type DWord"
+    },
+    {
+      "priority": "P2 - High",
+      "finding_id": "SEC-003",
+      "title": "Disable LLMNR Name Resolution Broadcast",
+      "estimated_effort": "2 minutes",
+      "action": "Disable Multicast name resolution in DNSClient policy.",
+      "remediation_script": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient' -Name 'EnableMulticast' -Value 0 -Type DWord"
+    },
+    {
+      "priority": "P2 - High",
+      "finding_id": "SEC-004",
+      "title": "Remove SMBv1 Protocol Driver",
+      "estimated_effort": "5 minutes",
+      "action": "Disable SMB1Protocol optional Windows feature.",
+      "remediation_script": "Disable-WindowsOptionalFeature -Online -FeatureName 'SMB1Protocol' -NoRestart"
+    },
+    {
+      "priority": "P2 - High",
+      "finding_id": "SEC-005",
+      "title": "Enable Process Creation Command-Line Auditing",
+      "estimated_effort": "2 minutes",
+      "action": "Enable ProcessCreationIncludeCmdLine in System Audit policy.",
+      "remediation_script": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit' -Name 'ProcessCreationIncludeCmdLine_Enabled' -Value 1 -Type DWord"
+    }
+  ]
+}

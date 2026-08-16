@@ -1,0 +1,22 @@
+[
+  {
+    "id": "WS-ENC-001",
+    "title": "BitLocker Device Encryption is Disabled on OS Volume",
+    "category": "Encryption",
+    "severity": "High",
+    "description": "BitLocker full-volume encryption protects data at rest against offline physical attacks, stolen laptops, and unauthorized drive access.",
+    "expected": "ProtectionStatus = 1 (On)",
+    "impact": "Physical extraction of the disk or booting into a live USB environment grants full unencrypted access to local files and SAM database.",
+    "remediation_guidance": "Enable BitLocker on the OS volume: Enable-BitLocker -MountPoint 'C:' -EncryptionMethod XtsAes256 -UsedSpaceOnly",
+    "check_type": "bitlocker",
+    "check_params": {"mount_point": "C:", "field": "ProtectionStatus", "expected": 1},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.8.2.1", "title": "Turn on BitLocker Drive Encryption for OS Drive"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SC-28", "title": "Protection of Information at Rest"},
+      {"framework": "DISA STIG Windows 11", "version": "V1R3", "control_id": "WN11-00-000010", "title": "BitLocker Drive Encryption"}
+    ],
+    "mitre_attack": ["T1005"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/"],
+    "requires_admin": true
+  }
+]

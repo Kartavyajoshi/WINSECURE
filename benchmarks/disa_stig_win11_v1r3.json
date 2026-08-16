@@ -1,0 +1,40 @@
+{
+  "framework": "DISA STIG Windows 11",
+  "version": "V1R3",
+  "description": "DoD Defense Information Systems Agency Windows 11 Security Technical Implementation Guide V1R3",
+  "url": "https://public.cyber.mil/stigs/",
+  "controls": [
+    {
+      "id": "WN11-00-000010",
+      "title": "BitLocker Drive Encryption Enforced",
+      "description": "Windows 11 system volume must be encrypted with BitLocker.",
+      "profile": "Cat II",
+      "url": "https://public.cyber.mil/stigs/",
+      "rules": ["WS-ENC-001"]
+    },
+    {
+      "id": "WN11-FW-000010",
+      "title": "Public and Domain Firewall Enabled",
+      "description": "Firewall state must be enabled across all profiles.",
+      "profile": "Cat I",
+      "url": "https://public.cyber.mil/stigs/",
+      "rules": ["WS-FW-001", "WS-FW-002"]
+    },
+    {
+      "id": "WN11-AU-000050",
+      "title": "Process Creation & Command Line Auditing",
+      "description": "Detailed process creation and command line parameters must be audited.",
+      "profile": "Cat II",
+      "url": "https://public.cyber.mil/stigs/",
+      "rules": ["WS-AUD-001", "WS-AUD-002"]
+    },
+    {
+      "id": "WN11-CC-000210",
+      "title": "RDP Network Level Authentication Requirement",
+      "description": "NLA must be required for all remote desktop connections.",
+      "profile": "Cat I",
+      "url": "https://public.cyber.mil/stigs/",
+      "rules": ["WS-RDP-001"]
+    }
+  ]
+}

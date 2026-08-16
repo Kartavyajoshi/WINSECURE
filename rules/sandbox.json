@@ -1,0 +1,21 @@
+[
+  {
+    "id": "WS-SND-001",
+    "title": "Windows Hypervisor and Virtualization Platform Readiness",
+    "category": "System Isolation",
+    "severity": "Low",
+    "description": "Windows Hypervisor platform provides the virtualization substrate for Windows Sandbox and Application Guard container isolation.",
+    "expected": "HypervisorPresent = True",
+    "impact": "Containerized application isolation cannot be provisioned on endpoints lacking hypervisor virtualization.",
+    "remediation_guidance": "Enable Hyper-V and Windows Hypervisor Platform in Optional Windows Features.",
+    "check_type": "system",
+    "check_params": {"field": "hypervisor_present", "expected": true},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.8.8.2", "title": "Virtualization Platform Readiness"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SC-39", "title": "Process Isolation"}
+    ],
+    "mitre_attack": ["T1562"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/operating-system-security/device-management/windows-security-configuration-framework/windows-sandbox"],
+    "requires_admin": false
+  }
+]

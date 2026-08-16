@@ -1,0 +1,21 @@
+[
+  {
+    "id": "WS-SPL-001",
+    "title": "Print Spooler Service is Running on Non-Print Server Endpoint (PrintNightmare Exposure)",
+    "category": "Services",
+    "severity": "Medium",
+    "description": "The Windows Print Spooler service has a history of critical remote code execution and local privilege escalation vulnerabilities (PrintNightmare). Endpoints without physical printers should disable the spooler.",
+    "expected": "Spooler Service Disabled or Inbound Remote Printing Blocked",
+    "impact": "Adversaries on local network subnets can exploit Print Spooler RPC interfaces for privilege escalation or lateral movement.",
+    "remediation_guidance": "Disable Print Spooler on non-print devices: Stop-Service -Name 'Spooler'; Set-Service -Name 'Spooler' -StartupType Disabled",
+    "check_type": "services",
+    "check_params": {"service_name": "Spooler", "disallowed_state": "Running"},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.8.21.1", "title": "Print Spooler Security"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "CM-7", "title": "Least Functionality"}
+    ],
+    "mitre_attack": ["T1068"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/point-and-print-restrictions"],
+    "requires_admin": true
+  }
+]

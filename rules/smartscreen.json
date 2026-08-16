@@ -1,0 +1,26 @@
+[
+  {
+    "id": "WS-SS-001",
+    "title": "Windows Defender SmartScreen for Explorer is Disabled",
+    "category": "SmartScreen",
+    "severity": "High",
+    "description": "SmartScreen warns users before running unrecognized applications downloaded from the Internet.",
+    "expected": "EnableSmartScreen = 1",
+    "impact": "Users can execute downloaded malicious executables without reputation warnings.",
+    "remediation_guidance": "Set-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'EnableSmartScreen' -Value 1",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+      "value": "EnableSmartScreen",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.8.28.1", "title": "Configure Windows Defender SmartScreen"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SI-3", "title": "Malicious Code Protection"}
+    ],
+    "mitre_attack": ["T1204.002"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/windows-defender-smartscreen/"],
+    "requires_admin": true
+  }
+]

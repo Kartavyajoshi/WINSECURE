@@ -1,0 +1,21 @@
+[
+  {
+    "id": "WS-START-001",
+    "title": "Unverified Binary in User Run/RunOnce Startup Keys",
+    "category": "Startup",
+    "severity": "Medium",
+    "description": "Registry Run and RunOnce keys execute binaries automatically on user logon and are common persistence targets for malware.",
+    "expected": "Startup entries vetted and located in secure Program Files directories",
+    "impact": "Malicious payloads or adware maintain persistence across user logons.",
+    "remediation_guidance": "Audit startup registry keys in HKCU/HKLM Software\\Microsoft\\Windows\\CurrentVersion\\Run and remove suspicious entries.",
+    "check_type": "startup",
+    "check_params": {"check": "startup_persistence"},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.1", "title": "Audit Startup Persistence Items"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SI-4", "title": "Information System Monitoring"}
+    ],
+    "mitre_attack": ["T1547.001"],
+    "references": ["https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys"],
+    "requires_admin": false
+  }
+]

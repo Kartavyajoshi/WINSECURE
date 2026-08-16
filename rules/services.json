@@ -1,0 +1,21 @@
+[
+  {
+    "id": "WS-SVC-001",
+    "title": "Insecure Unquoted Service Binary Paths Detected",
+    "category": "Services",
+    "severity": "Medium",
+    "description": "Services installed in paths with spaces without enclosing quotation marks are susceptible to binary planting privilege escalation.",
+    "expected": "All service paths with spaces properly quoted",
+    "impact": "Local standard users can drop an executable into intermediate directory paths (e.g. C:\\Program.exe) to achieve SYSTEM execution.",
+    "remediation_guidance": "Wrap executable paths in double quotes in registry HKLM:\\SYSTEM\\CurrentControlSet\\Services\\<ServiceName>\\ImagePath.",
+    "check_type": "services",
+    "check_params": {"check": "unquoted_paths"},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.3.1", "title": "Secure Service Binary Permissions and Paths"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "CM-7", "title": "Least Functionality"}
+    ],
+    "mitre_attack": ["T1574.009"],
+    "references": ["https://learn.microsoft.com/en-us/windows/win32/services/service-user-accounts"],
+    "requires_admin": true
+  }
+]

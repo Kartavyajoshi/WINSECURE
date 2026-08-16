@@ -1,0 +1,22 @@
+[
+  {
+    "id": "WS-ASR-001",
+    "title": "Defender Attack Surface Reduction (ASR) Rules are Unconfigured or in Audit Mode",
+    "category": "Defender",
+    "severity": "High",
+    "description": "Attack Surface Reduction rules target behaviors that malware frequently uses, such as executable content creation by Office apps, script obfuscation, and child process spawning.",
+    "expected": "Core ASR rules enabled in Block mode (Action = 1)",
+    "impact": "Malicious macro documents and weaponized Office payloads can spawn interpreters (cmd.exe, powershell.exe) unchecked.",
+    "remediation_guidance": "Enable core ASR rules in block mode: Add-MpPreference -AttackSurfaceReductionRules_Ids <RuleID> -AttackSurfaceReductionRules_Actions Enabled",
+    "check_type": "defender",
+    "check_params": {"field": "AttackSurfaceReductionRules_Actions", "expected_block": true},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.46.7", "title": "Configure Attack Surface Reduction Rules"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SI-3", "title": "Malicious Code Protection"},
+      {"framework": "Microsoft Security Baseline", "version": "Win11-23H2", "control_id": "MS-ASR-01", "title": "Enforce Recommended ASR Rules"}
+    ],
+    "mitre_attack": ["T1566.001", "T1059.005"],
+    "references": ["https://learn.microsoft.com/en-us/defender-endpoint/attack-surface-reduction-rules-reference"],
+    "requires_admin": true
+  }
+]

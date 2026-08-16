@@ -1,0 +1,21 @@
+[
+  {
+    "id": "WS-SYS-003",
+    "title": "Sysmon Advanced Endpoint Telemetry Service is Not Installed or Inactive",
+    "category": "Advanced Logging",
+    "severity": "Medium",
+    "description": "Microsoft Sysinternals System Monitor (Sysmon) provides deep kernel-level event telemetry for process injection, network connections, file creation time tampering, and WMI events.",
+    "expected": "Sysmon / Sysmon64 service is Running with active configuration",
+    "impact": "Advanced living-off-the-land techniques (e.g. process hollowing, unmanaged PowerShell, reflective DLL injection) cannot be investigated post-intrusion.",
+    "remediation_guidance": "Deploy Sysmon with a vetted configuration (e.g. SwiftOnSecurity or Olaf Hartong Modular configuration): sysmon -i config.xml",
+    "check_type": "services",
+    "check_params": {"service_name": "Sysmon", "optional_check": true},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.8.14.2", "title": "Advanced Endpoint Telemetry & Sysmon"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "AU-12", "title": "Audit Record Generation"}
+    ],
+    "mitre_attack": ["T1059", "T1055"],
+    "references": ["https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon"],
+    "requires_admin": true
+  }
+]

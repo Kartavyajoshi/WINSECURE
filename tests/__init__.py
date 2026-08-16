@@ -1,0 +1,3 @@
+"""
+WinSecure Test Suite Package
+"""

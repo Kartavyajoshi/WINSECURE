@@ -1,0 +1,21 @@
+[
+  {
+    "id": "WS-TSK-001",
+    "title": "Scheduled Task Executing from User-Writable Temp Directory",
+    "category": "Scheduled Tasks",
+    "severity": "High",
+    "description": "Scheduled tasks executing binaries from %TEMP%, %APPDATA%, or %PUBLIC% represent potential persistence or privilege escalation mechanisms.",
+    "expected": "Tasks execute from protected system directories (C:\\Windows, C:\\Program Files)",
+    "impact": "Adversaries can overwrite or plant malicious payloads triggered on scheduled task runs.",
+    "remediation_guidance": "Inspect and reconfigure task actions using Task Scheduler (taskschd.msc) or Unregister-ScheduledTask.",
+    "check_type": "tasks",
+    "check_params": {"check": "writable_task_paths"},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.2", "title": "Scheduled Task Integrity"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SI-4", "title": "Information System Monitoring"}
+    ],
+    "mitre_attack": ["T1053.005"],
+    "references": ["https://learn.microsoft.com/en-us/windows/win32/taskschd/about-the-task-scheduler"],
+    "requires_admin": true
+  }
+]

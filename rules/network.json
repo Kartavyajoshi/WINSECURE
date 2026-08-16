@@ -1,0 +1,26 @@
+[
+  {
+    "id": "WS-NET-001",
+    "title": "LLMNR Name Resolution is Enabled (Poisoning Exposure)",
+    "category": "Network",
+    "severity": "High",
+    "description": "Link-Local Multicast Name Resolution (LLMNR) allows fallback name resolution via broadcast, enabling Responder/MitM credential capture.",
+    "expected": "EnableMulticast = 0",
+    "impact": "Adversaries on the local subnet can spoof name resolution responses and capture NetNTLMv2 password hashes.",
+    "remediation_guidance": "Disable LLMNR: Set-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient' -Name 'EnableMulticast' -Value 0",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient",
+      "value": "EnableMulticast",
+      "expected": 0
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.15.1", "title": "Turn off multicast name resolution"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SC-8", "title": "Transmission Confidentiality and Integrity"}
+    ],
+    "mitre_attack": ["T1557.001"],
+    "references": ["https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/bb726985(v=technet.10)"],
+    "requires_admin": true
+  }
+]

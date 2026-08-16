@@ -1,0 +1,141 @@
+{
+  "registry": {
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System": {
+      "EnableLUA": 0,
+      "ConsentPromptBehaviorAdmin": 0,
+      "PromptOnSecureDesktop": 0
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa": {
+      "RunAsPPL": 0,
+      "LmCompatibilityLevel": 1,
+      "NoLMHash": 0,
+      "RestrictAnonymous": 0
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest": {
+      "UseLogonCredential": 1
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager": {
+      "SafeDllSearchMode": 0
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters": {
+      "SMB1": 1,
+      "RequireSecuritySignature": 0
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters": {
+      "AllowInsecureGuestAuth": 1
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server": {
+      "fDenyTSConnections": 0
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp": {
+      "UserAuthentication": 0,
+      "MinEncryptionLevel": 1
+    },
+    "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging": {
+      "EnableScriptBlockLogging": 0
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit": {
+      "ProcessCreationIncludeCmdLine_Enabled": 0
+    },
+    "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient": {
+      "EnableMulticast": 1
+    },
+    "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System": {
+      "EnableSmartScreen": 0
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity": {
+      "Enabled": 0
+    },
+    "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\LAPS": {
+      "BackupDirectory": 0
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management": {
+      "FeatureSettingsOverride": 1
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\TLS 1.0\\Client": {
+      "Enabled": 1
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\Parameters": {
+      "SupportedEncryptionTypes": 7
+    },
+    "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge": {
+      "SmartScreenEnabled": 0
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Services\\LDAP": {
+      "LDAPClientIntegrity": 0
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Services\\Netlogon\\Parameters": {
+      "RequireSignOrSeal": 0
+    }
+  },
+  "defender": {
+    "Status": {
+      "AntivirusEnabled": false,
+      "RealTimeProtectionEnabled": false,
+      "BehaviorMonitorEnabled": false,
+      "CloudProtectionLevel": 0,
+      "AntivirusSignatureAge": 28
+    },
+    "Preferences": {
+      "PUAProtection": 0,
+      "ExclusionPath": ["C:\\", "C:\\Temp"],
+      "AttackSurfaceReductionRules_Actions": []
+    }
+  },
+  "firewall": {
+    "Profiles": [
+      {"Name": "Domain", "Enabled": false, "DefaultInboundAction": "Allow", "DefaultOutboundAction": "Allow"},
+      {"Name": "Private", "Enabled": false, "DefaultInboundAction": "Allow", "DefaultOutboundAction": "Allow"},
+      {"Name": "Public", "Enabled": false, "DefaultInboundAction": "Allow", "DefaultOutboundAction": "Allow"}
+    ]
+  },
+  "accounts": {
+    "Users": [
+      {"Name": "Administrator", "Enabled": true},
+      {"Name": "Guest", "Enabled": true}
+    ],
+    "Administrators": [{"Name": "Administrator"}, {"Name": "User1"}, {"Name": "User2"}, {"Name": "TempAdmin"}],
+    "lockout_threshold": 0
+  },
+  "services": {
+    "services": [
+      {"Name": "InsecureSvc", "DisplayName": "Insecure Service", "State": "Running", "PathName": "C:\\Program Files\\Insecure App\\service.exe"},
+      {"Name": "AppIDSvc", "DisplayName": "Application Identity", "State": "Stopped", "StartMode": "Disabled", "PathName": "C:\\Windows\\system32\\svchost.exe -k LocalServiceNetworkRestricted"},
+      {"Name": "Spooler", "DisplayName": "Print Spooler", "State": "Running", "StartMode": "Auto", "PathName": "C:\\Windows\\System32\\spoolsv.exe"}
+    ]
+  },
+  "audit": {
+    "subcategories": {
+      "Process Creation": {"category": "Detailed Tracking", "setting": "No Auditing"},
+      "Logon": {"category": "Logon/Logoff", "setting": "No Auditing"}
+    }
+  },
+  "bitlocker": {
+    "volumes": [
+      {"MountPoint": "C:", "VolumeType": "OperatingSystem", "ProtectionStatus": 0, "EncryptionMethod": "None"}
+    ]
+  },
+  "powershell": {
+    "execution_policy": {"LocalMachine": "Unrestricted"},
+    "clm_state": "FullLanguage"
+  },
+  "wmi": {
+    "secure_boot": false,
+    "tpm_present": false,
+    "hypervisor_present": false,
+    "OperatingSystem": {"Caption": "Microsoft Windows 10 Home", "BuildNumber": "19041", "Version": "10.0.19041"}
+  },
+  "eventlogs": {
+    "Security": {"MaximumSizeInBytes": 20971520}
+  },
+  "updates": {
+    "PendingReboot": true,
+    "RecentHotfixes": []
+  },
+  "software": {
+    "installed_software": [{"name": "Adobe Flash Player 32", "version": "32.0", "vendor": "Adobe"}]
+  },
+  "tasks": {
+    "tasks": [{"name": "SuspiciousTask", "action": "C:\\Users\\Public\\temp.exe", "run_as": "SYSTEM"}]
+  }
+}

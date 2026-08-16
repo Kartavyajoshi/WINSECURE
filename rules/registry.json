@@ -1,0 +1,99 @@
+[
+  {
+    "id": "WS-REG-001",
+    "title": "LSA Protection (RunAsPPL) is Disabled (Mimikatz Vulnerable)",
+    "category": "Registry",
+    "severity": "High",
+    "description": "Configuring LSASS as a Protected Process Light (PPL) prevents non-protected administrative processes from dumping credentials from memory.",
+    "expected": "RunAsPPL = 1 or 2",
+    "impact": "Credential-dumping utilities (e.g. Mimikatz, procdump) can easily read plaintext passwords and NTLM hashes from LSASS memory.",
+    "remediation_guidance": "Enable LSA Protection: Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name 'RunAsPPL' -Value 1",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "value": "RunAsPPL",
+      "allowed": [1, 2]
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.8.27.1", "title": "Configuring LSASS to run as a protected process"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "IA-5", "title": "Authenticator Management"},
+      {"framework": "Microsoft Security Baseline", "version": "Win11-23H2", "control_id": "MS-LSA-01", "title": "LSA Protected Process Light"}
+    ],
+    "mitre_attack": ["T1003.001"],
+    "references": ["https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/configuring-additional-lsa-protection"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-REG-002",
+    "title": "WDigest Plaintext Credential Caching is Enabled",
+    "category": "Registry",
+    "severity": "Critical",
+    "description": "WDigest provider caches cleartext credentials in LSASS memory if UseLogonCredential is set to 1.",
+    "expected": "UseLogonCredential = 0",
+    "impact": "Cleartext user passwords can be retrieved directly from memory by local administrators.",
+    "remediation_guidance": "Disable WDigest cleartext storage: Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest' -Name 'UseLogonCredential' -Value 0",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest",
+      "value": "UseLogonCredential",
+      "expected": 0
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.8.27.2", "title": "WDigest UseLogonCredential Configuration"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "IA-5(1)", "title": "Password Protection in Memory"}
+    ],
+    "mitre_attack": ["T1003.001"],
+    "references": ["https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/wdigest-authentication"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-REG-003",
+    "title": "LAN Manager (LM) Authentication Level Permits Insecure NTLMv1",
+    "category": "Registry",
+    "severity": "High",
+    "description": "LMCompatibilityLevel must be set to 5 (Send NTLMv2 response only / refuse LM & NTLM) to mitigate offline cracking.",
+    "expected": "LmCompatibilityLevel = 5",
+    "impact": "Legacy LM and NTLMv1 responses transmitted over the network can be cracked in minutes using Rainbow tables.",
+    "remediation_guidance": "Set LmCompatibilityLevel to 5: Set-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name 'LmCompatibilityLevel' -Value 5",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "value": "LmCompatibilityLevel",
+      "min_value": 5
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "2.3.11.7", "title": "Network security: LAN Manager authentication level"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "IA-5", "title": "Authenticator Management"}
+    ],
+    "mitre_attack": ["T1557.001"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/network-security-lan-manager-authentication-level"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-REG-004",
+    "title": "Safe DLL Search Mode is Disabled (DLL Hijacking Risk)",
+    "category": "Registry",
+    "severity": "Medium",
+    "description": "Safe DLL Search Mode rearranges the search order so the current directory is checked after system directories.",
+    "expected": "SafeDllSearchMode = 1",
+    "impact": "Adversaries placing malicious DLLs in current working directories can hijack legitimate application load sequences.",
+    "remediation_guidance": "Set-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager' -Name 'SafeDllSearchMode' -Value 1",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Control\\Session Manager",
+      "value": "SafeDllSearchMode",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.8.27.3", "title": "Safe DLL search mode"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SI-16", "title": "Memory Protection"}
+    ],
+    "mitre_attack": ["T1574.001"],
+    "references": ["https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order"],
+    "requires_admin": true
+  }
+]

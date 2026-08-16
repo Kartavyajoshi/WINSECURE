@@ -1,0 +1,96 @@
+{
+  "framework": "NIST SP 800-53",
+  "version": "Rev 5",
+  "description": "NIST Special Publication 800-53 Revision 5 Security and Privacy Controls for Federal Information Systems",
+  "url": "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final",
+  "controls": [
+    {
+      "id": "AC-2",
+      "title": "Account Management",
+      "description": "Manage information system accounts, disable guest accounts, and audit account life cycle.",
+      "profile": "Moderate",
+      "url": "https://csrc.nist.gov/projects/cprt/catalogs#/cprt/framework/nist/sp800-53/r5",
+      "rules": ["WS-ACC-001", "WS-ACC-002"]
+    },
+    {
+      "id": "AC-6",
+      "title": "Least Privilege",
+      "description": "Employ the principle of least privilege, allowing only authorized accesses for users and processes.",
+      "profile": "Moderate",
+      "url": "https://csrc.nist.gov/projects/cprt/catalogs#/cprt/framework/nist/sp800-53/r5",
+      "rules": ["WS-UAC-001", "WS-UAC-002", "WS-UAC-003", "WS-PRIV-001"]
+    },
+    {
+      "id": "AC-7",
+      "title": "Unsuccessful Logon Attempts",
+      "description": "Enforce a limit of consecutive invalid logon attempts by a user.",
+      "profile": "Moderate",
+      "url": "https://csrc.nist.gov/projects/cprt/catalogs#/cprt/framework/nist/sp800-53/r5",
+      "rules": ["WS-ACC-003"]
+    },
+    {
+      "id": "AC-17",
+      "title": "Remote Access",
+      "description": "Establish and document usage restrictions, configuration, and connection requirements for remote access.",
+      "profile": "Moderate",
+      "url": "https://csrc.nist.gov/projects/cprt/catalogs#/cprt/framework/nist/sp800-53/r5",
+      "rules": ["WS-RDP-001", "WS-RDP-002"]
+    },
+    {
+      "id": "AU-2",
+      "title": "Event Logging",
+      "description": "Identify that the system can audit organization-defined events including process creation and logons.",
+      "profile": "Moderate",
+      "url": "https://csrc.nist.gov/projects/cprt/catalogs#/cprt/framework/nist/sp800-53/r5",
+      "rules": ["WS-AUD-001", "WS-AUD-003", "WS-PS-001"]
+    },
+    {
+      "id": "AU-12",
+      "title": "Audit Record Generation",
+      "description": "Provide audit record generation capability for the auditable events with command line detail.",
+      "profile": "Moderate",
+      "url": "https://csrc.nist.gov/projects/cprt/catalogs#/cprt/framework/nist/sp800-53/r5",
+      "rules": ["WS-AUD-002"]
+    },
+    {
+      "id": "CM-7",
+      "title": "Least Functionality",
+      "description": "Configure systems to provide only essential capabilities and prohibit unneeded protocols like SMBv1.",
+      "profile": "Moderate",
+      "url": "https://csrc.nist.gov/projects/cprt/catalogs#/cprt/framework/nist/sp800-53/r5",
+      "rules": ["WS-SMB-001", "WS-DEF-004", "WS-PS-002", "WS-SVC-001"]
+    },
+    {
+      "id": "IA-5",
+      "title": "Authenticator Management",
+      "description": "Protect authenticators and passwords in memory and in transit.",
+      "profile": "Moderate",
+      "url": "https://csrc.nist.gov/projects/cprt/catalogs#/cprt/framework/nist/sp800-53/r5",
+      "rules": ["WS-REG-001", "WS-REG-002", "WS-REG-003"]
+    },
+    {
+      "id": "SC-7",
+      "title": "Boundary Protection",
+      "description": "Monitor and control communications at external boundary and key internal boundaries via firewall.",
+      "profile": "Moderate",
+      "url": "https://csrc.nist.gov/projects/cprt/catalogs#/cprt/framework/nist/sp800-53/r5",
+      "rules": ["WS-FW-001", "WS-FW-002", "WS-FW-003", "WS-FW-004"]
+    },
+    {
+      "id": "SC-28",
+      "title": "Protection of Information at Rest",
+      "description": "Protect the confidentiality and integrity of information at rest using cryptographic volume encryption.",
+      "profile": "Moderate",
+      "url": "https://csrc.nist.gov/projects/cprt/catalogs#/cprt/framework/nist/sp800-53/r5",
+      "rules": ["WS-ENC-001"]
+    },
+    {
+      "id": "SI-3",
+      "title": "Malicious Code Protection",
+      "description": "Employ malicious code protection mechanisms at system entry and exit points.",
+      "profile": "Moderate",
+      "url": "https://csrc.nist.gov/projects/cprt/catalogs#/cprt/framework/nist/sp800-53/r5",
+      "rules": ["WS-DEF-001", "WS-DEF-002", "WS-DEF-003", "WS-DEF-005", "WS-SS-001"]
+    }
+  ]
+}

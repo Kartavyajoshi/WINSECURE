@@ -1,0 +1,15 @@
+# Include package documentation and license
+include README.md
+include LICENSE
+include pyproject.toml
+
+# Include core winsecure templates and rules
+recursive-include winsecure *.json *.css *.js *.html
+
+# Exclude website file, tests, and local reports from pip package distributions
+exclude index.html
+recursive-exclude tests *
+recursive-exclude benchmarks *
+recursive-exclude fixtures *
+recursive-exclude WinSecure-Report *
+global-exclude *.py[cod] __pycache__ *.so *.dylib *.db

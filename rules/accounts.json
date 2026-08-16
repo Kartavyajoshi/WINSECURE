@@ -1,0 +1,59 @@
+[
+  {
+    "id": "WS-ACC-001",
+    "title": "Built-in Guest Account is Enabled",
+    "category": "Accounts",
+    "severity": "High",
+    "description": "The built-in Guest account allows unauthenticated access to the local machine and network shares.",
+    "expected": "Guest Account Enabled = False",
+    "impact": "Anonymous users or network attackers can authenticate without a password.",
+    "remediation_guidance": "Disable Guest account: Disable-LocalUser -Name 'Guest' or net user Guest /active:no",
+    "check_type": "accounts",
+    "check_params": {"check": "guest_disabled"},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "2.3.1.1", "title": "Ensure 'Accounts: Guest account status' is set to 'Disabled'"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "AC-2(2)", "title": "Removal of Temporary/Guest Accounts"}
+    ],
+    "mitre_attack": ["T1078.001"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/accounts-guest-account-status"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-ACC-002",
+    "title": "Built-in Administrator Account is Active Without Renaming",
+    "category": "Accounts",
+    "severity": "Medium",
+    "description": "The well-known SID (RID 500) Administrator account is heavily targeted by automated credential-stuffing and brute-force attacks.",
+    "expected": "Administrator Account disabled or renamed",
+    "impact": "Attackers can perform targeted password brute-forcing against the known username 'Administrator'.",
+    "remediation_guidance": "Disable built-in Administrator: Disable-LocalUser -Name 'Administrator' and use dedicated administrative accounts with UAC.",
+    "check_type": "accounts",
+    "check_params": {"check": "admin_disabled_or_renamed"},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "2.3.1.2", "title": "Ensure 'Accounts: Administrator account status' is set to 'Disabled'"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "IA-2", "title": "Identification and Authentication"}
+    ],
+    "mitre_attack": ["T1078.001"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/accounts-administrator-account-status"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-ACC-003",
+    "title": "Account Lockout Threshold is Not Configured (Brute-Force Vulnerable)",
+    "category": "Accounts",
+    "severity": "High",
+    "description": "Account lockout threshold determines how many consecutive failed logon attempts are permitted before locking an account.",
+    "expected": "Lockout threshold between 3 and 5 failed attempts",
+    "impact": "Attackers can conduct unlimited online password guessing and dictionary attacks without triggering lockouts.",
+    "remediation_guidance": "Configure lockout threshold: net accounts /lockoutthreshold:5 /lockoutduration:15 /lockoutwindow:15",
+    "check_type": "accounts",
+    "check_params": {"check": "lockout_threshold", "min": 1, "max": 10},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "1.2.1", "title": "Ensure 'Account lockout threshold' is set to '5 or fewer invalid logon attempts'"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "AC-7", "title": "Unsuccessful Logon Attempts"}
+    ],
+    "mitre_attack": ["T1110.001"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/account-lockout-threshold"],
+    "requires_admin": true
+  }
+]

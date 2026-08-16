@@ -1,0 +1,75 @@
+[
+  {
+    "id": "WS-SMB-001",
+    "title": "SMBv1 Legacy Protocol is Enabled",
+    "category": "SMB",
+    "severity": "Critical",
+    "description": "SMBv1 lacks modern security protections and contains critical vulnerabilities exploited by EternalBlue, WannaCry, and NotPetya.",
+    "expected": "SMB1 = 0 or Disabled",
+    "impact": "Remote unauthenticated code execution and lateral movement via legacy protocol vulnerabilities.",
+    "remediation_guidance": "Disable SMBv1: Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol or Set-SmbServerConfiguration -EnableSMB1Protocol $false",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters",
+      "value": "SMB1",
+      "expected": 0
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.4.1", "title": "Ensure SMBv1 protocol is disabled"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "CM-7", "title": "Least Functionality"},
+      {"framework": "Microsoft Security Baseline", "version": "Win11-23H2", "control_id": "MS-SMB-01", "title": "Disable SMBv1"}
+    ],
+    "mitre_attack": ["T1210"],
+    "references": ["https://learn.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-SMB-002",
+    "title": "SMB Server Packet Signing is Not Required",
+    "category": "SMB",
+    "severity": "High",
+    "description": "SMB signing prevents man-in-the-middle (MitM) attacks, SMB relay attacks, and session hijacking.",
+    "expected": "RequireSecuritySignature = 1",
+    "impact": "Adversaries performing ARP spoofing or LLMNR poisoning can intercept or relay SMB sessions to gain unauthorized access.",
+    "remediation_guidance": "Set-SmbServerConfiguration -RequireSecuritySignature $true -Force",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters",
+      "value": "RequireSecuritySignature",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "2.3.8.1", "title": "Ensure 'Microsoft network server: Digitally sign communications (always)' is set to 'Enabled'"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SC-8", "title": "Transmission Confidentiality and Integrity"}
+    ],
+    "mitre_attack": ["T1557.001"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/microsoft-network-server-digitally-sign-communications-always"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-SMB-003",
+    "title": "Insecure Guest Authentication Allowed on SMB Client",
+    "category": "SMB",
+    "severity": "Medium",
+    "description": "Insecure guest logons allow unauthenticated access to rogue SMB file servers without credentials.",
+    "expected": "AllowInsecureGuestAuth = 0",
+    "impact": "Malicious network actors can host deceptive SMB shares to deliver malware to connecting clients.",
+    "remediation_guidance": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters' -Name 'AllowInsecureGuestAuth' -Value 0",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters",
+      "value": "AllowInsecureGuestAuth",
+      "expected": 0
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.4.2", "title": "Enable insecure guest logons"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "AC-3", "title": "Access Enforcement"}
+    ],
+    "mitre_attack": ["T1187"],
+    "references": ["https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/guest-access-in-smb2-is-disabled-by-default"],
+    "requires_admin": true
+  }
+]

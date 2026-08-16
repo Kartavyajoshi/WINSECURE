@@ -1,0 +1,46 @@
+[
+  {
+    "id": "WS-PS-001",
+    "title": "PowerShell Script Block Logging is Disabled",
+    "category": "PowerShell",
+    "severity": "High",
+    "description": "Script Block Logging captures complete, de-obfuscated script code blocks into Event ID 4104 for threat detection and incident response.",
+    "expected": "EnableScriptBlockLogging = 1",
+    "impact": "Living-off-the-land PowerShell attacks, encoded download cradles, and memory injection cannot be investigated post-incident.",
+    "remediation_guidance": "Enable Script Block Logging via GPO or Set-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging' -Name 'EnableScriptBlockLogging' -Value 1",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging",
+      "value": "EnableScriptBlockLogging",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.60.1", "title": "Turn on PowerShell Script Block Logging"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "AU-2", "title": "Event Logging"},
+      {"framework": "Microsoft Security Baseline", "version": "Win11-23H2", "control_id": "MS-PS-01", "title": "Script Block Logging"}
+    ],
+    "mitre_attack": ["T1059.001"],
+    "references": ["https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_logging_windows"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-PS-002",
+    "title": "PowerShell Execution Policy is Set to Unrestricted or Bypass",
+    "category": "PowerShell",
+    "severity": "Medium",
+    "description": "Execution Policy provides basic defense against accidental execution of unvetted scripts downloaded from the Internet.",
+    "expected": "ExecutionPolicy in [RemoteSigned, Restricted, AllSigned]",
+    "impact": "Downloaded untrusted scripts can run without digital signature verification or zone checks.",
+    "remediation_guidance": "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine",
+    "check_type": "powershell",
+    "check_params": {"check": "execution_policy", "disallowed": ["Unrestricted", "Bypass"]},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.60.2", "title": "Turn on Script Execution"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "CM-7", "title": "Least Functionality"}
+    ],
+    "mitre_attack": ["T1059.001"],
+    "references": ["https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies"],
+    "requires_admin": true
+  }
+]

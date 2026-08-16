@@ -1,0 +1,21 @@
+[
+  {
+    "id": "WS-APP-001",
+    "title": "Application Whitelisting / AppLocker Service (AppIDSvc) is Disabled",
+    "category": "Application Control",
+    "severity": "High",
+    "description": "The Application Identity service (AppIDSvc) determines and verifies the identity of applications for AppLocker and Windows Defender Application Control (WDAC).",
+    "expected": "AppIDSvc StartType = Auto or Running",
+    "impact": "Unvetted third-party executables and living-off-the-land scripts can execute without application control policy enforcement.",
+    "remediation_guidance": "Enable and start the Application Identity service: Set-Service -Name 'AppIDSvc' -StartupType Automatic; Start-Service -Name 'AppIDSvc'",
+    "check_type": "services",
+    "check_params": {"service_name": "AppIDSvc", "expected_start": "Auto"},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.4.1", "title": "Application Identity Service Enforcement"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "CM-7(5)", "title": "Authorized Software / Whitelisting"}
+    ],
+    "mitre_attack": ["T1204.002", "T1059"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/application-security/application-control/windows-defender-application-control/applocker/applocker-overview"],
+    "requires_admin": true
+  }
+]

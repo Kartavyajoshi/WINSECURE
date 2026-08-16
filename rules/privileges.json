@@ -1,0 +1,21 @@
+[
+  {
+    "id": "WS-PRIV-001",
+    "title": "Excessive Local Administrators Detected",
+    "category": "Privileges",
+    "severity": "Medium",
+    "description": "Local Administrator group should only contain designated IT administration accounts to limit lateral movement.",
+    "expected": "Local Administrators count <= 2",
+    "impact": "Excessive administrative accounts expand attack surface and credential exposure on the endpoint.",
+    "remediation_guidance": "Remove unnecessary users from the local Administrators group: Remove-LocalGroupMember -Group 'Administrators' -Member <username>",
+    "check_type": "accounts",
+    "check_params": {"check": "admin_count", "max": 2},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "2.2.1", "title": "Restrict local Administrator group membership"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "AC-6", "title": "Least Privilege"}
+    ],
+    "mitre_attack": ["T1078.003"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/identity-protection/access-control/local-accounts"],
+    "requires_admin": true
+  }
+]

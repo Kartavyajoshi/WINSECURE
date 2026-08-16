@@ -1,0 +1,27 @@
+[
+  {
+    "id": "WS-VBS-001",
+    "title": "Virtualization-Based Security (VBS) / Hypervisor-Enforced Code Integrity (HVCI) is Disabled",
+    "category": "Virtualization Security",
+    "severity": "High",
+    "description": "VBS uses hardware virtualization features to create an isolated subsystem that hosts security solutions including HVCI and Credential Guard, blocking kernel-mode tampering.",
+    "expected": "HVCI / Memory Integrity Enabled = 1",
+    "impact": "Adversaries exploiting vulnerable kernel drivers (BYOVD attacks) can execute unsigned code directly in ring 0.",
+    "remediation_guidance": "Enable Memory Integrity / HVCI in Windows Security Settings or set HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity\\Enabled = 1",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity",
+      "value": "Enabled",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.8.8.1", "title": "Enable Virtualization Based Security"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SI-16", "title": "Memory Protection"},
+      {"framework": "Microsoft Security Baseline", "version": "Win11-23H2", "control_id": "MS-VBS-01", "title": "Enforce Hypervisor-Enforced Code Integrity"}
+    ],
+    "mitre_attack": ["T1562.001", "T1068"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/hardware-security/enable-virtualization-based-protection-of-code-integrity"],
+    "requires_admin": true
+  }
+]

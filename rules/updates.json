@@ -1,0 +1,21 @@
+[
+  {
+    "id": "WS-UPD-001",
+    "title": "Pending System Reboot Required for Security Updates",
+    "category": "Updates",
+    "severity": "Medium",
+    "description": "Pending reboots indicate that installed security patches and kernel updates have not yet taken effect.",
+    "expected": "PendingReboot = False",
+    "impact": "The system remains vulnerable to patched exploits until the system is restarted.",
+    "remediation_guidance": "Restart the system promptly to complete security update installation: Restart-Computer",
+    "check_type": "updates",
+    "check_params": {"check": "pending_reboot", "expected": false},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.8.1", "title": "Configure Automatic Updates"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SI-2", "title": "Flaw Remediation"}
+    ],
+    "mitre_attack": ["T1190"],
+    "references": ["https://learn.microsoft.com/en-us/windows/deployment/update/"],
+    "requires_admin": false
+  }
+]

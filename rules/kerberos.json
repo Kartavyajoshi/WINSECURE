@@ -1,0 +1,26 @@
+[
+  {
+    "id": "WS-KERB-001",
+    "title": "Kerberos DES and RC4 Weak Encryption Types are Permitted",
+    "category": "Authentication",
+    "severity": "Medium",
+    "description": "DES and RC4 encryption types in Kerberos are cryptographically vulnerable and should be disallowed in favor of AES-128 and AES-256.",
+    "expected": "SupportedEncryptionTypes does not allow DES or RC4 (Bitmask excludes 0x1, 0x2, 0x4)",
+    "impact": "Kerberoasting and ticket-forgery attacks (Silver/Golden Ticket) can crack service ticket hashes significantly faster using RC4.",
+    "remediation_guidance": "Enforce AES Kerberos encryption: Set-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\Parameters' -Name 'SupportedEncryptionTypes' -Value 0x7ffffff8",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\Parameters",
+      "value": "SupportedEncryptionTypes",
+      "expected_mask": 0x7ffffff8
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "2.3.11.5", "title": "Network Security: Configure encryption types allowed for Kerberos"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "IA-5", "title": "Authenticator Management"}
+    ],
+    "mitre_attack": ["T1558.003"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/network-security-configure-encryption-types-allowed-for-kerberos"],
+    "requires_admin": true
+  }
+]

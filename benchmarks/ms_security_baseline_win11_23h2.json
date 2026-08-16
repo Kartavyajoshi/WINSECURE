@@ -1,0 +1,64 @@
+{
+  "framework": "Microsoft Windows Security Baseline",
+  "version": "Win11-23H2",
+  "description": "Microsoft Windows Security Baseline for Windows 11 version 23H2 / SCT",
+  "url": "https://learn.microsoft.com/en-us/windows/security/operating-system-security/device-management/windows-security-configuration-framework/windows-security-baselines",
+  "controls": [
+    {
+      "id": "MS-DEF-01",
+      "title": "Defender Real-Time & Cloud Protection Baseline",
+      "description": "Microsoft Defender Antivirus must have Real-Time Protection and Cloud Telemetry enabled.",
+      "profile": "Enterprise",
+      "url": "https://learn.microsoft.com/en-us/defender-endpoint/",
+      "rules": ["WS-DEF-001", "WS-DEF-002", "WS-DEF-003"]
+    },
+    {
+      "id": "MS-FW-01",
+      "title": "Windows Firewall Profile Baselines",
+      "description": "Domain, Private, and Public firewall profiles must be active with default block inbound.",
+      "profile": "Enterprise",
+      "url": "https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/",
+      "rules": ["WS-FW-001", "WS-FW-002", "WS-FW-003", "WS-FW-004"]
+    },
+    {
+      "id": "MS-LSA-01",
+      "title": "LSASS Protected Process Light (PPL)",
+      "description": "LSA must execute as Protected Process Light to defend against credential dumping.",
+      "profile": "Enterprise",
+      "url": "https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/configuring-additional-lsa-protection",
+      "rules": ["WS-REG-001", "WS-REG-002"]
+    },
+    {
+      "id": "MS-UAC-01",
+      "title": "UAC Admin Approval Mode & Secure Desktop",
+      "description": "Enable UAC Admin Approval Mode and Secure Desktop prompts.",
+      "profile": "Enterprise",
+      "url": "https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/",
+      "rules": ["WS-UAC-001", "WS-UAC-002", "WS-UAC-003"]
+    },
+    {
+      "id": "MS-SMB-01",
+      "title": "SMB Security & Protocol Hardening",
+      "description": "Disable SMBv1 and enforce SMB packet signing.",
+      "profile": "Enterprise",
+      "url": "https://learn.microsoft.com/en-us/windows-server/storage/file-server/",
+      "rules": ["WS-SMB-001", "WS-SMB-002"]
+    },
+    {
+      "id": "MS-AUD-01",
+      "title": "Advanced Audit Policy Baseline",
+      "description": "Enforce process creation command line auditing and logon event auditing.",
+      "profile": "Enterprise",
+      "url": "https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/",
+      "rules": ["WS-AUD-001", "WS-AUD-002", "WS-AUD-003"]
+    },
+    {
+      "id": "MS-PS-01",
+      "title": "PowerShell Script Block Logging Baseline",
+      "description": "Enable PowerShell script block logging to record script execution in Event 4104.",
+      "profile": "Enterprise",
+      "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_logging_windows",
+      "rules": ["WS-PS-001"]
+    }
+  ]
+}

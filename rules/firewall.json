@@ -1,0 +1,79 @@
+[
+  {
+    "id": "WS-FW-001",
+    "title": "Public Firewall Profile is Disabled",
+    "category": "Firewall",
+    "severity": "Critical",
+    "description": "The Windows Firewall Public profile protects the host when connected to untrusted networks (e.g., public Wi-Fi, coffee shops, hotels).",
+    "expected": "Public Profile Enabled = True",
+    "impact": "Unsolicited inbound connections and malicious scanning probes from adjacent hosts on public networks can access local ports.",
+    "remediation_guidance": "Enable Public firewall: Set-NetFirewallProfile -Profile Public -Enabled True",
+    "check_type": "firewall",
+    "check_params": {"profile": "Public", "field": "Enabled", "expected": true},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "9.3.1", "title": "Ensure 'Windows Firewall: Public: Firewall state' is set to 'On'"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SC-7", "title": "Boundary Protection"},
+      {"framework": "DISA STIG Windows 11", "version": "V1R3", "control_id": "WN11-FW-000010", "title": "Public Firewall State"}
+    ],
+    "mitre_attack": ["T1562.004"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-FW-002",
+    "title": "Domain Firewall Profile is Disabled",
+    "category": "Firewall",
+    "severity": "High",
+    "description": "The Windows Firewall Domain profile enforces boundary controls when connected to corporate Active Directory networks.",
+    "expected": "Domain Profile Enabled = True",
+    "impact": "Lateral movement attacks across domain joined endpoints can succeed unrestricted.",
+    "remediation_guidance": "Enable Domain firewall: Set-NetFirewallProfile -Profile Domain -Enabled True",
+    "check_type": "firewall",
+    "check_params": {"profile": "Domain", "field": "Enabled", "expected": true},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "9.1.1", "title": "Ensure 'Windows Firewall: Domain: Firewall state' is set to 'On'"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SC-7", "title": "Boundary Protection"}
+    ],
+    "mitre_attack": ["T1562.004"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-FW-003",
+    "title": "Private Firewall Profile is Disabled",
+    "category": "Firewall",
+    "severity": "High",
+    "description": "The Windows Firewall Private profile enforces rules for private home/work networks.",
+    "expected": "Private Profile Enabled = True",
+    "impact": "Compromised local devices (e.g. smart IoT devices) can probe and exploit the workstation.",
+    "remediation_guidance": "Enable Private firewall: Set-NetFirewallProfile -Profile Private -Enabled True",
+    "check_type": "firewall",
+    "check_params": {"profile": "Private", "field": "Enabled", "expected": true},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "9.2.1", "title": "Ensure 'Windows Firewall: Private: Firewall state' is set to 'On'"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SC-7", "title": "Boundary Protection"}
+    ],
+    "mitre_attack": ["T1562.004"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-FW-004",
+    "title": "Default Inbound Action is Allowed on Public Profile",
+    "category": "Firewall",
+    "severity": "Critical",
+    "description": "Inbound connections on the public profile must default to Block to prevent unsolicited network access.",
+    "expected": "DefaultInboundAction = Block",
+    "impact": "All incoming ports without explicit blocking rules are open by default.",
+    "remediation_guidance": "Set-NetFirewallProfile -Profile Public -DefaultInboundAction Block",
+    "check_type": "firewall",
+    "check_params": {"profile": "Public", "field": "DefaultInboundAction", "expected": "Block"},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "9.3.2", "title": "Public Inbound Connections Blocked"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SC-7(5)", "title": "Deny by Default"}
+    ],
+    "mitre_attack": ["T1562.004"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/"],
+    "requires_admin": true
+  }
+]

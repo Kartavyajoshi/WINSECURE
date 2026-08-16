@@ -1,0 +1,184 @@
+{
+  "framework": "CIS Windows 11 Enterprise",
+  "version": "5.0.1",
+  "description": "CIS Microsoft Windows 11 Enterprise Benchmark v5.0.1 (Level 1 & 2)",
+  "url": "https://www.cisecurity.org/cis-benchmarks/",
+  "controls": [
+    {
+      "id": "1.2.1",
+      "title": "Account Lockout Threshold",
+      "description": "Ensure Account lockout threshold is set to 5 or fewer invalid logon attempts.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-ACC-003"]
+    },
+    {
+      "id": "2.3.1.1",
+      "title": "Guest Account Status",
+      "description": "Ensure Accounts: Guest account status is set to Disabled.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-ACC-001"]
+    },
+    {
+      "id": "2.3.1.2",
+      "title": "Administrator Account Status",
+      "description": "Ensure Accounts: Administrator account status is set to Disabled.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-ACC-002"]
+    },
+    {
+      "id": "2.3.8.1",
+      "title": "SMB Digitally Sign Communications (Server)",
+      "description": "Ensure Microsoft network server: Digitally sign communications (always) is set to Enabled.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-SMB-002"]
+    },
+    {
+      "id": "2.3.11.7",
+      "title": "LAN Manager Authentication Level",
+      "description": "Ensure Network security: LAN Manager authentication level is set to Send NTLMv2 response only.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-REG-003"]
+    },
+    {
+      "id": "2.3.17.1",
+      "title": "UAC Admin Approval Mode",
+      "description": "Ensure User Account Control: Run all administrators in Admin Approval Mode is set to Enabled.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-UAC-001"]
+    },
+    {
+      "id": "2.3.17.2",
+      "title": "UAC Behavior of Elevation Prompt for Admins",
+      "description": "Ensure User Account Control: Behavior of the elevation prompt for administrators is set to Prompt for consent.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-UAC-003"]
+    },
+    {
+      "id": "2.3.17.6",
+      "title": "UAC Switch to Secure Desktop",
+      "description": "Ensure User Account Control: Switch to the secure desktop when prompting for elevation is set to Enabled.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-UAC-002"]
+    },
+    {
+      "id": "9.1.1",
+      "title": "Domain Firewall State",
+      "description": "Ensure Windows Firewall: Domain: Firewall state is set to On.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-FW-002"]
+    },
+    {
+      "id": "9.2.1",
+      "title": "Private Firewall State",
+      "description": "Ensure Windows Firewall: Private: Firewall state is set to On.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-FW-003"]
+    },
+    {
+      "id": "9.3.1",
+      "title": "Public Firewall State",
+      "description": "Ensure Windows Firewall: Public: Firewall state is set to On.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-FW-001"]
+    },
+    {
+      "id": "9.3.2",
+      "title": "Public Firewall Inbound Connections",
+      "description": "Ensure Windows Firewall: Public: Inbound connections is set to Block (default).",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-FW-004"]
+    },
+    {
+      "id": "17.2.1",
+      "title": "Audit Process Creation",
+      "description": "Ensure Audit Process Creation is set to Success and Failure.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-AUD-001"]
+    },
+    {
+      "id": "17.5.1",
+      "title": "Audit Logon",
+      "description": "Ensure Audit Logon is set to Success and Failure.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-AUD-003"]
+    },
+    {
+      "id": "18.4.1",
+      "title": "Disable SMBv1 Protocol",
+      "description": "Ensure SMBv1 protocol driver is disabled.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-SMB-001"]
+    },
+    {
+      "id": "18.8.2.1",
+      "title": "BitLocker OS Drive Encryption",
+      "description": "Ensure BitLocker drive encryption is enabled for the operating system drive.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-ENC-001"]
+    },
+    {
+      "id": "18.8.4.1",
+      "title": "Include Command Line in Process Creation Events",
+      "description": "Ensure Include command line in process creation events is set to Enabled.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-AUD-002"]
+    },
+    {
+      "id": "18.8.27.1",
+      "title": "LSA Protection RunAsPPL",
+      "description": "Ensure Configuring LSASS to run as a protected process is set to Enabled.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-REG-001"]
+    },
+    {
+      "id": "18.9.15.1",
+      "title": "Turn Off Multicast Name Resolution (LLMNR)",
+      "description": "Ensure Turn off multicast name resolution is set to Enabled.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-NET-001"]
+    },
+    {
+      "id": "18.9.46.1",
+      "title": "Defender Antivirus Real-Time Protection",
+      "description": "Ensure Turn on Defender Antivirus real-time protection is set to Enabled.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-DEF-001"]
+    },
+    {
+      "id": "18.9.60.1",
+      "title": "PowerShell Script Block Logging",
+      "description": "Ensure Turn on PowerShell Script Block Logging is set to Enabled.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-PS-001"]
+    },
+    {
+      "id": "18.9.65.1",
+      "title": "RDP Network Level Authentication",
+      "description": "Ensure Require user authentication for remote connections by using Network Level Authentication is set to Enabled.",
+      "profile": "Level 1",
+      "url": "https://www.cisecurity.org/benchmark/microsoft_windows_desktop/",
+      "rules": ["WS-RDP-001"]
+    }
+  ]
+}

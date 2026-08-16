@@ -1,0 +1,117 @@
+[
+  {
+    "id": "WS-DEF-001",
+    "title": "Microsoft Defender Real-Time Protection is Disabled",
+    "category": "Defender",
+    "severity": "Critical",
+    "description": "Microsoft Defender Real-Time Protection monitors system activity and blocks malicious software before it can execute.",
+    "expected": "RealTimeProtectionEnabled = True (1)",
+    "impact": "Malware, ransomware, and unauthorized binaries can execute undetected without pre-execution inspection.",
+    "remediation_guidance": "Enable Defender Real-Time Protection via PowerShell: Set-MpPreference -DisableRealtimeMonitoring $false or Group Policy.",
+    "check_type": "defender",
+    "check_params": {"field": "RealTimeProtectionEnabled", "expected": true},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.46.1", "title": "Turn on Defender Antivirus real-time protection"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SI-3", "title": "Malicious Code Protection"},
+      {"framework": "Microsoft Security Baseline", "version": "Win11-23H2", "control_id": "MS-DEF-RT", "title": "Real-Time Protection Policy"}
+    ],
+    "mitre_attack": ["T1562.001"],
+    "references": ["https://learn.microsoft.com/en-us/defender-endpoint/configure-real-time-protection-microsoft-defender-antivirus"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-DEF-002",
+    "title": "Defender Cloud-Delivered Protection is Disabled",
+    "category": "Defender",
+    "severity": "High",
+    "description": "Cloud-delivered protection enables Defender to rapidly identify emerging zero-day threats using Microsoft Cloud telemetry.",
+    "expected": "CloudProtectionLevel != 0 (Enabled)",
+    "impact": "System is dependent solely on local signature definitions and cannot benefit from real-time cloud threat intelligence.",
+    "remediation_guidance": "Enable cloud protection: Set-MpPreference -MAPSReporting Advanced -SubmitSamplesConsent SendAllSamples.",
+    "check_type": "defender",
+    "check_params": {"field": "CloudProtectionLevel", "not_expected": 0},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.46.2", "title": "Join Microsoft MAPS / Cloud Protection"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SI-3(1)", "title": "Central Management & Threat Feed"}
+    ],
+    "mitre_attack": ["T1562.001"],
+    "references": ["https://learn.microsoft.com/en-us/defender-endpoint/cloud-protection-microsoft-defender-antivirus"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-DEF-003",
+    "title": "Defender Behavior Monitoring is Disabled",
+    "category": "Defender",
+    "severity": "High",
+    "description": "Behavior monitoring tracks process heuristics and blocks suspicious process execution chains.",
+    "expected": "BehaviorMonitorEnabled = True",
+    "impact": "Evasive malware leveraging memory injection or living-off-the-land techniques may bypass static signatures.",
+    "remediation_guidance": "Set-MpPreference -DisableBehaviorMonitoring $false",
+    "check_type": "defender",
+    "check_params": {"field": "BehaviorMonitorEnabled", "expected": true},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.46.3", "title": "Enable Behavior Monitoring"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SI-4", "title": "Information System Monitoring"}
+    ],
+    "mitre_attack": ["T1562.001"],
+    "references": ["https://learn.microsoft.com/en-us/defender-endpoint/behavior-monitoring-antivirus"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-DEF-004",
+    "title": "Potentially Unwanted Application (PUA) Protection is Disabled",
+    "category": "Defender",
+    "severity": "Medium",
+    "description": "PUA protection blocks adware, crypto-miners, and unwanted bundlers that degrade system security.",
+    "expected": "PUAProtection = 1 (Enabled)",
+    "impact": "Users may inadvertently install greyware, keyloggers, or aggressive adware.",
+    "remediation_guidance": "Set-MpPreference -PUAProtection 1",
+    "check_type": "defender",
+    "check_params": {"field": "PUAProtection", "expected": 1},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.46.4", "title": "Configure detection for potentially unwanted applications"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "CM-7", "title": "Least Functionality"}
+    ],
+    "mitre_attack": ["T1562.001"],
+    "references": ["https://learn.microsoft.com/en-us/defender-endpoint/detect-block-potentially-unwanted-apps-microsoft-defender-antivirus"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-DEF-005",
+    "title": "Antivirus Signature Definitions Outdated (> 7 Days)",
+    "category": "Defender",
+    "severity": "High",
+    "description": "Security intelligence definitions must be refreshed daily to protect against active threat campaigns.",
+    "expected": "AntivirusSignatureAge <= 7 days",
+    "impact": "The endpoint cannot detect recent malware variants identified in the past week.",
+    "remediation_guidance": "Update Defender signatures via Update-MpSignature or Windows Update.",
+    "check_type": "defender",
+    "check_params": {"field": "AntivirusSignatureAge", "max_value": 7},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.46.5", "title": "Signature Update Interval"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SI-3(2)", "title": "Automatic Updates"}
+    ],
+    "mitre_attack": ["T1562.001"],
+    "references": ["https://learn.microsoft.com/en-us/defender-endpoint/manage-updates-baselines-microsoft-defender-antivirus"],
+    "requires_admin": false
+  },
+  {
+    "id": "WS-DEF-006",
+    "title": "Dangerous Antivirus Folder/Path Exclusions Detected",
+    "category": "Defender",
+    "severity": "High",
+    "description": "Broad folder exclusions (such as C:\\, C:\\Windows, C:\\Users, or %TEMP%) allow adversaries to drop and execute malware with zero AV scanning.",
+    "expected": "No overly broad exclusions in ExclusionPath",
+    "impact": "Adversaries staging payloads in excluded paths evade detection entirely.",
+    "remediation_guidance": "Review and remove broad exclusions using Remove-MpPreference -ExclusionPath <path>.",
+    "check_type": "defender",
+    "check_params": {"field": "ExclusionPath", "disallowed_patterns": ["C:\\", "C:\\Users", "C:\\Windows", "C:\\Temp", "%temp%"]},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.46.6", "title": "Defender Antivirus Exclusions"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SI-3", "title": "Malicious Code Protection"}
+    ],
+    "mitre_attack": ["T1562.001"],
+    "references": ["https://learn.microsoft.com/en-us/defender-endpoint/configure-extension-file-exclusions-microsoft-defender-antivirus"],
+    "requires_admin": true
+  }
+]

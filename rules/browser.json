@@ -1,0 +1,26 @@
+[
+  {
+    "id": "WS-BRW-001",
+    "title": "Microsoft Edge / Chromium Browser Security Baseline Unenforced",
+    "category": "Browser Security",
+    "severity": "Medium",
+    "description": "Microsoft Edge Enterprise policies enforce SmartScreen download protection, password manager security, and disable obsolete WebRTC IP leakage.",
+    "expected": "Edge SmartScreenEnabled = 1 and PreventBypass = 1",
+    "impact": "Users can bypass malicious site and malware download warnings in the primary web browser.",
+    "remediation_guidance": "Apply Microsoft Edge Enterprise Security Baseline: Set-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Edge' -Name 'SmartScreenEnabled' -Value 1",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SOFTWARE\\Policies\\Microsoft\\Edge",
+      "value": "SmartScreenEnabled",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.20.1", "title": "Microsoft Edge SmartScreen Policy"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SC-18", "title": "Mobile Code Protection"}
+    ],
+    "mitre_attack": ["T1204.001"],
+    "references": ["https://learn.microsoft.com/en-us/deployedge/microsoft-edge-security-browse-safely"],
+    "requires_admin": true
+  }
+]

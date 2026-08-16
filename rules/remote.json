@@ -1,0 +1,51 @@
+[
+  {
+    "id": "WS-RDP-001",
+    "title": "Remote Desktop is Enabled Without Network Level Authentication (NLA)",
+    "category": "Remote Access",
+    "severity": "High",
+    "description": "Network Level Authentication requires connecting clients to authenticate before creating an RDP session, protecting against BlueKeep and DoS.",
+    "expected": "UserAuthentication = 1 (NLA Required)",
+    "impact": "Unauthenticated attackers can exploit pre-authentication RDP vulnerabilities and cause resource exhaustion.",
+    "remediation_guidance": "Require NLA for RDP: Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -Name 'UserAuthentication' -Value 1",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp",
+      "value": "UserAuthentication",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.65.1", "title": "Require user authentication for remote connections by using Network Level Authentication"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "AC-17", "title": "Remote Access"},
+      {"framework": "DISA STIG Windows 11", "version": "V1R3", "control_id": "WN11-CC-000210", "title": "RDP Network Level Authentication"}
+    ],
+    "mitre_attack": ["T1021.001"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/network-security-allow-local-system-to-use-computer-identity-for-ntlm"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-RDP-002",
+    "title": "RDP Encryption Level is Weak",
+    "category": "Remote Access",
+    "severity": "Medium",
+    "description": "RDP sessions should enforce High encryption (128-bit) or FIPS-compliant encryption to protect credentials and screen buffers in transit.",
+    "expected": "MinEncryptionLevel >= 3 (High)",
+    "impact": "Remote desktop session traffic may be eavesdropped on or decrypted on compromised networks.",
+    "remediation_guidance": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -Name 'MinEncryptionLevel' -Value 3",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp",
+      "value": "MinEncryptionLevel",
+      "min_value": 3
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.9.65.2", "title": "Set client connection encryption level"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SC-13", "title": "Cryptographic Protection"}
+    ],
+    "mitre_attack": ["T1021.001"],
+    "references": ["https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/rds-plan-manage-security"],
+    "requires_admin": true
+  }
+]

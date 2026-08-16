@@ -1,0 +1,65 @@
+[
+  {
+    "id": "WS-AUD-001",
+    "title": "Process Creation Auditing is Not Configured",
+    "category": "Audit Policy",
+    "severity": "High",
+    "description": "Auditing process creation events (Event ID 4688) is vital for recording program executions across the OS.",
+    "expected": "Process Creation Audit = Success and Failure",
+    "impact": "Malicious binary and script execution cannot be traced during forensics investigations.",
+    "remediation_guidance": "auditpol /set /subcategory:'Process Creation' /success:enable /failure:enable",
+    "check_type": "auditpol",
+    "check_params": {"subcategory": "Process Creation", "required": "Success and Failure"},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "17.2.1", "title": "Audit Process Creation"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "AU-2", "title": "Event Logging"},
+      {"framework": "DISA STIG Windows 11", "version": "V1R3", "control_id": "WN11-AU-000050", "title": "Audit Process Creation"}
+    ],
+    "mitre_attack": ["T1059"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/audit-process-creation"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-AUD-002",
+    "title": "Process Command-Line Auditing is Disabled",
+    "category": "Audit Policy",
+    "severity": "High",
+    "description": "Including full process command lines in Event 4688 records CLI parameters passed to interpreters (PowerShell, cmd, mshta, certutil).",
+    "expected": "ExecutionProcessCommandLine = 1",
+    "impact": "Living-off-the-land attacks hiding payloads inside command-line flags remain invisible in security logs.",
+    "remediation_guidance": "Enable command line in process events via GPO or Set-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit' -Name 'ProcessCreationIncludeCmdLine_Enabled' -Value 1",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit",
+      "value": "ProcessCreationIncludeCmdLine_Enabled",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.8.4.1", "title": "Include command line in process creation events"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "AU-12", "title": "Audit Record Generation"}
+    ],
+    "mitre_attack": ["T1059"],
+    "references": ["https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/component-updates/command-line-process-auditing"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-AUD-003",
+    "title": "Logon and Logoff Auditing is Incomplete",
+    "category": "Audit Policy",
+    "severity": "High",
+    "description": "Auditing both successful and failed logon attempts (Event 4624/4625) provides detection for unauthorized intrusions and brute force.",
+    "expected": "Logon Audit = Success and Failure",
+    "impact": "Failed authentication attacks and unauthorized remote logons occur silently.",
+    "remediation_guidance": "auditpol /set /subcategory:'Logon' /success:enable /failure:enable",
+    "check_type": "auditpol",
+    "check_params": {"subcategory": "Logon", "required": "Success and Failure"},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "17.5.1", "title": "Audit Logon"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "AU-2", "title": "Event Logging"}
+    ],
+    "mitre_attack": ["T1078"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/audit-logon"],
+    "requires_admin": true
+  }
+]

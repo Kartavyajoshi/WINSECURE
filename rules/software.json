@@ -1,0 +1,21 @@
+[
+  {
+    "id": "WS-SW-001",
+    "title": "Outdated or End-of-Life Software Detected (Vulnerability Risk)",
+    "category": "Installed Software",
+    "severity": "Medium",
+    "description": "Installed applications matching known deprecated or unsupported software lines present unpatched attack surfaces.",
+    "expected": "All installed software updated to supported versions",
+    "impact": "Known CVE vulnerabilities in legacy software can be exploited for initial access or code execution.",
+    "remediation_guidance": "Uninstall obsolete applications or upgrade to the latest supported vendor release.",
+    "check_type": "software",
+    "check_params": {"check": "vulnerable_software_patterns"},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "2.1.1", "title": "Maintain Software Inventory"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "CM-8", "title": "Information System Component Inventory"}
+    ],
+    "mitre_attack": ["T1190"],
+    "references": ["https://learn.microsoft.com/en-us/windows/client-management/manage-apps-with-intune"],
+    "requires_admin": false
+  }
+]

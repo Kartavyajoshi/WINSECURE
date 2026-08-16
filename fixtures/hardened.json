@@ -1,0 +1,145 @@
+{
+  "registry": {
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System": {
+      "EnableLUA": 1,
+      "ConsentPromptBehaviorAdmin": 2,
+      "PromptOnSecureDesktop": 1
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa": {
+      "RunAsPPL": 1,
+      "LmCompatibilityLevel": 5,
+      "NoLMHash": 1,
+      "RestrictAnonymous": 1
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest": {
+      "UseLogonCredential": 0
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager": {
+      "SafeDllSearchMode": 1
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters": {
+      "SMB1": 0,
+      "RequireSecuritySignature": 1
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters": {
+      "AllowInsecureGuestAuth": 0
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server": {
+      "fDenyTSConnections": 1
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp": {
+      "UserAuthentication": 1,
+      "MinEncryptionLevel": 3
+    },
+    "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging": {
+      "EnableScriptBlockLogging": 1
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit": {
+      "ProcessCreationIncludeCmdLine_Enabled": 1
+    },
+    "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient": {
+      "EnableMulticast": 0
+    },
+    "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System": {
+      "EnableSmartScreen": 1
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity": {
+      "Enabled": 1
+    },
+    "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\LAPS": {
+      "BackupDirectory": 1
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management": {
+      "FeatureSettingsOverride": 0
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\TLS 1.0\\Client": {
+      "Enabled": 0
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\Parameters": {
+      "SupportedEncryptionTypes": 2147483640
+    },
+    "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge": {
+      "SmartScreenEnabled": 1
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Services\\LDAP": {
+      "LDAPClientIntegrity": 2
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Services\\Netlogon\\Parameters": {
+      "RequireSignOrSeal": 1
+    }
+  },
+  "defender": {
+    "Status": {
+      "AntivirusEnabled": true,
+      "RealTimeProtectionEnabled": true,
+      "BehaviorMonitorEnabled": true,
+      "IoavProtectionEnabled": true,
+      "ScriptScanningEnabled": true,
+      "CloudProtectionLevel": 2,
+      "AntivirusSignatureAge": 1
+    },
+    "Preferences": {
+      "PUAProtection": 1,
+      "ExclusionPath": [],
+      "AttackSurfaceReductionRules_Actions": [1, 1, 1, 1]
+    }
+  },
+  "firewall": {
+    "Profiles": [
+      {"Name": "Domain", "Enabled": true, "DefaultInboundAction": "Block", "DefaultOutboundAction": "Allow"},
+      {"Name": "Private", "Enabled": true, "DefaultInboundAction": "Block", "DefaultOutboundAction": "Allow"},
+      {"Name": "Public", "Enabled": true, "DefaultInboundAction": "Block", "DefaultOutboundAction": "Allow"}
+    ]
+  },
+  "accounts": {
+    "Users": [
+      {"Name": "Administrator", "Enabled": false},
+      {"Name": "Guest", "Enabled": false},
+      {"Name": "SecAdmin", "Enabled": true}
+    ],
+    "Administrators": [{"Name": "SecAdmin"}],
+    "lockout_threshold": 5
+  },
+  "services": {
+    "services": [
+      {"Name": "WinDefend", "DisplayName": "Microsoft Defender Antivirus Service", "State": "Running", "PathName": "\"C:\\ProgramData\\Microsoft\\Windows Defender\\platform\\MsMpEng.exe\""},
+      {"Name": "AppIDSvc", "DisplayName": "Application Identity", "State": "Running", "StartMode": "Auto", "PathName": "C:\\Windows\\system32\\svchost.exe -k LocalServiceNetworkRestricted"},
+      {"Name": "Spooler", "DisplayName": "Print Spooler", "State": "Stopped", "StartMode": "Disabled", "PathName": "C:\\Windows\\System32\\spoolsv.exe"},
+      {"Name": "Sysmon64", "DisplayName": "System Monitor", "State": "Running", "StartMode": "Auto", "PathName": "C:\\Windows\\Sysmon64.exe"}
+    ]
+  },
+  "audit": {
+    "subcategories": {
+      "Process Creation": {"category": "Detailed Tracking", "setting": "Success and Failure"},
+      "Logon": {"category": "Logon/Logoff", "setting": "Success and Failure"}
+    }
+  },
+  "bitlocker": {
+    "volumes": [
+      {"MountPoint": "C:", "VolumeType": "OperatingSystem", "ProtectionStatus": 1, "EncryptionMethod": "XtsAes256"}
+    ]
+  },
+  "powershell": {
+    "execution_policy": {"LocalMachine": "RemoteSigned"},
+    "clm_state": "FullLanguage"
+  },
+  "wmi": {
+    "secure_boot": true,
+    "tpm_present": true,
+    "hypervisor_present": true,
+    "OperatingSystem": {"Caption": "Microsoft Windows 11 Enterprise", "BuildNumber": "22631", "Version": "10.0.22631"}
+  },
+  "eventlogs": {
+    "Security": {"MaximumSizeInBytes": 2147483648}
+  },
+  "updates": {
+    "PendingReboot": false,
+    "RecentHotfixes": [{"HotFixID": "KB5034441"}]
+  },
+  "software": {
+    "installed_software": [{"name": "Google Chrome", "version": "128.0", "vendor": "Google LLC"}]
+  },
+  "tasks": {
+    "tasks": []
+  }
+}

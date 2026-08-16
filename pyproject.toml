@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "winsecure"
+version = "2.5.0"
+description = "Windows Security Configuration, Compliance & Threat Exposure Assessment Platform"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Kartavya Joshi" }
+]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security"
+]
+
+[project.urls]
+Homepage = "https://github.com/Kartavyajoshi/WINSECURE"
+Repository = "https://github.com/Kartavyajoshi/WINSECURE.git"
+Issues = "https://github.com/Kartavyajoshi/WINSECURE/issues"
+
+[project.scripts]
+winsecure = "winsecure.cli.main:main"

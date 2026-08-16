@@ -1,0 +1,40 @@
+[
+  {
+    "id": "WS-SYS-001",
+    "title": "Secure Boot is Disabled in Firmware",
+    "category": "System",
+    "severity": "High",
+    "description": "Secure Boot ensures that the endpoint boots using only software trusted by the Original Equipment Manufacturer (OEM), blocking rootkits and bootkits.",
+    "expected": "SecureBoot = True",
+    "impact": "Adversaries or physical attackers can install unsigned kernel drivers and bootkit persistence (e.g. BlackLotus).",
+    "remediation_guidance": "Reboot into UEFI firmware settings and enable Secure Boot.",
+    "check_type": "system",
+    "check_params": {"field": "secure_boot", "expected": true},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.8.1.1", "title": "Ensure Secure Boot is Enabled"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SI-7", "title": "Software, Firmware, and Information Integrity"}
+    ],
+    "mitre_attack": ["T1542.003"],
+    "references": ["https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/oem-secure-boot"],
+    "requires_admin": false
+  },
+  {
+    "id": "WS-SYS-002",
+    "title": "TPM 2.0 Security Module Missing or Disabled",
+    "category": "System",
+    "severity": "Medium",
+    "description": "Trusted Platform Module 2.0 provides hardware-based isolation for BitLocker encryption keys, credential guard, and health attestation.",
+    "expected": "TPM Present = True, Version = 2.0",
+    "impact": "Hardware-backed key isolation is unavailable, forcing software-only credential storage.",
+    "remediation_guidance": "Enable TPM 2.0 (fTPM/PTT) in the system UEFI firmware settings.",
+    "check_type": "system",
+    "check_params": {"field": "tpm_present", "expected": true},
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "18.8.1.2", "title": "TPM 2.0 Requirement"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SC-12", "title": "Cryptographic Key Establishment and Management"}
+    ],
+    "mitre_attack": ["T1552"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/hardware-security/tpm/trusted-platform-module-overview"],
+    "requires_admin": false
+  }
+]

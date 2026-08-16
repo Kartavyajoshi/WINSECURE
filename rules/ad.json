@@ -1,0 +1,50 @@
+[
+  {
+    "id": "WS-AD-001",
+    "title": "LDAP Client Signing is Not Required (MitM Vulnerability)",
+    "category": "Active Directory",
+    "severity": "High",
+    "description": "LDAP client signing requires LDAP traffic to be digitally signed, preventing man-in-the-middle tampering and credential relay attacks.",
+    "expected": "LDAPClientIntegrity = 2 (Negotiate signing required)",
+    "impact": "Unsigned LDAP queries transmitted across domain subnets can be intercepted and altered via ARP/LLMNR spoofing.",
+    "remediation_guidance": "Set HKLM:\\SYSTEM\\CurrentControlSet\\Services\\LDAP\\LDAPClientIntegrity to 2 via Group Policy.",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Services\\LDAP",
+      "value": "LDAPClientIntegrity",
+      "expected": 2
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "2.3.11.2", "title": "Network security: LDAP client signing requirements"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SC-8", "title": "Transmission Confidentiality and Integrity"}
+    ],
+    "mitre_attack": ["T1557.001"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/network-security-ldap-client-signing-requirements"],
+    "requires_admin": true
+  },
+  {
+    "id": "WS-AD-002",
+    "title": "Netlogon Secure Channel Encryption Weakened",
+    "category": "Active Directory",
+    "severity": "Critical",
+    "description": "Netlogon secure channel must mandate strong encryption and signing to protect domain computer account authentication (Zerologon defense).",
+    "expected": "RequireSignOrSeal = 1 and RequireStrongKey = 1",
+    "impact": "Adversaries can exploit unauthenticated Netlogon RPC connections to impersonate domain computer accounts.",
+    "remediation_guidance": "Set RequireSignOrSeal and RequireStrongKey to 1 in HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Netlogon\\Parameters.",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Services\\Netlogon\\Parameters",
+      "value": "RequireSignOrSeal",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {"framework": "CIS Windows 11 Enterprise", "version": "5.0.1", "control_id": "2.3.5.1", "title": "Domain member: Digitally encrypt or sign secure channel data (always)"},
+      {"framework": "NIST SP 800-53", "version": "Rev 5", "control_id": "SC-13", "title": "Cryptographic Protection"}
+    ],
+    "mitre_attack": ["T1068", "T1557"],
+    "references": ["https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/domain-member-digitally-encrypt-or-sign-secure-channel-data-always"],
+    "requires_admin": true
+  }
+]
