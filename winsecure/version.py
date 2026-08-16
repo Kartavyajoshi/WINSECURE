@@ -3,7 +3,7 @@ WinSecure Version and Product Information
 """
 
 __product_name__ = "WinSecure"
-__version__ = "2.5.0"
+__version__ = "1.0.0"
 __codename__ = "IronShield"
 __author__ = "Kartavya Joshi"
 __description__ = "Windows Security Configuration, Compliance & Threat Exposure Assessment Platform"

@@ -11,7 +11,7 @@ class ModuleMetadata:
     name: str
     purpose: str
     category: str
-    version: str = "2.5.0"
+    version: str = "1.0.0"
     author: str = "WinSecure Security Engineering"
     inputs: List[str] = field(default_factory=list)
     collectors: List[str] = field(default_factory=list)

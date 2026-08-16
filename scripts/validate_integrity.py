@@ -6,6 +6,9 @@ import os
 import sys
 import unittest
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 # Ensure project root is in sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -19,21 +22,21 @@ if __name__ == "__main__":
     
     # 1. Verify Rules
     rules = RuleLoader.load_builtin_rules()
-    print(f"  ✓ Loaded {len(rules)} built-in security rules")
+    print(f"  [OK] Loaded {len(rules)} built-in security rules")
     assert len(rules) >= 50, f"Expected at least 50 rules, got {len(rules)}"
 
     # 2. Verify Scanners
-    print(f"  ✓ Registered {len(ALL_SCANNERS)} scanner modules")
+    print(f"  [OK] Registered {len(ALL_SCANNERS)} scanner modules")
     assert len(ALL_SCANNERS) == 32, f"Expected exactly 32 scanner modules, got {len(ALL_SCANNERS)}"
 
     # 3. Verify Compliance Frameworks
     engine = ComplianceEngine()
-    print(f"  ✓ Loaded {len(engine.controls)} compliance framework benchmarks")
+    print(f"  [OK] Loaded {len(engine.controls)} compliance framework benchmarks")
     assert len(engine.controls) >= 4, "Expected at least 4 compliance benchmarks"
 
     # 4. Verify Comparison Engine
     matrix = ComparisonEngine.get_comparison_matrix()
-    print(f"  ✓ Loaded comparison matrix for {len(matrix['tools'])} tools across {len(matrix['dimensions'])} dimensions")
+    print(f"  [OK] Loaded comparison matrix for {len(matrix['tools'])} tools across {len(matrix['dimensions'])} dimensions")
     assert len(matrix['tools']) >= 8, "Expected at least 8 tool comparison profiles"
 
     # 5. Run full test suite

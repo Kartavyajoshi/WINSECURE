@@ -15,6 +15,11 @@ env/
 ENV/
 .venv/
 
+# Environment Variables & Local Secrets
+.env
+.env.*
+!.env.example
+
 # Local Testing & Coverage Runs (Local Only)
 .pytest_cache/
 .coverage
@@ -24,7 +29,8 @@ test_results/
 test_output/
 *.test.log
 
-# Local Generated Reports & Temporary DBs
+# Local Logs & Generated Reports
+logs/
 WinSecure-Report/
 WinSecure-Report-Test/
 report_output/

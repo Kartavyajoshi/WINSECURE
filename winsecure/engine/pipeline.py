@@ -271,7 +271,7 @@ class ScanPipeline:
         scan_result = ScanResult(
             scan_id=self.context.scan_id,
             timestamp=self.context.start_time_iso,
-            winsecure_version="2.5.0",
+            winsecure_version="1.0.0",
             profile=self.context.config.profile,
             is_admin=self.context.is_admin,
             security_score=self.context.security_score,

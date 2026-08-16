@@ -33,7 +33,7 @@ class TestSarifExporter(unittest.TestCase):
         scan = ScanResult(
             scan_id="SCAN-001",
             timestamp="2026-08-16T12:00:00Z",
-            winsecure_version="2.5.0",
+            winsecure_version="1.0.0",
             profile="standard",
             is_admin=True,
             security_score=80.0,

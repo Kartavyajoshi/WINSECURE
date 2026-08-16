@@ -96,7 +96,7 @@ class BenchmarkSuite:
 
         return {
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "winsecure_version": "2.5.0",
+            "winsecure_version": "1.0.0",
             "total_modules_benchmarked": len(ALL_SCANNERS),
             "overall_throughput_checks_per_sec": round(overall_throughput, 1),
             "peak_memory_rss_mb": peak_ram,
