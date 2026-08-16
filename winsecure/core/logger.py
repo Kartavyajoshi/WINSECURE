@@ -20,20 +20,20 @@ def setup_logger(
     name: str = "winsecure",
     log_level: int = logging.INFO,
     log_file: Optional[str] = None,
+    stream_console: bool = False,
 ) -> logging.Logger:
     """Configures and returns a structured logger for WinSecure."""
     logger = logging.getLogger(name)
     logger.setLevel(log_level)
     logger.handlers.clear()
 
-    # Console handler with clean formatting
-    console_handler = logging.StreamHandler(sys.stderr)
-    console_handler.setLevel(log_level)
-    console_format = SanitizingFormatter(
-        "[%(levelname)s] %(message)s"
-    )
-    console_handler.setFormatter(console_format)
-    logger.addHandler(console_handler)
+    # Optional console handler
+    if stream_console:
+        console_handler = logging.StreamHandler(sys.stderr)
+        console_handler.setLevel(log_level)
+        console_format = SanitizingFormatter("[%(levelname)s] %(message)s")
+        console_handler.setFormatter(console_format)
+        logger.addHandler(console_handler)
 
     # Optional file handler with timestamps
     if log_file:

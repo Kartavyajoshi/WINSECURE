@@ -6,6 +6,14 @@ import sys
 import os
 import time
 from datetime import datetime, timezone
+
+# Ensure line-buffering on stdout for immediate real-time terminal output
+try:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(line_buffering=True)
+except Exception:
+    pass
+
 from winsecure.cli.parser import create_cli_parser
 from winsecure.cli.formatter import CliFormatter
 from winsecure.cli.server import start_server
@@ -29,17 +37,17 @@ def main(argv=None):
         return 0
 
     if args.command == "version":
-        print(f"{__product_name__} v{__version__} ({__codename__})")
-        print(f"{__description__}")
+        print(f"{__product_name__} v{__version__} ({__codename__})", flush=True)
+        print(f"{__description__}", flush=True)
         return 0
 
     if args.command == "demo":
         site_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "docs", "site")
         if not os.path.exists(site_dir):
             site_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "web")
-        print("[*] Launching WinSecure Synthetic Demonstration Platform...")
-        print("[*] Target Host: LAB-WIN-042 (Security Assessment Lab)")
-        print("[*] Demonstration Mode: 100% Synthetic Assessment Data")
+        print("[*] Launching WinSecure Synthetic Demonstration Platform...", flush=True)
+        print("[*] Target Host: LAB-WIN-042 (Security Assessment Lab)", flush=True)
+        print("[*] Demonstration Mode: 100% Synthetic Assessment Data", flush=True)
         start_server(
             directory=site_dir,
             port=args.port,
@@ -56,32 +64,32 @@ def main(argv=None):
         return 0
 
     if args.command == "benchmark":
-        print(colorize(f"\n[*] Executing WinSecure Benchmark Suite (Iterations: {args.iterations})...", Colors.BOLD))
+        print(colorize(f"\n[*] Executing WinSecure Benchmark Suite (Iterations: {args.iterations})...", Colors.BOLD), flush=True)
         bench_data = BenchmarkSuite.run_benchmark(iterations=args.iterations)
 
         if args.json:
-            print(json.dumps(bench_data, indent=2))
+            print(json.dumps(bench_data, indent=2), flush=True)
             return 0
 
         tp_str = f"{bench_data['overall_throughput_checks_per_sec']} checks/sec"
         mem_str = f"{bench_data['peak_memory_rss_mb']} MB RSS"
         cpu_str = f"{bench_data['average_cpu_percent']}%"
 
-        print(colorize("------------------------------------------------------------", Colors.DIM))
-        print(f"Total Modules Benchmarked: {colorize(str(bench_data['total_modules_benchmarked']), Colors.BOLD)}")
-        print(f"Overall Throughput:        {colorize(tp_str, Colors.GREEN + Colors.BOLD)}")
-        print(f"Peak Memory Footprint:     {colorize(mem_str, Colors.CYAN)}")
-        print(f"Average CPU Utilization:   {colorize(cpu_str, Colors.CYAN)}")
-        print(colorize("------------------------------------------------------------", Colors.DIM))
-        print(colorize("\nProfile Performance Breakdown:", Colors.BOLD))
+        print(colorize("------------------------------------------------------------", Colors.DIM), flush=True)
+        print(f"Total Modules Benchmarked: {colorize(str(bench_data['total_modules_benchmarked']), Colors.BOLD)}", flush=True)
+        print(f"Overall Throughput:        {colorize(tp_str, Colors.GREEN + Colors.BOLD)}", flush=True)
+        print(f"Peak Memory Footprint:     {colorize(mem_str, Colors.CYAN)}", flush=True)
+        print(f"Average CPU Utilization:   {colorize(cpu_str, Colors.CYAN)}", flush=True)
+        print(colorize("------------------------------------------------------------", Colors.DIM), flush=True)
+        print(colorize("\nProfile Performance Breakdown:", Colors.BOLD), flush=True)
         for p in bench_data["profile_benchmarks"]:
-            print(f"  * {p['profile'].ljust(10)}: {p['average_duration_sec']:.4f}s avg | {p['checks_evaluated']} checks | {p['throughput_checks_per_sec']} checks/s | Score: {p['resulting_security_score']}/100")
+            print(f"  * {p['profile'].ljust(10)}: {p['average_duration_sec']:.4f}s avg | {p['checks_evaluated']} checks | {p['throughput_checks_per_sec']} checks/s | Score: {p['resulting_security_score']}/100", flush=True)
 
-        print(colorize("\nFastest Module Latencies (Top 5):", Colors.BOLD))
+        print(colorize("\nFastest Module Latencies (Top 5):", Colors.BOLD), flush=True)
         sorted_mods = sorted(bench_data["module_latencies_ms"].items(), key=lambda kv: kv[1])
         for name, lat in sorted_mods[:5]:
-            print(f"  * {name.ljust(22)}: {lat:.3f} ms")
-        print()
+            print(f"  * {name.ljust(22)}: {lat:.3f} ms", flush=True)
+        print(flush=True)
         return 0
 
     if args.command == "scan":
@@ -102,7 +110,6 @@ def main(argv=None):
             logs_dir = os.path.join(base_dir, "logs")
             os.makedirs(logs_dir, exist_ok=True)
             log_file = os.path.join(logs_dir, "latest.log")
-            # Also write timestamped log
             ts_str = datetime.now().strftime("%Y-%m-%d-%H%M%S")
             ts_log = os.path.join(logs_dir, f"scan-{ts_str}.log")
             
@@ -121,6 +128,12 @@ def main(argv=None):
         CliFormatter.print_self_check(self_check_results)
 
         # Callbacks for real-time terminal streaming
+        print(colorize("[SECURITY TELEMETRY COLLECTION]", Colors.BOLD), flush=True)
+
+        def on_collector(idx, total, name, dur):
+            CliFormatter.print_collector_step(idx, total, name, dur)
+            logger.info(f"Collector {idx}/{total} {name}: completed in {dur:.2f}s")
+
         def on_module(idx, total, name, cat):
             CliFormatter.print_module_start(idx, total, name, cat)
             logger.info(f"Module {idx}/{total} started: {name} ({cat})")
@@ -143,13 +156,14 @@ def main(argv=None):
             progress_callback=on_step,
             test_callback=on_test,
             module_callback=on_module,
+            collector_callback=on_collector,
         )
 
         # Print Live Progress Summary
         final_stats = pipeline.result_collector.get_stats()
-        print("\n------------------------------------------------------------")
+        print("\n------------------------------------------------------------", flush=True)
         CliFormatter.print_live_progress(final_stats)
-        print("------------------------------------------------------------")
+        print("------------------------------------------------------------", flush=True)
 
         # Generate complete report website and machine exports
         index_path = ReportGenerator.generate_all(scan_result, config.output_dir)
@@ -158,9 +172,9 @@ def main(argv=None):
         # Post-Flight Diagnostic Verification
         post_ok, post_msg = HealthChecker.post_flight_check(scan_result, index_path)
         if post_ok:
-            print(colorize(f"\n[*] Diagnostic Integrity: [VERIFIED] ({post_msg})", Colors.GREEN))
+            print(colorize(f"\n[*] Diagnostic Integrity: [VERIFIED] ({post_msg})", Colors.GREEN), flush=True)
         else:
-            print(colorize(f"\n[!] Diagnostic Warning: {post_msg}", Colors.YELLOW))
+            print(colorize(f"\n[!] Diagnostic Warning: {post_msg}", Colors.YELLOW), flush=True)
 
         # Print comprehensive final summary
         CliFormatter.print_summary(scan_result, index_path)

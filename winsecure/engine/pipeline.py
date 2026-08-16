@@ -51,6 +51,7 @@ class ScanPipeline:
         progress_callback: Optional[Callable[[int, int, str], None]] = None,
         test_callback: Optional[Callable[[Finding, int, int, Dict[str, Any]], None]] = None,
         module_callback: Optional[Callable[[int, int, str, str], None]] = None,
+        collector_callback: Optional[Callable[[int, int, str, float], None]] = None,
     ) -> ScanResult:
         total_steps = 8
         total_modules = len(ALL_SCANNERS)
@@ -70,6 +71,8 @@ class ScanPipeline:
         if self.context.config.fixture_path:
             fc = FixtureCollector(self.context, self.context.config.fixture_path)
             fc.collect()
+            if collector_callback:
+                collector_callback(1, 1, "Synthetic Assessment Fixture", 0.05)
         else:
             collectors = [
                 WmiCollector(self.context),
@@ -87,14 +90,22 @@ class ScanPipeline:
                 UpdatesCollector(self.context),
                 EventLogCollector(self.context),
             ]
-            for c in collectors:
+            total_cols = len(collectors)
+            for c_idx, c in enumerate(collectors, 1):
+                t_col_start = time.perf_counter()
                 try:
                     data = c.collect()
                     key = c.category.lower()
                     if key not in self.context.collected_artifacts:
                         self.context.collected_artifacts[key] = data
+                    c_dur = time.perf_counter() - t_col_start
+                    if collector_callback:
+                        collector_callback(c_idx, total_cols, c.name, c_dur)
                 except Exception as e:
+                    c_dur = time.perf_counter() - t_col_start
                     self.context.add_error(c.name, str(e))
+                    if collector_callback:
+                        collector_callback(c_idx, total_cols, f"{c.name} (Non-fatal warning)", c_dur)
 
         # Build inventory
         self.context.inventory = InventoryBuilder.build(self.context)

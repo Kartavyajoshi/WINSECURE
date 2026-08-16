@@ -1,5 +1,5 @@
 """
-WinSecure CLI Output Formatter & Verbose Execution Streamer
+WinSecure CLI Output Formatter & Real-Time Live Execution Streamer
 """
 import sys
 import os
@@ -10,7 +10,7 @@ from winsecure.utils.formatting import Colors, colorize
 
 
 class CliFormatter:
-    """Renders real-time test execution streams, verbose telemetry, and executive summaries."""
+    """Renders real-time live test execution streams, telemetry, and executive summaries."""
 
     @staticmethod
     def print_banner():
@@ -20,9 +20,10 @@ class CliFormatter:
          Endpoint Hardening & Misconfiguration Scanner      
 ============================================================"""
         try:
-            print(colorize(banner, Colors.BOLD + Colors.CYAN))
+            print(colorize(banner, Colors.BOLD + Colors.CYAN), flush=True)
         except UnicodeEncodeError:
-            print(banner)
+            print(banner, flush=True)
+        sys.stdout.flush()
 
     @staticmethod
     def print_scan_init(context):
@@ -30,26 +31,36 @@ class CliFormatter:
         os_info = f"{inv.os_name} ({inv.os_architecture})" if inv else "Microsoft Windows"
         priv = "Administrator (Elevated)" if context.is_admin else "Standard User"
 
-        print(f"[SCAN] Initializing security audit...")
-        print(f"[SCAN] Platform        : {colorize(os_info, Colors.BOLD)}")
-        print(f"[SCAN] Privilege Level : {colorize(priv, Colors.GREEN if context.is_admin else Colors.YELLOW)}")
-        print(f"[SCAN] Scan Profile    : {colorize(context.config.profile.upper(), Colors.CYAN)}")
-        print(f"[SCAN] Target Directory: {colorize(context.config.output_dir, Colors.DIM)}")
-        print(f"[SCAN] Discovered 32 security modules / 55 audit rules\n")
+        print(f"[SCAN] Initializing security audit...", flush=True)
+        print(f"[SCAN] Platform        : {colorize(os_info, Colors.BOLD)}", flush=True)
+        print(f"[SCAN] Privilege Level : {colorize(priv, Colors.GREEN if context.is_admin else Colors.YELLOW)}", flush=True)
+        print(f"[SCAN] Scan Profile    : {colorize(context.config.profile.upper(), Colors.CYAN)}", flush=True)
+        print(f"[SCAN] Target Directory: {colorize(context.config.output_dir, Colors.DIM)}", flush=True)
+        print(f"[SCAN] Discovered 32 security modules / 55 audit rules\n", flush=True)
+        sys.stdout.flush()
 
     @staticmethod
     def print_self_check(checks: Dict[str, tuple]):
-        print(colorize("[SELF-CHECK]", Colors.BOLD))
+        print(colorize("[SELF-CHECK]", Colors.BOLD), flush=True)
         for name, (status, detail) in checks.items():
             dots = "." * max(2, 38 - len(name))
             st_str = colorize("[PASS]", Colors.GREEN) if status else colorize("[FAIL]", Colors.RED)
-            print(f"  {name} {dots} {st_str} ({detail})")
-        print()
+            print(f"  {name} {dots} {st_str} ({detail})", flush=True)
+        print(flush=True)
+        sys.stdout.flush()
+
+    @staticmethod
+    def print_collector_step(idx: int, total: int, name: str, dur_sec: float):
+        dots = "." * max(2, 36 - len(name))
+        line = f"  [COLLECT {idx:02d}/{total:02d}] {name} {dots} {colorize('[OK]', Colors.GREEN)} ({dur_sec:.2f}s)"
+        print(line, flush=True)
+        sys.stdout.flush()
 
     @staticmethod
     def print_module_start(module_idx: int, total_modules: int, name: str, category: str):
         header = f"\n------------------------------------------------------------\n[MODULE {module_idx:02d}/{total_modules:02d}] {name.upper()} ({category})\n------------------------------------------------------------"
-        print(colorize(header, Colors.BOLD + Colors.CYAN))
+        print(colorize(header, Colors.BOLD + Colors.CYAN), flush=True)
+        sys.stdout.flush()
 
     @staticmethod
     def print_test_result(finding: Finding, current_idx: int, total_tests: int, verbose: bool = False, debug: bool = False):
@@ -58,38 +69,40 @@ class CliFormatter:
 
         if finding.status == FindingStatus.PASS:
             tag = colorize("[PASS]", Colors.GREEN + Colors.BOLD)
-            print(f"[TEST {idx_str}] {tag} {finding.id}: {finding.title} ({dur_str})")
+            print(f"[TEST {idx_str}] {tag} {finding.id}: {finding.title} ({dur_str})", flush=True)
             if verbose or debug:
-                print(colorize(f"  Evidence   : {finding.actual}", Colors.DIM))
+                print(colorize(f"  Evidence   : {finding.actual}", Colors.DIM), flush=True)
                 if finding.evidence and debug:
-                    print(colorize(f"  Telemetry  : {finding.evidence[0].get('data', '')}", Colors.DIM))
+                    print(colorize(f"  Telemetry  : {finding.evidence[0].get('data', '')}", Colors.DIM), flush=True)
 
         elif finding.status == FindingStatus.FAIL:
             sev_val = finding.severity.value if hasattr(finding.severity, "value") else str(finding.severity)
             tag = colorize("[FAIL]", Colors.RED + Colors.BOLD)
             sev_tag = colorize(f"[{sev_val.upper()}]", Colors.RED)
-            print(f"[TEST {idx_str}] {tag} {finding.id}: {finding.title} {sev_tag} ({dur_str})")
-            print(colorize(f"  Evidence   : {finding.actual}", Colors.YELLOW))
-            print(colorize(f"  Impact     : {finding.impact}", Colors.DIM))
+            print(f"[TEST {idx_str}] {tag} {finding.id}: {finding.title} {sev_tag} ({dur_str})", flush=True)
+            print(colorize(f"  Evidence   : {finding.actual}", Colors.YELLOW), flush=True)
+            print(colorize(f"  Impact     : {finding.impact}", Colors.DIM), flush=True)
             if finding.remediation:
                 first_rem = finding.remediation.strip().split('\n')[0]
-                print(colorize(f"  Remediation: {first_rem}", Colors.CYAN))
+                print(colorize(f"  Remediation: {first_rem}", Colors.CYAN), flush=True)
 
         elif finding.status == FindingStatus.WARN:
             tag = colorize("[WARN]", Colors.YELLOW + Colors.BOLD)
-            print(f"[TEST {idx_str}] {tag} {finding.id}: {finding.title} ({dur_str})")
-            print(colorize(f"  Notice     : {finding.actual}", Colors.YELLOW))
+            print(f"[TEST {idx_str}] {tag} {finding.id}: {finding.title} ({dur_str})", flush=True)
+            print(colorize(f"  Notice     : {finding.actual}", Colors.YELLOW), flush=True)
 
         elif finding.status in (FindingStatus.UNKNOWN, FindingStatus.NOT_APPLICABLE):
             tag = colorize("[SKIPPED]", Colors.DIM)
             reason = finding.actual or "Requires administrative privileges or feature not present"
-            print(f"[TEST {idx_str}] {tag} {finding.id}: {finding.title}")
-            print(colorize(f"  Reason     : {reason}", Colors.DIM))
+            print(f"[TEST {idx_str}] {tag} {finding.id}: {finding.title}", flush=True)
+            print(colorize(f"  Reason     : {reason}", Colors.DIM), flush=True)
 
         elif finding.status == FindingStatus.ERROR:
             tag = colorize("[ERROR]", Colors.RED + Colors.BOLD)
-            print(f"[TEST {idx_str}] {tag} {finding.id}: {finding.title}")
-            print(colorize(f"  Error      : {finding.actual}", Colors.RED))
+            print(f"[TEST {idx_str}] {tag} {finding.id}: {finding.title}", flush=True)
+            print(colorize(f"  Error      : {finding.actual}", Colors.RED), flush=True)
+
+        sys.stdout.flush()
 
     @staticmethod
     def print_live_progress(stats: Dict[str, Any]):
@@ -113,7 +126,8 @@ class CliFormatter:
         e_str = colorize(f"ERROR: {errors}", Colors.RED if errors > 0 else Colors.DIM)
 
         line = f"Progress: {total}/{sched} [{p_str} | {f_str} | {w_str} | {s_str} | {e_str}] (Elapsed: {time_str})"
-        print(line)
+        print(line, flush=True)
+        sys.stdout.flush()
 
     @staticmethod
     def print_summary(result: ScanResult, report_path: str):
@@ -135,30 +149,31 @@ class CliFormatter:
         unknown = sum(1 for f in result.findings if f.status == FindingStatus.UNKNOWN)
         err = len(result.errors)
 
-        print(colorize("\n============================================================", Colors.BOLD))
-        print(colorize("                       SCAN COMPLETE                        ", Colors.BOLD + Colors.CYAN))
-        print(colorize("============================================================", Colors.BOLD))
+        print(colorize("\n============================================================", Colors.BOLD), flush=True)
+        print(colorize("                       SCAN COMPLETE                        ", Colors.BOLD + Colors.CYAN), flush=True)
+        print(colorize("============================================================", Colors.BOLD), flush=True)
 
-        print(f"Total Controls Audited : {colorize(str(len(result.findings)), Colors.BOLD)}")
-        print(f"Passed Checks          : {colorize(str(passed), Colors.GREEN + Colors.BOLD)}")
-        print(f"Failed Misconfigurations: {colorize(str(crit + high + med + low), Colors.RED if (crit + high + med + low) > 0 else Colors.DIM)}")
-        print(f"Warnings / Suboptimal  : {colorize(str(warn), Colors.YELLOW if warn > 0 else Colors.DIM)}")
-        print(f"Restricted / Skipped   : {colorize(str(unknown), Colors.DIM)}")
-        print(f"Execution Errors       : {colorize(str(err), Colors.RED if err > 0 else Colors.DIM)}")
-        print(f"Overall Security Score : {score_str} ({risk_str})")
-        print(f"Assessment Coverage    : {colorize(f'{result.assessment_coverage_percent}%', Colors.CYAN)}")
-        print(f"Total Scan Duration    : {colorize(dur_str, Colors.BOLD)}")
+        print(f"Total Controls Audited : {colorize(str(len(result.findings)), Colors.BOLD)}", flush=True)
+        print(f"Passed Checks          : {colorize(str(passed), Colors.GREEN + Colors.BOLD)}", flush=True)
+        print(f"Failed Misconfigurations: {colorize(str(crit + high + med + low), Colors.RED if (crit + high + med + low) > 0 else Colors.DIM)}", flush=True)
+        print(f"Warnings / Suboptimal  : {colorize(str(warn), Colors.YELLOW if warn > 0 else Colors.DIM)}", flush=True)
+        print(f"Restricted / Skipped   : {colorize(str(unknown), Colors.DIM)}", flush=True)
+        print(f"Execution Errors       : {colorize(str(err), Colors.RED if err > 0 else Colors.DIM)}", flush=True)
+        print(f"Overall Security Score : {score_str} ({risk_str})", flush=True)
+        print(f"Assessment Coverage    : {colorize(f'{result.assessment_coverage_percent}%', Colors.CYAN)}", flush=True)
+        print(f"Total Scan Duration    : {colorize(dur_str, Colors.BOLD)}", flush=True)
 
-        print(colorize("\nRisk Distribution:", Colors.BOLD))
-        print(f"  CRITICAL : {colorize(str(crit), Colors.RED if crit > 0 else Colors.DIM)}")
-        print(f"  HIGH     : {colorize(str(high), Colors.RED if high > 0 else Colors.DIM)}")
-        print(f"  MEDIUM   : {colorize(str(med), Colors.YELLOW if med > 0 else Colors.DIM)}")
-        print(f"  LOW      : {colorize(str(low), Colors.CYAN if low > 0 else Colors.DIM)}")
+        print(colorize("\nRisk Distribution:", Colors.BOLD), flush=True)
+        print(f"  CRITICAL : {colorize(str(crit), Colors.RED if crit > 0 else Colors.DIM)}", flush=True)
+        print(f"  HIGH     : {colorize(str(high), Colors.RED if high > 0 else Colors.DIM)}", flush=True)
+        print(f"  MEDIUM   : {colorize(str(med), Colors.YELLOW if med > 0 else Colors.DIM)}", flush=True)
+        print(f"  LOW      : {colorize(str(low), Colors.CYAN if low > 0 else Colors.DIM)}", flush=True)
 
         output_dir = os.path.dirname(os.path.abspath(report_path))
-        print(colorize("\nGenerated Reports & Artifacts:", Colors.BOLD))
-        print(f"  * Interactive HTML Dashboard : {colorize(report_path, Colors.CYAN + Colors.UNDERLINE)}")
-        print(f"  * Machine JSON Telemetry    : {colorize(os.path.join(output_dir, 'scan_results.json'), Colors.CYAN)}")
-        print(f"  * CSV Finding Matrix        : {colorize(os.path.join(output_dir, 'findings.csv'), Colors.CYAN)}")
-        print(f"  * Markdown Audit Summary    : {colorize(os.path.join(output_dir, 'report.md'), Colors.CYAN)}")
-        print(f"  * Execution Audit Log       : {colorize('logs/latest.log', Colors.CYAN)}\n")
+        print(colorize("\nGenerated Reports & Artifacts:", Colors.BOLD), flush=True)
+        print(f"  * Interactive HTML Dashboard : {colorize(report_path, Colors.CYAN + Colors.UNDERLINE)}", flush=True)
+        print(f"  * Machine JSON Telemetry    : {colorize(os.path.join(output_dir, 'scan_results.json'), Colors.CYAN)}", flush=True)
+        print(f"  * CSV Finding Matrix        : {colorize(os.path.join(output_dir, 'findings.csv'), Colors.CYAN)}", flush=True)
+        print(f"  * Markdown Audit Summary    : {colorize(os.path.join(output_dir, 'report.md'), Colors.CYAN)}", flush=True)
+        print(f"  * Execution Audit Log       : {colorize('logs/latest.log', Colors.CYAN)}\n", flush=True)
+        sys.stdout.flush()
