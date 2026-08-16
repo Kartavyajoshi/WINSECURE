@@ -1,6 +1,6 @@
 """
 WinSecure Interactive HTML Website Generator (Clean, Modern SaaS Security Report)
-100% Standalone Self-Contained Single-File Report
+100% Standalone Self-Contained Single-File Report with Triple-Redundant Navigation
 """
 import json
 import os
@@ -174,6 +174,7 @@ html, body {
   transition: all 0.15s ease;
   cursor: pointer;
   border: 1px solid transparent;
+  user-select: none;
 }
 
 .nav-link:hover {
@@ -182,9 +183,9 @@ html, body {
 }
 
 .nav-link.active {
-  background-color: #0f172a;
-  color: #ffffff;
-  font-weight: 600;
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
   box-shadow: var(--shadow-sm);
 }
 
@@ -318,7 +319,7 @@ html, body {
 }
 
 .content-section.active {
-  display: block;
+  display: block !important;
 }
 
 /* KPI Cards Grid */
@@ -594,13 +595,43 @@ html, body {
 """
 
 REPORT_JS = """/* ==========================================================================
-   WinSecure — Clean Dynamic Assessment Report Engine
+   WinSecure — Dynamic Assessment Report Engine (Immediate Header Injection)
    ========================================================================== */
 
 var activeFindingFilter = 'ALL';
 var currentActiveItem = null;
 var currentModalTab = 'tab-overview';
 var activeReportData = null;
+
+function switchSection(sectionId, element) {
+  if (!sectionId) return;
+
+  var sections = document.querySelectorAll('.content-section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].style.display = 'none';
+    sections[i].classList.remove('active');
+  }
+
+  var target = document.getElementById(sectionId);
+  if (target) {
+    target.style.display = 'block';
+    target.classList.add('active');
+  }
+
+  var links = document.querySelectorAll('.nav-link');
+  for (var j = 0; j < links.length; j++) {
+    links[j].classList.remove('active');
+  }
+
+  if (element) {
+    var el = element.closest ? element.closest('.nav-link') : element;
+    if (el) el.classList.add('active');
+  } else {
+    var match = document.querySelector('[data-tab="' + sectionId + '"]');
+    if (match) match.classList.add('active');
+  }
+}
+window.switchSection = switchSection;
 
 function getActiveReportData() {
   if (activeReportData) return activeReportData;
@@ -616,14 +647,14 @@ function getActiveReportData() {
       var disa = 'DISA STIG Windows 11';
       if (Array.isArray(f.compliance)) {
         f.compliance.forEach(function(c) {
-          if (c.framework && c.framework.toLowerCase().indexOf('cis') !== -1) cis = c.framework + ' ' + (c.control_id || '');
-          if (c.framework && c.framework.toLowerCase().indexOf('nist') !== -1) nist = c.framework + ' ' + (c.control_id || '');
-          if (c.framework && c.framework.toLowerCase().indexOf('disa') !== -1) disa = c.framework + ' ' + (c.control_id || '');
+          if (c && c.framework && c.framework.toLowerCase().indexOf('cis') !== -1) cis = c.framework + ' ' + (c.control_id || '');
+          if (c && c.framework && c.framework.toLowerCase().indexOf('nist') !== -1) nist = c.framework + ' ' + (c.control_id || '');
+          if (c && c.framework && c.framework.toLowerCase().indexOf('disa') !== -1) disa = c.framework + ' ' + (c.control_id || '');
         });
       }
       return {
-        id: f.id,
-        title: f.title,
+        id: f.id || 'WS-000',
+        title: f.title || 'Security Control',
         category: f.category || 'System',
         severity: (typeof f.severity === 'object' && f.severity !== null) ? (f.severity.value || 'Low') : String(f.severity || 'Low'),
         status: (typeof f.status === 'object' && f.status !== null) ? (f.status.value || 'PASS') : String(f.status || 'PASS'),
@@ -656,10 +687,10 @@ function getActiveReportData() {
         passed_checks_count: metrics.passed_checks !== undefined ? metrics.passed_checks : findings.filter(function(f) { return f.status === 'PASS'; }).length,
         failed_checks_count: metrics.failed_checks !== undefined ? metrics.failed_checks : findings.filter(function(f) { return f.status === 'FAIL'; }).length,
         severity_distribution: {
-          Critical: findings.filter(function(f) { return f.status === 'FAIL' && f.severity.toLowerCase() === 'critical'; }).length,
-          High: findings.filter(function(f) { return f.status === 'FAIL' && f.severity.toLowerCase() === 'high'; }).length,
-          Medium: findings.filter(function(f) { return f.status === 'FAIL' && f.severity.toLowerCase() === 'medium'; }).length,
-          Low: findings.filter(function(f) { return f.status === 'FAIL' && f.severity.toLowerCase() === 'low'; }).length
+          Critical: findings.filter(function(f) { return f.status === 'FAIL' && (f.severity || '').toLowerCase() === 'critical'; }).length,
+          High: findings.filter(function(f) { return f.status === 'FAIL' && (f.severity || '').toLowerCase() === 'high'; }).length,
+          Medium: findings.filter(function(f) { return f.status === 'FAIL' && (f.severity || '').toLowerCase() === 'medium'; }).length,
+          Low: findings.filter(function(f) { return f.status === 'FAIL' && (f.severity || '').toLowerCase() === 'low'; }).length
         }
       },
       findings: findings,
@@ -687,7 +718,7 @@ function getActiveReportData() {
         return {
           time: "AUDIT",
           event: d.finding_id + ": " + d.title,
-          category: d.category,
+          category: d.category || 'General',
           status: "FAIL",
           details: d.reason || ("Penalty: -" + d.points_deducted + " pts")
         };
@@ -718,36 +749,6 @@ function getActiveReportData() {
     timeline: []
   };
 }
-
-function switchSection(sectionId, element) {
-  if (!sectionId) return;
-
-  var sections = document.querySelectorAll('.content-section');
-  for (var i = 0; i < sections.length; i++) {
-    sections[i].classList.remove('active');
-    sections[i].style.display = 'none';
-  }
-
-  var target = document.getElementById(sectionId);
-  if (target) {
-    target.classList.add('active');
-    target.style.display = 'block';
-  }
-
-  var links = document.querySelectorAll('.nav-link');
-  for (var j = 0; j < links.length; j++) {
-    links[j].classList.remove('active');
-  }
-
-  if (element) {
-    var el = element.closest('.nav-link') || element;
-    el.classList.add('active');
-  } else {
-    var match = document.querySelector('[data-tab="' + sectionId + '"]');
-    if (match) match.classList.add('active');
-  }
-}
-window.switchSection = switchSection;
 
 function renderDashboard(data) {
   var meta = data.assessment_metadata || {};
@@ -790,12 +791,12 @@ function filterFindings() {
     var matchFilter = (activeFindingFilter === 'ALL') ||
                       (activeFindingFilter === 'FAIL' && f.status === 'FAIL') ||
                       (activeFindingFilter === 'PASS' && f.status === 'PASS') ||
-                      (f.severity.toUpperCase() === activeFindingFilter);
+                      ((f.severity || '').toUpperCase() === activeFindingFilter);
 
-    var matchCategory = (category === 'ALL') || (f.category.toLowerCase() === category.toLowerCase());
-    var matchQuery = f.id.toLowerCase().indexOf(query) !== -1 ||
-                     f.title.toLowerCase().indexOf(query) !== -1 ||
-                     f.description.toLowerCase().indexOf(query) !== -1;
+    var matchCategory = (category === 'ALL') || ((f.category || '').toLowerCase() === category.toLowerCase());
+    var matchQuery = (f.id || '').toLowerCase().indexOf(query) !== -1 ||
+                     (f.title || '').toLowerCase().indexOf(query) !== -1 ||
+                     (f.description || '').toLowerCase().indexOf(query) !== -1;
 
     return matchFilter && matchCategory && matchQuery;
   });
@@ -831,7 +832,7 @@ function renderFindings(findings) {
         '<div style="font-weight: 600; color: var(--text-primary);">' + escapeHtml(f.title) + '</div>' +
         '<div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">' + escapeHtml(f.affected_component || '') + '</div>' +
       '</td>' +
-      '<td><span class="badge ' + getSeverityBadge(f.severity) + '">' + f.severity.toUpperCase() + '</span></td>' +
+      '<td><span class="badge ' + getSeverityBadge(f.severity) + '">' + String(f.severity || '').toUpperCase() + '</span></td>' +
       '<td><span class="badge ' + statusClass + '">' + f.status + '</span></td>' +
       '<td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">' + (f.compliance_mappings ? escapeHtml(f.compliance_mappings.cis || 'CIS Baseline') : 'CIS Baseline') + '</span></td>' +
     '</tr>';
@@ -915,7 +916,7 @@ function renderRemediationPlan(findings) {
             '<span style="font-family: var(--font-mono); color: var(--accent-blue);">[' + f.id + ']</span> ' + escapeHtml(f.title) +
           '</h3>' +
         '</div>' +
-        '<span class="badge ' + getSeverityBadge(f.severity) + '">' + f.severity.toUpperCase() + '</span>' +
+        '<span class="badge ' + getSeverityBadge(f.severity) + '">' + String(f.severity || '').toUpperCase() + '</span>' +
       '</div>' +
       '<p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">' + escapeHtml(f.recommendation) + '</p>' +
       '<div style="background: #0f172a; border-radius: 6px; padding: 12px 14px; position: relative;">' +
@@ -1001,7 +1002,7 @@ function renderModalContent(tabKey) {
 
   if (tabKey === 'tab-overview') {
     body.innerHTML = '<div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">' +
-        '<span class="badge ' + getSeverityBadge(f.severity) + '">' + f.severity.toUpperCase() + '</span>' +
+        '<span class="badge ' + getSeverityBadge(f.severity) + '">' + String(f.severity || '').toUpperCase() + '</span>' +
         '<span class="badge ' + (f.status === 'PASS' ? 'badge-pass' : 'badge-crit') + '">' + f.status + '</span>' +
         '<span class="badge badge-low">' + escapeHtml(f.category) + '</span>' +
       '</div>' +
@@ -1127,11 +1128,11 @@ function setText(id, text) {
 }
 
 function escapeHtml(str) {
-  if (!str) return '';
+  if (str === null || str === undefined) return '';
   return String(str).split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quot;');
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+function initWinSecureReport() {
   var data = getActiveReportData();
   renderDashboard(data);
   renderFindings(data.findings);
@@ -1140,12 +1141,50 @@ document.addEventListener('DOMContentLoaded', function() {
   renderRemediationPlan(data.findings);
   renderTimelineLogs(data.timeline);
 
+  if (window.location.hash) {
+    var initialSection = window.location.hash.replace('#', '');
+    if (document.getElementById(initialSection)) {
+      switchSection(initialSection);
+    }
+  }
+
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
       closeFindingModal();
     }
   });
-});
+
+  window.addEventListener('hashchange', function() {
+    var hash = window.location.hash.replace('#', '');
+    if (hash && document.getElementById(hash)) {
+      switchSection(hash);
+    }
+  });
+
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest ? e.target.closest('.nav-link') : null;
+    if (link) {
+      var tabId = link.getAttribute('data-tab');
+      if (tabId) {
+        e.preventDefault();
+        switchSection(tabId, link);
+        try {
+          if (history.pushState) {
+            history.pushState(null, null, '#' + tabId);
+          } else {
+            window.location.hash = tabId;
+          }
+        } catch(err) {}
+      }
+    }
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initWinSecureReport);
+} else {
+  initWinSecureReport();
+}
 """
 
 
@@ -1182,6 +1221,7 @@ __REPORT_CSS__
   </style>
   <script>
     window.WINSECURE_DATA = __DATA_PAYLOAD__;
+__REPORT_JS__
   </script>
 </head>
 <body>
@@ -1198,39 +1238,39 @@ __REPORT_CSS__
 
       <ul class="nav-menu">
         <li class="nav-item">
-          <a class="nav-link active" data-tab="section-overview" href="javascript:void(0)" onclick="switchSection('section-overview', this)">
+          <a class="nav-link active" data-tab="section-overview" href="#section-overview" onclick="switchSection('section-overview', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Overview</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-findings" href="javascript:void(0)" onclick="switchSection('section-findings', this)">
+          <a class="nav-link" data-tab="section-findings" href="#section-findings" onclick="switchSection('section-findings', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             <span>Findings</span>
             <span class="badge badge-crit" style="margin-left: auto;" id="sidebar-finding-count">__FINDINGS_COUNT__</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-modules" href="javascript:void(0)" onclick="switchSection('section-modules', this)">
+          <a class="nav-link" data-tab="section-modules" href="#section-modules" onclick="switchSection('section-modules', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
             <span>30 Modules</span>
             <span class="badge badge-low" style="margin-left: auto;">30</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-compliance" href="javascript:void(0)" onclick="switchSection('section-compliance', this)">
+          <a class="nav-link" data-tab="section-compliance" href="#section-compliance" onclick="switchSection('section-compliance', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path></svg>
             <span>Compliance</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-remediation" href="javascript:void(0)" onclick="switchSection('section-remediation', this)">
+          <a class="nav-link" data-tab="section-remediation" href="#section-remediation" onclick="switchSection('section-remediation', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"></path></svg>
             <span>Remediation</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-logs" href="javascript:void(0)" onclick="switchSection('section-logs', this)">
+          <a class="nav-link" data-tab="section-logs" href="#section-logs" onclick="switchSection('section-logs', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
             <span>Execution Log</span>
           </a>
@@ -1410,10 +1450,6 @@ __REPORT_CSS__
       <div id="modal-body" class="modal-body"></div>
     </div>
   </div>
-
-  <script>
-__REPORT_JS__
-  </script>
 </body>
 </html>
 """
