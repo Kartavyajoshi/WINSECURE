@@ -725,19 +725,40 @@ document.addEventListener('DOMContentLoaded', () => {
   setupKeyboardListeners();
 });
 
+function switchSection(sectionId, element) {
+  if (!sectionId) return;
+
+  // Hide all sections
+  document.querySelectorAll('.content-section').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+
+  // Show target section
+  const target = document.getElementById(sectionId);
+  if (target) {
+    target.classList.add('active');
+    target.style.display = 'block';
+  }
+
+  // Update navigation links
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  if (element) {
+    const el = element.closest('.nav-link') || element;
+    el.classList.add('active');
+  } else {
+    const el = document.querySelector(`[data-tab="${sectionId}"]`);
+    if (el) el.classList.add('active');
+  }
+}
+window.switchSection = switchSection;
+
 function setupNavigation() {
   document.querySelectorAll('.nav-link').forEach(item => {
-    item.addEventListener('click', (e) => {
+    item.addEventListener('click', function(e) {
       e.preventDefault();
-      const targetId = item.getAttribute('data-tab');
-      if (!targetId) return;
-
-      document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
-      item.classList.add('active');
-
-      document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-      const targetSection = document.getElementById(targetId);
-      if (targetSection) targetSection.classList.add('active');
+      const targetId = this.getAttribute('data-tab');
+      switchSection(targetId, this);
     });
   });
 }
@@ -958,7 +979,7 @@ function renderTimelineLogs(timeline) {
   `).join('');
 }
 
-function openFindingModal(findingId) {
+window.openFindingModal = function(findingId) {
   const data = getActiveReportData();
   const f = (data.findings || []).find(item => item.id === findingId);
   if (!f) return;
@@ -979,7 +1000,7 @@ function openFindingModal(findingId) {
   if (modal) modal.style.display = 'flex';
 }
 
-function switchModalTab(tabKey) {
+window.switchModalTab = function(tabKey) {
   currentModalTab = tabKey;
   document.querySelectorAll('.modal-tab').forEach(t => {
     t.classList.toggle('active', t.getAttribute('data-tab') === tabKey);
@@ -1047,7 +1068,7 @@ function renderModalContent(tabKey) {
   }
 }
 
-function closeFindingModal() {
+window.closeFindingModal = function() {
   const modal = document.getElementById('finding-modal');
   if (modal) modal.style.display = 'none';
   currentActiveItem = null;
@@ -1196,39 +1217,39 @@ class WebReportGenerator:
 
       <ul class="nav-menu">
         <li class="nav-item">
-          <a class="nav-link active" data-tab="section-overview">
+          <a class="nav-link active" data-tab="section-overview" href="javascript:void(0)" onclick="switchSection(\'section-overview\', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Overview</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-findings">
+          <a class="nav-link" data-tab="section-findings" href="javascript:void(0)" onclick="switchSection(\'section-findings\', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             <span>Findings</span>
             <span class="badge badge-crit" style="margin-left: auto;" id="sidebar-finding-count">{len(result.findings)}</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-modules">
+          <a class="nav-link" data-tab="section-modules" href="javascript:void(0)" onclick="switchSection(\'section-modules\', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
             <span>30 Modules</span>
             <span class="badge badge-low" style="margin-left: auto;">30</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-compliance">
+          <a class="nav-link" data-tab="section-compliance" href="javascript:void(0)" onclick="switchSection(\'section-compliance\', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path></svg>
             <span>Compliance</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-remediation">
+          <a class="nav-link" data-tab="section-remediation" href="javascript:void(0)" onclick="switchSection(\'section-remediation\', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"></path></svg>
             <span>Remediation</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-logs">
+          <a class="nav-link" data-tab="section-logs" href="javascript:void(0)" onclick="switchSection(\'section-logs\', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
             <span>Execution Log</span>
           </a>
