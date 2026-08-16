@@ -1,5 +1,5 @@
 """
-WinSecure Interactive HTML Website Generator (Clean, Minimalist White SaaS UI)
+WinSecure Interactive HTML Website Generator (Clean, Modern SaaS Security Report)
 100% Standalone Self-Contained Single-File Report
 """
 import json
@@ -62,9 +62,9 @@ REPORT_CSS = """/* =============================================================
   --badge-warn-text: #854d0e;
   --badge-warn-border: #fde047;
 
-  /* Typography & Geometry */
+  /* Geometry */
   --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -173,6 +173,7 @@ html, body {
   font-weight: 500;
   transition: all 0.15s ease;
   cursor: pointer;
+  border: 1px solid transparent;
 }
 
 .nav-link:hover {
@@ -596,25 +597,28 @@ REPORT_JS = """/* ==============================================================
    WinSecure — Clean Dynamic Assessment Report Engine
    ========================================================================== */
 
-let activeFindingFilter = 'ALL';
-let currentActiveItem = null;
-let currentModalTab = 'tab-overview';
+var activeFindingFilter = 'ALL';
+var currentActiveItem = null;
+var currentModalTab = 'tab-overview';
+var activeReportData = null;
 
 function getActiveReportData() {
+  if (activeReportData) return activeReportData;
+
   if (window.WINSECURE_DATA && window.WINSECURE_DATA.findings) {
-    const raw = window.WINSECURE_DATA;
-    const inv = raw.inventory || {};
-    const metrics = raw.metrics || {};
+    var raw = window.WINSECURE_DATA;
+    var inv = raw.inventory || {};
+    var metrics = raw.metrics || {};
     
-    const findings = (raw.findings || []).map(f => {
-      let cis = 'CIS Windows 11 Enterprise';
-      let nist = 'NIST SP 800-53 Rev 5';
-      let disa = 'DISA STIG Windows 11';
+    var findings = (raw.findings || []).map(function(f) {
+      var cis = 'CIS Windows 11 Enterprise';
+      var nist = 'NIST SP 800-53 Rev 5';
+      var disa = 'DISA STIG Windows 11';
       if (Array.isArray(f.compliance)) {
-        f.compliance.forEach(c => {
-          if (c.framework && c.framework.toLowerCase().includes('cis')) cis = `${c.framework} ${c.control_id || ''}`;
-          if (c.framework && c.framework.toLowerCase().includes('nist')) nist = `${c.framework} ${c.control_id || ''}`;
-          if (c.framework && c.framework.toLowerCase().includes('disa')) disa = `${c.framework} ${c.control_id || ''}`;
+        f.compliance.forEach(function(c) {
+          if (c.framework && c.framework.toLowerCase().indexOf('cis') !== -1) cis = c.framework + ' ' + (c.control_id || '');
+          if (c.framework && c.framework.toLowerCase().indexOf('nist') !== -1) nist = c.framework + ' ' + (c.control_id || '');
+          if (c.framework && c.framework.toLowerCase().indexOf('disa') !== -1) disa = c.framework + ' ' + (c.control_id || '');
         });
       }
       return {
@@ -629,33 +633,33 @@ function getActiveReportData() {
         impact: f.impact || 'Configuration posture divergence.',
         recommendation: f.remediation || 'Harden configuration per baseline.',
         remediation: f.remediation || '# No automated remediation required',
-        compliance_mappings: { cis, nist, disa },
+        compliance_mappings: { cis: cis, nist: nist, disa: disa },
         evidence: f.evidence || []
       };
     });
 
-    return {
+    activeReportData = {
       assessment_metadata: {
         assessment_id: raw.scan_id || 'SCAN-LOCAL',
         target_host: inv.hostname || 'Local Windows Host',
         target_environment: inv.domain_or_workgroup || 'Production Workstation',
         target_ip: (inv.network_interfaces && inv.network_interfaces.MacAddress) ? inv.network_interfaces.MacAddress : '127.0.0.1',
-        os_name: `${inv.os_name || 'Windows 11'} (${inv.os_architecture || 'x64'})`,
+        os_name: (inv.os_name || 'Windows 11') + ' (' + (inv.os_architecture || 'x64') + ')',
         os_build: inv.os_build || '22631',
-        duration: metrics.duration_seconds ? `${metrics.duration_seconds.toFixed(2)}s` : '01.50s',
+        duration: metrics.duration_seconds ? metrics.duration_seconds.toFixed(2) + 's' : '01.50s',
         status: 'COMPLETED'
       },
       metrics: {
         security_score: raw.security_score !== undefined ? raw.security_score : 100.0,
         posture_rating: (typeof raw.risk_level === 'object' && raw.risk_level !== null) ? (raw.risk_level.value || 'STRONG') : String(raw.risk_level || 'STRONG'),
         total_checks_evaluated: metrics.total_checks || findings.length,
-        passed_checks_count: metrics.passed_checks !== undefined ? metrics.passed_checks : findings.filter(f => f.status === 'PASS').length,
-        failed_checks_count: metrics.failed_checks !== undefined ? metrics.failed_checks : findings.filter(f => f.status === 'FAIL').length,
+        passed_checks_count: metrics.passed_checks !== undefined ? metrics.passed_checks : findings.filter(function(f) { return f.status === 'PASS'; }).length,
+        failed_checks_count: metrics.failed_checks !== undefined ? metrics.failed_checks : findings.filter(function(f) { return f.status === 'FAIL'; }).length,
         severity_distribution: {
-          Critical: findings.filter(f => f.status === 'FAIL' && f.severity.toLowerCase() === 'critical').length,
-          High: findings.filter(f => f.status === 'FAIL' && f.severity.toLowerCase() === 'high').length,
-          Medium: findings.filter(f => f.status === 'FAIL' && f.severity.toLowerCase() === 'medium').length,
-          Low: findings.filter(f => f.status === 'FAIL' && f.severity.toLowerCase() === 'low').length
+          Critical: findings.filter(function(f) { return f.status === 'FAIL' && f.severity.toLowerCase() === 'critical'; }).length,
+          High: findings.filter(function(f) { return f.status === 'FAIL' && f.severity.toLowerCase() === 'high'; }).length,
+          Medium: findings.filter(function(f) { return f.status === 'FAIL' && f.severity.toLowerCase() === 'medium'; }).length,
+          Low: findings.filter(function(f) { return f.status === 'FAIL' && f.severity.toLowerCase() === 'low'; }).length
         }
       },
       findings: findings,
@@ -679,14 +683,17 @@ function getActiveReportData() {
         { framework: "DISA STIG", version: "V1R3", desc: "DoD Windows 11 Security Technical Implementation Guide", alignment: 89.5, passed: 42, total: 53 },
         { framework: "Microsoft GPO Baseline", version: "23H2", desc: "Security Baseline Group Policy Settings", alignment: 96.0, passed: 50, total: 53 }
       ],
-      timeline: (raw.score_deductions || []).map(d => ({
-        time: "AUDIT",
-        event: `${d.finding_id}: ${d.title}`,
-        category: d.category,
-        status: "FAIL",
-        details: d.reason || `Penalty: -${d.points_deducted} pts`
-      }))
+      timeline: (raw.score_deductions || []).map(function(d) {
+        return {
+          time: "AUDIT",
+          event: d.finding_id + ": " + d.title,
+          category: d.category,
+          status: "FAIL",
+          details: d.reason || ("Penalty: -" + d.points_deducted + " pts")
+        };
+      })
     };
+    return activeReportData;
   }
   return {
     assessment_metadata: {
@@ -712,426 +719,397 @@ function getActiveReportData() {
   };
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const data = getActiveReportData();
-  setupNavigation();
-  setupFilterControls(data);
-  renderDashboard(data);
-  renderFindings(data.findings);
-  renderModuleCatalog(data.modules);
-  renderCompliance(data.compliance_summaries);
-  renderRemediationPlan(data.findings);
-  renderTimelineLogs(data.timeline);
-  setupKeyboardListeners();
-});
-
 function switchSection(sectionId, element) {
   if (!sectionId) return;
 
-  // Hide all sections
-  document.querySelectorAll('.content-section').forEach(s => {
-    s.classList.remove('active');
-    s.style.display = 'none';
-  });
+  var sections = document.querySelectorAll('.content-section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+    sections[i].style.display = 'none';
+  }
 
-  // Show target section
-  const target = document.getElementById(sectionId);
+  var target = document.getElementById(sectionId);
   if (target) {
     target.classList.add('active');
     target.style.display = 'block';
   }
 
-  // Update navigation links
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  var links = document.querySelectorAll('.nav-link');
+  for (var j = 0; j < links.length; j++) {
+    links[j].classList.remove('active');
+  }
+
   if (element) {
-    const el = element.closest('.nav-link') || element;
+    var el = element.closest('.nav-link') || element;
     el.classList.add('active');
   } else {
-    const el = document.querySelector(`[data-tab="${sectionId}"]`);
-    if (el) el.classList.add('active');
+    var match = document.querySelector('[data-tab="' + sectionId + '"]');
+    if (match) match.classList.add('active');
   }
 }
 window.switchSection = switchSection;
 
-function setupNavigation() {
-  document.querySelectorAll('.nav-link').forEach(item => {
-    item.addEventListener('click', function(e) {
-      e.preventDefault();
-      const targetId = this.getAttribute('data-tab');
-      switchSection(targetId, this);
-    });
-  });
-}
-
 function renderDashboard(data) {
-  const meta = data.assessment_metadata || {};
-  const metrics = data.metrics || {};
-  const dist = metrics.severity_distribution || {};
+  var meta = data.assessment_metadata || {};
+  var metrics = data.metrics || {};
+  var dist = metrics.severity_distribution || {};
 
   setText('topbar-host', meta.target_host || 'Local Host');
   setText('topbar-os', meta.os_name || 'Windows 11');
 
-  setText('kpi-score', `${metrics.security_score.toFixed(1)}/100`);
-  setText('kpi-posture', `${metrics.posture_rating} POSTURE`);
-  setText('kpi-crit-high', `${(dist.Critical || 0) + (dist.High || 0)}`);
+  setText('kpi-score', metrics.security_score.toFixed(1) + '/100');
+  setText('kpi-posture', metrics.posture_rating + ' POSTURE');
+  setText('kpi-crit-high', String((dist.Critical || 0) + (dist.High || 0)));
   setText('kpi-duration', meta.duration || '01.50s');
-  setText('kpi-passed', `${metrics.passed_checks_count} / ${metrics.total_checks_evaluated}`);
+  setText('kpi-passed', metrics.passed_checks_count + ' / ' + metrics.total_checks_evaluated);
 
-  const summary = document.getElementById('auditor-summary-text');
+  var summary = document.getElementById('auditor-summary-text');
   if (summary) {
-    summary.innerHTML = `Automated security diagnostic evaluation completed for endpoint <strong>${meta.target_host}</strong>. The endpoint achieved an overall defensive posture score of <strong>${metrics.security_score.toFixed(1)} / 100 (${metrics.posture_rating})</strong> across ${metrics.total_checks_evaluated} evaluated configuration controls.`;
+    summary.innerHTML = 'Automated security diagnostic evaluation completed for endpoint <strong>' + escapeHtml(meta.target_host) + '</strong>. The endpoint achieved an overall defensive posture score of <strong>' + metrics.security_score.toFixed(1) + ' / 100 (' + escapeHtml(metrics.posture_rating) + ')</strong> across ' + metrics.total_checks_evaluated + ' evaluated configuration controls.';
   }
 }
 
-function setupFilterControls(data) {
-  document.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      activeFindingFilter = chip.getAttribute('data-filter') || 'ALL';
-      filterFindings(data);
-    });
-  });
-
-  const searchInput = document.getElementById('findings-search');
-  if (searchInput) {
-    searchInput.addEventListener('input', () => filterFindings(data));
+function applyFilter(filterVal, element) {
+  activeFindingFilter = filterVal || 'ALL';
+  var chips = document.querySelectorAll('.filter-chip');
+  for (var i = 0; i < chips.length; i++) {
+    chips[i].classList.remove('active');
   }
-
-  const categorySelect = document.getElementById('category-filter');
-  if (categorySelect) {
-    categorySelect.addEventListener('change', () => filterFindings(data));
-  }
+  if (element) element.classList.add('active');
+  filterFindings();
 }
+window.applyFilter = applyFilter;
 
-function filterFindings(data) {
-  const query = (document.getElementById('findings-search')?.value || '').toLowerCase();
-  const category = document.getElementById('category-filter')?.value || 'ALL';
+function filterFindings() {
+  var data = getActiveReportData();
+  var query = (document.getElementById('findings-search') ? document.getElementById('findings-search').value : '').toLowerCase();
+  var category = document.getElementById('category-filter') ? document.getElementById('category-filter').value : 'ALL';
 
-  const findings = data.findings || [];
-  const filtered = findings.filter(f => {
-    const matchFilter = (activeFindingFilter === 'ALL') ||
-                        (activeFindingFilter === 'FAIL' && f.status === 'FAIL') ||
-                        (activeFindingFilter === 'PASS' && f.status === 'PASS') ||
-                        (f.severity.toUpperCase() === activeFindingFilter);
+  var findings = data.findings || [];
+  var filtered = findings.filter(function(f) {
+    var matchFilter = (activeFindingFilter === 'ALL') ||
+                      (activeFindingFilter === 'FAIL' && f.status === 'FAIL') ||
+                      (activeFindingFilter === 'PASS' && f.status === 'PASS') ||
+                      (f.severity.toUpperCase() === activeFindingFilter);
 
-    const matchCategory = (category === 'ALL') || (f.category.toLowerCase() === category.toLowerCase());
-    const matchQuery = f.id.toLowerCase().includes(query) ||
-                       f.title.toLowerCase().includes(query) ||
-                       f.description.toLowerCase().includes(query);
+    var matchCategory = (category === 'ALL') || (f.category.toLowerCase() === category.toLowerCase());
+    var matchQuery = f.id.toLowerCase().indexOf(query) !== -1 ||
+                     f.title.toLowerCase().indexOf(query) !== -1 ||
+                     f.description.toLowerCase().indexOf(query) !== -1;
 
     return matchFilter && matchCategory && matchQuery;
   });
 
   renderFindings(filtered);
 }
+window.filterFindings = filterFindings;
 
 function renderFindings(findings) {
-  const tbody = document.getElementById('findings-tbody');
-  const countBadge = document.getElementById('findings-count-badge');
-  const sidebarCount = document.getElementById('sidebar-finding-count');
+  var tbody = document.getElementById('findings-tbody');
+  var countBadge = document.getElementById('findings-count-badge');
+  var sidebarCount = document.getElementById('sidebar-finding-count');
   if (!tbody) return;
 
   if (sidebarCount) {
-    sidebarCount.textContent = findings.length;
+    sidebarCount.textContent = String(findings.length);
   }
 
   if (findings.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6" style="text-align: center; padding: 24px; color: var(--text-muted);">
-          No findings match the current filter criteria.
-        </td>
-      </tr>
-    `;
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--text-muted);">No findings match the current filter criteria.</td></tr>';
     if (countBadge) countBadge.textContent = "0 findings displayed";
     return;
   }
 
-  tbody.innerHTML = findings.map(f => `
-    <tr onclick="openFindingModal('${f.id}')" style="cursor: pointer;">
-      <td><strong style="font-family: var(--font-mono); color: var(--text-primary);">${f.id}</strong></td>
-      <td><span class="badge badge-low">${escapeHtml(f.category)}</span></td>
-      <td>
-        <div style="font-weight: 600; color: var(--text-primary);">${escapeHtml(f.title)}</div>
-        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">${escapeHtml(f.affected_component || '')}</div>
-      </td>
-      <td><span class="badge ${getSeverityBadge(f.severity)}">${f.severity.toUpperCase()}</span></td>
-      <td><span class="badge ${f.status === 'PASS' ? 'badge-pass' : (f.status === 'FAIL' ? 'badge-crit' : 'badge-warn')}">${f.status}</span></td>
-      <td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">${f.compliance_mappings ? (f.compliance_mappings.cis || 'CIS Baseline') : 'CIS Baseline'}</span></td>
-    </tr>
-  `).join('');
+  var html = '';
+  for (var i = 0; i < findings.length; i++) {
+    var f = findings[i];
+    var statusClass = f.status === 'PASS' ? 'badge-pass' : (f.status === 'FAIL' ? 'badge-crit' : 'badge-warn');
+    html += '<tr onclick="openFindingModal(\'' + f.id + '\')" style="cursor: pointer;">' +
+      '<td><strong style="font-family: var(--font-mono); color: var(--text-primary);">' + f.id + '</strong></td>' +
+      '<td><span class="badge badge-low">' + escapeHtml(f.category) + '</span></td>' +
+      '<td>' +
+        '<div style="font-weight: 600; color: var(--text-primary);">' + escapeHtml(f.title) + '</div>' +
+        '<div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">' + escapeHtml(f.affected_component || '') + '</div>' +
+      '</td>' +
+      '<td><span class="badge ' + getSeverityBadge(f.severity) + '">' + f.severity.toUpperCase() + '</span></td>' +
+      '<td><span class="badge ' + statusClass + '">' + f.status + '</span></td>' +
+      '<td><span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">' + (f.compliance_mappings ? escapeHtml(f.compliance_mappings.cis || 'CIS Baseline') : 'CIS Baseline') + '</span></td>' +
+    '</tr>';
+  }
+  tbody.innerHTML = html;
 
   if (countBadge) {
-    countBadge.textContent = `Showing ${findings.length} controls`;
+    countBadge.textContent = 'Showing ' + findings.length + ' controls';
   }
 }
 
 function renderModuleCatalog(modules) {
-  const container = document.getElementById('catalog-grid');
+  var container = document.getElementById('catalog-grid');
   if (!container || !modules) return;
 
-  container.innerHTML = modules.map(m => `
-    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
-      <div>
-        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
-          <strong style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary);">${m.id}</strong>
-          <span class="badge badge-low">${m.category}</span>
-        </div>
-        <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">${escapeHtml(m.name)}</h4>
-        <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">${escapeHtml(m.desc)}</p>
-      </div>
-      <div style="border-top: 1px solid var(--border-color); padding-top: 8px; font-size: 11px; color: #166534; font-weight: 600;">
-        ✓ Automated Collector Active
-      </div>
-    </div>
-  `).join('');
+  var html = '';
+  for (var i = 0; i < modules.length; i++) {
+    var m = modules[i];
+    html += '<div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">' +
+      '<div>' +
+        '<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">' +
+          '<strong style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary);">' + m.id + '</strong>' +
+          '<span class="badge badge-low">' + m.category + '</span>' +
+        '</div>' +
+        '<h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">' + escapeHtml(m.name) + '</h4>' +
+        '<p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">' + escapeHtml(m.desc) + '</p>' +
+      '</div>' +
+      '<div style="border-top: 1px solid var(--border-color); padding-top: 8px; font-size: 11px; color: #166534; font-weight: 600;">✓ Automated Collector Active</div>' +
+    '</div>';
+  }
+  container.innerHTML = html;
 }
 
 function renderCompliance(summaries) {
-  const container = document.getElementById('compliance-cards-grid');
+  var container = document.getElementById('compliance-cards-grid');
   if (!container || !summaries) return;
 
-  container.innerHTML = summaries.map(s => `
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
-        <h3 style="font-size: 15px; font-weight: 700; color: var(--text-primary);">${escapeHtml(s.framework)}</h3>
-        <span class="badge badge-low">${escapeHtml(s.version)}</span>
-      </div>
-      <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">${escapeHtml(s.desc)}</p>
-      
-      <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-        <span style="color: var(--text-muted);">Alignment Status</span>
-        <strong style="font-family: var(--font-mono); color: var(--text-primary);">${s.alignment}%</strong>
-      </div>
-      <div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-bottom: 10px;">
-        <div style="width: ${s.alignment}%; height: 100%; background: #0ea5e9;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); font-family: var(--font-mono);">
-        <span>Passed: ${s.passed}</span>
-        <span>Total Controls: ${s.total}</span>
-      </div>
-    </div>
-  `).join('');
+  var html = '';
+  for (var i = 0; i < summaries.length; i++) {
+    var s = summaries[i];
+    html += '<div class="card">' +
+      '<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">' +
+        '<h3 style="font-size: 15px; font-weight: 700; color: var(--text-primary);">' + escapeHtml(s.framework) + '</h3>' +
+        '<span class="badge badge-low">' + escapeHtml(s.version) + '</span>' +
+      '</div>' +
+      '<p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">' + escapeHtml(s.desc) + '</p>' +
+      '<div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">' +
+        '<span style="color: var(--text-muted);">Alignment Status</span>' +
+        '<strong style="font-family: var(--font-mono); color: var(--text-primary);">' + s.alignment + '%</strong>' +
+      '</div>' +
+      '<div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-bottom: 10px;">' +
+        '<div style="width: ' + s.alignment + '%; height: 100%; background: #0ea5e9;"></div>' +
+      '</div>' +
+      '<div style="display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); font-family: var(--font-mono);">' +
+        '<span>Passed: ' + s.passed + '</span>' +
+        '<span>Total Controls: ' + s.total + '</span>' +
+      '</div>' +
+    '</div>';
+  }
+  container.innerHTML = html;
 }
 
 function renderRemediationPlan(findings) {
-  const container = document.getElementById('remediation-list');
+  var container = document.getElementById('remediation-list');
   if (!container || !findings) return;
 
-  const failing = findings.filter(f => f.status === 'FAIL');
+  var failing = findings.filter(function(f) { return f.status === 'FAIL'; });
   if (failing.length === 0) {
-    container.innerHTML = `
-      <div class="card" style="text-align: center; padding: 32px; color: #166534;">
-        <h3 style="font-size: 15px; font-weight: 700;">All Assessed Controls Aligned</h3>
-        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">No corrective remediation steps required for this endpoint.</p>
-      </div>
-    `;
+    container.innerHTML = '<div class="card" style="text-align: center; padding: 32px; color: #166534;"><h3 style="font-size: 15px; font-weight: 700;">All Assessed Controls Aligned</h3><p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">No corrective remediation steps required for this endpoint.</p></div>';
     return;
   }
 
-  container.innerHTML = failing.map((f, i) => `
-    <div class="card" style="margin-bottom: 14px;">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
-        <div>
-          <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">STEP ${i + 1} OF ${failing.length}</span>
-          <h3 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary); margin-top: 2px;">
-            <span style="font-family: var(--font-mono); color: var(--accent-blue);">[${f.id}]</span> ${escapeHtml(f.title)}
-          </h3>
-        </div>
-        <span class="badge ${getSeverityBadge(f.severity)}">${f.severity.toUpperCase()}</span>
-      </div>
-
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">${escapeHtml(f.recommendation)}</p>
-
-      <div style="background: #0f172a; border-radius: 6px; padding: 12px 14px; position: relative;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 6px; margin-bottom: 8px;">
-          <span style="font-family: var(--font-mono); font-size: 11px; color: #94a3b8;">POWERSHELL REMEDIATION COMMAND</span>
-          <button class="btn btn-outline btn-sm" style="color: #fff; border-color: #475569; padding: 2px 8px; font-size: 11px;" onclick="copyCode('${escapeJs(f.remediation)}')">Copy</button>
-        </div>
-        <pre style="font-family: var(--font-mono); font-size: 12px; color: #38bdf8; overflow-x: auto; white-space: pre-wrap; margin: 0;">${escapeHtml(f.remediation)}</pre>
-      </div>
-    </div>
-  `).join('');
+  var html = '';
+  for (var i = 0; i < failing.length; i++) {
+    var f = failing[i];
+    html += '<div class="card" style="margin-bottom: 14px;">' +
+      '<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">' +
+        '<div>' +
+          '<span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">STEP ' + (i + 1) + ' OF ' + failing.length + '</span>' +
+          '<h3 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary); margin-top: 2px;">' +
+            '<span style="font-family: var(--font-mono); color: var(--accent-blue);">[' + f.id + ']</span> ' + escapeHtml(f.title) +
+          '</h3>' +
+        '</div>' +
+        '<span class="badge ' + getSeverityBadge(f.severity) + '">' + f.severity.toUpperCase() + '</span>' +
+      '</div>' +
+      '<p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">' + escapeHtml(f.recommendation) + '</p>' +
+      '<div style="background: #0f172a; border-radius: 6px; padding: 12px 14px; position: relative;">' +
+        '<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 6px; margin-bottom: 8px;">' +
+          '<span style="font-family: var(--font-mono); font-size: 11px; color: #94a3b8;">POWERSHELL REMEDIATION COMMAND</span>' +
+          '<button class="btn btn-outline btn-sm" style="color: #fff; border-color: #475569; padding: 2px 8px; font-size: 11px;" onclick="copyCode(this.getAttribute(\'data-code\'))" data-code="' + escapeHtml(f.remediation) + '">Copy</button>' +
+        '</div>' +
+        '<pre style="font-family: var(--font-mono); font-size: 12px; color: #38bdf8; overflow-x: auto; white-space: pre-wrap; margin: 0;">' + escapeHtml(f.remediation) + '</pre>' +
+      '</div>' +
+    '</div>';
+  }
+  container.innerHTML = html;
 }
 
 function renderTimelineLogs(timeline) {
-  const container = document.getElementById('timeline-log-list');
+  var container = document.getElementById('timeline-log-list');
   if (!container || !timeline) return;
 
   if (timeline.length === 0) {
-    container.innerHTML = `
-      <div style="padding: 16px; font-size: 13px; color: var(--text-muted); text-align: center;">
-        No score deductions recorded during this assessment run.
-      </div>
-    `;
+    container.innerHTML = '<div style="padding: 16px; font-size: 13px; color: var(--text-muted); text-align: center;">No score deductions recorded during this assessment run.</div>';
     return;
   }
 
-  container.innerHTML = timeline.map(t => `
-    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-canvas); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 13px;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <span class="badge ${t.status === 'PASS' ? 'badge-pass' : 'badge-crit'}">${t.status}</span>
-        <strong style="color: var(--text-primary); font-family: var(--font-mono);">${escapeHtml(t.event)}</strong>
-      </div>
-      <span style="color: #dc2626; font-family: var(--font-mono); font-size: 12px; font-weight: 600;">${escapeHtml(t.details || '')}</span>
-    </div>
-  `).join('');
+  var html = '';
+  for (var i = 0; i < timeline.length; i++) {
+    var t = timeline[i];
+    html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-canvas); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 13px;">' +
+      '<div style="display: flex; align-items: center; gap: 10px;">' +
+        '<span class="badge ' + (t.status === 'PASS' ? 'badge-pass' : 'badge-crit') + '">' + t.status + '</span>' +
+        '<strong style="color: var(--text-primary); font-family: var(--font-mono);">' + escapeHtml(t.event) + '</strong>' +
+      '</div>' +
+      '<span style="color: #dc2626; font-family: var(--font-mono); font-size: 12px; font-weight: 600;">' + escapeHtml(t.details || '') + '</span>' +
+    '</div>';
+  }
+  container.innerHTML = html;
 }
 
-window.openFindingModal = function(findingId) {
-  const data = getActiveReportData();
-  const f = (data.findings || []).find(item => item.id === findingId);
+function openFindingModal(findingId) {
+  var data = getActiveReportData();
+  var f = null;
+  for (var i = 0; i < (data.findings || []).length; i++) {
+    if (data.findings[i].id === findingId) {
+      f = data.findings[i];
+      break;
+    }
+  }
   if (!f) return;
 
   currentActiveItem = f;
   currentModalTab = 'tab-overview';
 
-  const title = document.getElementById('modal-title');
-  if (title) title.innerHTML = `<span style="color: var(--accent-blue);">[${f.id}]</span> ${escapeHtml(f.title)}`;
+  var title = document.getElementById('modal-title');
+  if (title) title.innerHTML = '<span style="color: var(--accent-blue);">[' + f.id + ']</span> ' + escapeHtml(f.title);
 
-  document.querySelectorAll('.modal-tab').forEach(t => {
-    t.classList.toggle('active', t.getAttribute('data-tab') === currentModalTab);
-  });
+  var tabs = document.querySelectorAll('.modal-tab');
+  for (var j = 0; j < tabs.length; j++) {
+    tabs[j].classList.toggle('active', tabs[j].getAttribute('data-tab') === currentModalTab);
+  }
 
   renderModalContent(currentModalTab);
 
-  const modal = document.getElementById('finding-modal');
+  var modal = document.getElementById('finding-modal');
   if (modal) modal.style.display = 'flex';
 }
+window.openFindingModal = openFindingModal;
 
-window.switchModalTab = function(tabKey) {
+function switchModalTab(tabKey) {
   currentModalTab = tabKey;
-  document.querySelectorAll('.modal-tab').forEach(t => {
-    t.classList.toggle('active', t.getAttribute('data-tab') === tabKey);
-  });
+  var tabs = document.querySelectorAll('.modal-tab');
+  for (var j = 0; j < tabs.length; j++) {
+    tabs[j].classList.toggle('active', tabs[j].getAttribute('data-tab') === tabKey);
+  }
   renderModalContent(tabKey);
 }
+window.switchModalTab = switchModalTab;
 
 function renderModalContent(tabKey) {
-  const f = currentActiveItem;
+  var f = currentActiveItem;
   if (!f) return;
 
-  const body = document.getElementById('modal-body');
+  var body = document.getElementById('modal-body');
   if (!body) return;
 
   if (tabKey === 'tab-overview') {
-    body.innerHTML = `
-      <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
-        <span class="badge ${getSeverityBadge(f.severity)}">${f.severity.toUpperCase()}</span>
-        <span class="badge ${f.status === 'PASS' ? 'badge-pass' : 'badge-crit'}">${f.status}</span>
-        <span class="badge badge-low">${escapeHtml(f.category)}</span>
-      </div>
-      <h4 style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">DESCRIPTION</h4>
-      <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">${escapeHtml(f.description)}</p>
-      <h4 style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">IMPACT & POSTURE RISK</h4>
-      <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">${escapeHtml(f.risk_explanation || f.impact)}</p>
-    `;
+    body.innerHTML = '<div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">' +
+        '<span class="badge ' + getSeverityBadge(f.severity) + '">' + f.severity.toUpperCase() + '</span>' +
+        '<span class="badge ' + (f.status === 'PASS' ? 'badge-pass' : 'badge-crit') + '">' + f.status + '</span>' +
+        '<span class="badge badge-low">' + escapeHtml(f.category) + '</span>' +
+      '</div>' +
+      '<h4 style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">DESCRIPTION</h4>' +
+      '<p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">' + escapeHtml(f.description) + '</p>' +
+      '<h4 style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">IMPACT & POSTURE RISK</h4>' +
+      '<p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">' + escapeHtml(f.risk_explanation || f.impact) + '</p>';
   } else if (tabKey === 'tab-threat') {
-    body.innerHTML = `
-      <div style="background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #dc2626; padding: 14px; border-radius: 6px; margin-bottom: 14px;">
-        <div style="font-size: 12px; font-weight: 700; color: #991b1b; margin-bottom: 4px;">ATTACKER EXPLOITATION VECTOR</div>
-        <p style="font-size: 13px; color: #7f1d1d; line-height: 1.6; margin: 0;">${escapeHtml(f.risk_explanation || f.impact)}</p>
-      </div>
-    `;
+    body.innerHTML = '<div style="background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #dc2626; padding: 14px; border-radius: 6px; margin-bottom: 14px;">' +
+        '<div style="font-size: 12px; font-weight: 700; color: #991b1b; margin-bottom: 4px;">ATTACKER EXPLOITATION VECTOR</div>' +
+        '<p style="font-size: 13px; color: #7f1d1d; line-height: 1.6; margin: 0;">' + escapeHtml(f.risk_explanation || f.impact) + '</p>' +
+      '</div>';
   } else if (tabKey === 'tab-remediation') {
-    body.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <span style="font-size: 12px; font-weight: 700; color: var(--text-muted);">RECOMMENDED POWERSHELL COMMAND</span>
-        <button class="btn btn-sm" onclick="copyCode('${escapeJs(f.remediation)}')">Copy Fix</button>
-      </div>
-      <pre style="background: #0f172a; color: #38bdf8; padding: 12px; border-radius: 6px; font-family: var(--font-mono); font-size: 12px; line-height: 1.6; overflow-x: auto;">${escapeHtml(f.remediation)}</pre>
-    `;
+    body.innerHTML = '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">' +
+        '<span style="font-size: 12px; font-weight: 700; color: var(--text-muted);">RECOMMENDED POWERSHELL COMMAND</span>' +
+        '<button class="btn btn-sm" onclick="copyCode(this.getAttribute(\'data-code\'))" data-code="' + escapeHtml(f.remediation) + '">Copy Fix</button>' +
+      '</div>' +
+      '<pre style="background: #0f172a; color: #38bdf8; padding: 12px; border-radius: 6px; font-family: var(--font-mono); font-size: 12px; line-height: 1.6; overflow-x: auto;">' + escapeHtml(f.remediation) + '</pre>';
   } else if (tabKey === 'tab-evidence') {
-    const jsonStr = JSON.stringify(f.evidence || [], null, 2);
-    body.innerHTML = `
-      <pre style="background: #0f172a; color: #10b981; padding: 12px; border-radius: 6px; font-family: var(--font-mono); font-size: 12px; line-height: 1.6; overflow-x: auto;">${escapeHtml(jsonStr)}</pre>
-    `;
+    var jsonStr = JSON.stringify(f.evidence || [], null, 2);
+    body.innerHTML = '<pre style="background: #0f172a; color: #10b981; padding: 12px; border-radius: 6px; font-family: var(--font-mono); font-size: 12px; line-height: 1.6; overflow-x: auto;">' + escapeHtml(jsonStr) + '</pre>';
   } else if (tabKey === 'tab-compliance') {
-    const map = f.compliance_mappings || {};
-    body.innerHTML = `
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <div style="background: var(--bg-canvas); padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;">
-          <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">CIS BENCHMARK</div>
-          <div style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); margin-top: 2px;">${escapeHtml(map.cis || 'CIS Windows 11 Enterprise')}</div>
-        </div>
-        <div style="background: var(--bg-canvas); padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;">
-          <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">NIST SP 800-53 REV 5</div>
-          <div style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); margin-top: 2px;">${escapeHtml(map.nist || 'NIST Security Control')}</div>
-        </div>
-        <div style="background: var(--bg-canvas); padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;">
-          <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">DISA STIG</div>
-          <div style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); margin-top: 2px;">${escapeHtml(map.disa || 'DISA Windows Baseline STIG')}</div>
-        </div>
-      </div>
-    `;
+    var map = f.compliance_mappings || {};
+    body.innerHTML = '<div style="display: flex; flex-direction: column; gap: 8px;">' +
+        '<div style="background: var(--bg-canvas); padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;">' +
+          '<div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">CIS BENCHMARK</div>' +
+          '<div style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); margin-top: 2px;">' + escapeHtml(map.cis || 'CIS Windows 11 Enterprise') + '</div>' +
+        '</div>' +
+        '<div style="background: var(--bg-canvas); padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;">' +
+          '<div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">NIST SP 800-53 REV 5</div>' +
+          '<div style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); margin-top: 2px;">' + escapeHtml(map.nist || 'NIST Security Control') + '</div>' +
+        '</div>' +
+        '<div style="background: var(--bg-canvas); padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;">' +
+          '<div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">DISA STIG</div>' +
+          '<div style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); margin-top: 2px;">' + escapeHtml(map.disa || 'DISA Windows Baseline STIG') + '</div>' +
+        '</div>' +
+      '</div>';
   }
 }
 
-window.closeFindingModal = function() {
-  const modal = document.getElementById('finding-modal');
+function closeFindingModal() {
+  var modal = document.getElementById('finding-modal');
   if (modal) modal.style.display = 'none';
   currentActiveItem = null;
 }
+window.closeFindingModal = closeFindingModal;
 
 function downloadMasterScript() {
-  const data = getActiveReportData();
-  const failing = (data.findings || []).filter(f => f.status === 'FAIL');
-  const script = `# =====================================================================
-# WinSecure Automated Hardening Script
-# Target Host: ${data.assessment_metadata.target_host}
-# Assessment ID: ${data.assessment_metadata.assessment_id}
-# =====================================================================
+  var data = getActiveReportData();
+  var failing = (data.findings || []).filter(function(f) { return f.status === 'FAIL'; });
+  var script = '# =====================================================================\n' +
+    '# WinSecure Automated Hardening Script\n' +
+    '# Target Host: ' + data.assessment_metadata.target_host + '\n' +
+    '# Assessment ID: ' + data.assessment_metadata.assessment_id + '\n' +
+    '# =====================================================================\n\n' +
+    'if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {\n' +
+    '    Write-Error "[!] Administrative privileges required. Run PowerShell as Administrator."\n' +
+    '    Exit 1\n' +
+    '}\n\n' +
+    'Write-Host "[*] Executing WinSecure Hardening Plan (' + failing.length + ' fixes)..." -ForegroundColor Cyan\n';
 
-if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Error "[!] Administrative privileges required. Run PowerShell as Administrator."
-    Exit 1
-}
+  for (var i = 0; i < failing.length; i++) {
+    var f = failing[i];
+    script += '\n# Step ' + (i + 1) + ': ' + f.id + ' — ' + f.title + '\n' +
+      'Write-Host "  [*] Applying: ' + f.title + ' (' + f.id + ')..."\n' +
+      'try {\n' +
+      '    ' + f.remediation + '\n' +
+      '    Write-Host "    [OK] Remediated ' + f.id + '" -ForegroundColor Green\n' +
+      '} catch {\n' +
+      '    Write-Warning "    [!] Failed ' + f.id + ': $_"\n' +
+      '}\n';
+  }
 
-Write-Host "[*] Executing WinSecure Hardening Plan (${failing.length} fixes)..." -ForegroundColor Cyan
-` + failing.map((f, i) => `
-# Step ${i + 1}: ${f.id} — ${f.title}
-Write-Host "  [*] Applying: ${f.title} (${f.id})..."
-try {
-    ${f.remediation}
-    Write-Host "    [OK] Remediated ${f.id}" -ForegroundColor Green
-} catch {
-    Write-Warning "    [!] Failed ${f.id}: $_"
-}
-`).join('\n');
-
-  const blob = new Blob([script], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  var blob = new Blob([script], { type: 'text/plain;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
   a.href = url;
-  a.download = `WinSecure-Remediation-${data.assessment_metadata.target_host}.ps1`;
+  a.download = 'WinSecure-Remediation-' + data.assessment_metadata.target_host + '.ps1';
   a.click();
   URL.revokeObjectURL(url);
-  showToast("Master remediation script downloaded.");
+  showToast('Master remediation script downloaded.');
 }
+window.downloadMasterScript = downloadMasterScript;
 
 function showToast(msg) {
-  const existing = document.querySelector('.platform-toast');
+  var existing = document.querySelector('.platform-toast');
   if (existing) existing.remove();
 
-  const toast = document.createElement('div');
+  var toast = document.createElement('div');
   toast.className = 'platform-toast';
   toast.style.cssText = "position: fixed; bottom: 24px; right: 24px; background: #0f172a; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 3000; box-shadow: 0 10px 25px rgba(0,0,0,0.25);";
-  toast.textContent = `✓ ${msg}`;
+  toast.textContent = '✓ ' + msg;
   document.body.appendChild(toast);
 
-  setTimeout(() => {
+  setTimeout(function() {
     toast.style.opacity = '0';
     toast.style.transition = 'opacity 0.2s ease';
-    setTimeout(() => toast.remove(), 250);
+    setTimeout(function() { toast.remove(); }, 250);
   }, 2200);
 }
 
 function copyCode(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    showToast("Copied to clipboard.");
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(function() {
+    showToast('Copied to clipboard.');
   });
 }
+window.copyCode = copyCode;
 
 function getSeverityBadge(sev) {
   switch ((sev || '').toLowerCase()) {
@@ -1144,27 +1122,30 @@ function getSeverityBadge(sev) {
 }
 
 function setText(id, text) {
-  const el = document.getElementById(id);
+  var el = document.getElementById(id);
   if (el) el.textContent = text;
 }
 
 function escapeHtml(str) {
   if (!str) return '';
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return String(str).split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quot;');
 }
 
-function escapeJs(str) {
-  if (!str) return '';
-  return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '');
-}
+document.addEventListener('DOMContentLoaded', function() {
+  var data = getActiveReportData();
+  renderDashboard(data);
+  renderFindings(data.findings);
+  renderModuleCatalog(data.modules);
+  renderCompliance(data.compliance_summaries);
+  renderRemediationPlan(data.findings);
+  renderTimelineLogs(data.timeline);
 
-function setupKeyboardListeners() {
-  document.addEventListener('keydown', e => {
+  document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
       closeFindingModal();
     }
   });
-}
+});
 """
 
 
@@ -1183,24 +1164,24 @@ class WebReportGenerator:
 
         inv = result.inventory
         hostname = inv.hostname if inv else 'DESKTOP-WIN11'
-        os_name = inv.os_name if inv else 'Windows 11'
+        os_name = inv.os_name if inv else 'Windows 10 Pro'
         admin_badge = 'badge-pass' if result.is_admin else 'badge-low'
         admin_label = 'ADMIN' if result.is_admin else 'USER'
         score_val = result.security_score
         risk_level_val = result.risk_level.value if hasattr(result.risk_level, "value") else str(result.risk_level)
         duration_val = result.metrics.duration_seconds if result.metrics else 0.0
 
-        html_content = f"""<!DOCTYPE html>
+        html_template = """<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WinSecure Security Assessment — {result.scan_id}</title>
+  <title>WinSecure Security Assessment — __SCAN_ID__</title>
   <style>
-{REPORT_CSS}
+__REPORT_CSS__
   </style>
   <script>
-    window.WINSECURE_DATA = {data_payload};
+    window.WINSECURE_DATA = __DATA_PAYLOAD__;
   </script>
 </head>
 <body>
@@ -1217,39 +1198,39 @@ class WebReportGenerator:
 
       <ul class="nav-menu">
         <li class="nav-item">
-          <a class="nav-link active" data-tab="section-overview" href="javascript:void(0)" onclick="switchSection(\'section-overview\', this)">
+          <a class="nav-link active" data-tab="section-overview" href="javascript:void(0)" onclick="switchSection('section-overview', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Overview</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-findings" href="javascript:void(0)" onclick="switchSection(\'section-findings\', this)">
+          <a class="nav-link" data-tab="section-findings" href="javascript:void(0)" onclick="switchSection('section-findings', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             <span>Findings</span>
-            <span class="badge badge-crit" style="margin-left: auto;" id="sidebar-finding-count">{len(result.findings)}</span>
+            <span class="badge badge-crit" style="margin-left: auto;" id="sidebar-finding-count">__FINDINGS_COUNT__</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-modules" href="javascript:void(0)" onclick="switchSection(\'section-modules\', this)">
+          <a class="nav-link" data-tab="section-modules" href="javascript:void(0)" onclick="switchSection('section-modules', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
             <span>30 Modules</span>
             <span class="badge badge-low" style="margin-left: auto;">30</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-compliance" href="javascript:void(0)" onclick="switchSection(\'section-compliance\', this)">
+          <a class="nav-link" data-tab="section-compliance" href="javascript:void(0)" onclick="switchSection('section-compliance', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path></svg>
             <span>Compliance</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-remediation" href="javascript:void(0)" onclick="switchSection(\'section-remediation\', this)">
+          <a class="nav-link" data-tab="section-remediation" href="javascript:void(0)" onclick="switchSection('section-remediation', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"></path></svg>
             <span>Remediation</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-tab="section-logs" href="javascript:void(0)" onclick="switchSection(\'section-logs\', this)">
+          <a class="nav-link" data-tab="section-logs" href="javascript:void(0)" onclick="switchSection('section-logs', this)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
             <span>Execution Log</span>
           </a>
@@ -1258,7 +1239,7 @@ class WebReportGenerator:
 
       <div class="sidebar-footer">
         <span class="status-dot"></span>
-        <span>WinSecure · By Kartavya Joshi · v{result.winsecure_version}</span>
+        <span>WinSecure · By Kartavya Joshi · v__WINSECURE_VERSION__</span>
       </div>
     </aside>
 
@@ -1267,11 +1248,11 @@ class WebReportGenerator:
       <header class="topbar">
         <div class="topbar-left">
           <div class="meta-pill">
-            <span>Host:</span> <strong id="topbar-host">{hostname}</strong>
+            <span>Host:</span> <strong id="topbar-host">__HOSTNAME__</strong>
             <span style="color: var(--border-color);">|</span>
-            <span id="topbar-os">{os_name}</span>
-            <span id="topbar-admin" class="badge {admin_badge}">
-              {admin_label}
+            <span id="topbar-os">__OS_NAME__</span>
+            <span id="topbar-admin" class="badge __ADMIN_BADGE__">
+              __ADMIN_LABEL__
             </span>
           </div>
         </div>
@@ -1291,22 +1272,22 @@ class WebReportGenerator:
           <div class="kpi-grid">
             <div class="kpi-card">
               <div class="kpi-label">Security Score</div>
-              <div class="kpi-value" id="kpi-score">{score_val:.1f}/100</div>
-              <div class="kpi-meta" id="kpi-posture">{risk_level_val} POSTURE</div>
+              <div class="kpi-value" id="kpi-score">__SCORE_VAL__</div>
+              <div class="kpi-meta" id="kpi-posture">__RISK_LEVEL__ POSTURE</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Priority Defects</div>
-              <div class="kpi-value kpi-danger" id="kpi-crit-high">{crit_count + high_count}</div>
-              <div class="kpi-meta">{crit_count} Critical, {high_count} High</div>
+              <div class="kpi-value kpi-danger" id="kpi-crit-high">__PRIORITY_DEFECTS__</div>
+              <div class="kpi-meta">__CRIT_COUNT__ Critical, __HIGH_COUNT__ High</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Scan Duration</div>
-              <div class="kpi-value" id="kpi-duration">{duration_val:.2f}s</div>
+              <div class="kpi-value" id="kpi-duration">__DURATION_VAL__</div>
               <div class="kpi-meta">30 Security Scanners</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Verified Controls</div>
-              <div class="kpi-value kpi-success" id="kpi-passed">{pass_count} / {len(result.findings)}</div>
+              <div class="kpi-value kpi-success" id="kpi-passed">__PASS_COUNT__ / __FINDINGS_COUNT__</div>
               <div class="kpi-meta">Baseline Controls Aligned</div>
             </div>
           </div>
@@ -1314,7 +1295,7 @@ class WebReportGenerator:
           <div class="card" style="margin-bottom: 20px;">
             <h2 class="card-title">Lead Security Auditor Briefing</h2>
             <div id="auditor-summary-text" style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
-              Automated diagnostic evaluation completed for endpoint <strong>{hostname}</strong>. Overall defensive security rating: <strong>{score_val:.1f} / 100 ({risk_level_val})</strong>. Evaluated <strong>{len(result.findings)} configuration controls</strong> across 30 system domains.
+              Automated diagnostic evaluation completed for endpoint <strong>__HOSTNAME__</strong>. Overall defensive security rating: <strong>__SCORE_VAL__ (__RISK_LEVEL__)</strong> across __FINDINGS_COUNT__ configuration controls.
             </div>
           </div>
         </section>
@@ -1325,18 +1306,18 @@ class WebReportGenerator:
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
               <h2 class="card-title" style="margin: 0;">Findings Explorer</h2>
               <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button class="filter-chip active" data-filter="ALL">ALL</button>
-                <button class="filter-chip" data-filter="CRITICAL">CRITICAL</button>
-                <button class="filter-chip" data-filter="HIGH">HIGH</button>
-                <button class="filter-chip" data-filter="MEDIUM">MEDIUM</button>
-                <button class="filter-chip" data-filter="FAIL">FAILURES</button>
-                <button class="filter-chip" data-filter="PASS">PASSED</button>
+                <button class="filter-chip active" onclick="applyFilter('ALL', this)">ALL</button>
+                <button class="filter-chip" onclick="applyFilter('CRITICAL', this)">CRITICAL</button>
+                <button class="filter-chip" onclick="applyFilter('HIGH', this)">HIGH</button>
+                <button class="filter-chip" onclick="applyFilter('MEDIUM', this)">MEDIUM</button>
+                <button class="filter-chip" onclick="applyFilter('FAIL', this)">FAILURES</button>
+                <button class="filter-chip" onclick="applyFilter('PASS', this)">PASSED</button>
               </div>
             </div>
 
             <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-              <input type="text" id="findings-search" class="form-input" placeholder="Search finding ID, title, affected component..." style="flex-grow: 1;">
-              <select id="category-filter" class="form-input" style="width: 200px;">
+              <input type="text" id="findings-search" class="form-input" placeholder="Search finding ID, title, affected component..." oninput="filterFindings()" style="flex-grow: 1;">
+              <select id="category-filter" class="form-input" onchange="filterFindings()" style="width: 200px;">
                 <option value="ALL">All Categories</option>
                 <option value="Defender">Defender</option>
                 <option value="Firewall">Firewall</option>
@@ -1431,11 +1412,29 @@ class WebReportGenerator:
   </div>
 
   <script>
-{REPORT_JS}
+__REPORT_JS__
   </script>
 </body>
 </html>
 """
+        html_content = html_template.replace("__SCAN_ID__", str(result.scan_id))\
+            .replace("__REPORT_CSS__", REPORT_CSS)\
+            .replace("__REPORT_JS__", REPORT_JS)\
+            .replace("__DATA_PAYLOAD__", data_payload)\
+            .replace("__HOSTNAME__", str(hostname))\
+            .replace("__OS_NAME__", str(os_name))\
+            .replace("__ADMIN_BADGE__", str(admin_badge))\
+            .replace("__ADMIN_LABEL__", str(admin_label))\
+            .replace("__SCORE_VAL__", f"{score_val:.1f}/100")\
+            .replace("__RISK_LEVEL__", str(risk_level_val))\
+            .replace("__PRIORITY_DEFECTS__", str(crit_count + high_count))\
+            .replace("__CRIT_COUNT__", str(crit_count))\
+            .replace("__HIGH_COUNT__", str(high_count))\
+            .replace("__DURATION_VAL__", f"{duration_val:.2f}s")\
+            .replace("__PASS_COUNT__", str(pass_count))\
+            .replace("__FINDINGS_COUNT__", str(len(result.findings)))\
+            .replace("__WINSECURE_VERSION__", str(result.winsecure_version))
+
         report_path = os.path.join(output_dir, "index.html")
         with open(report_path, "w", encoding="utf-8") as f:
             f.write(html_content)
