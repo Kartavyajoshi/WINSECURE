@@ -1053,34 +1053,41 @@ window.closeFindingModal = closeFindingModal;
 function downloadMasterScript() {
   var data = getActiveReportData();
   var failing = (data.findings || []).filter(function(f) { return f.status === 'FAIL'; });
-  var script = '# =====================================================================\n' +
-    '# WinSecure Automated Hardening Script\n' +
-    '# Target Host: ' + data.assessment_metadata.target_host + '\n' +
-    '# Assessment ID: ' + data.assessment_metadata.assessment_id + '\n' +
-    '# =====================================================================\n\n' +
-    'if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {\n' +
-    '    Write-Error "[!] Administrative privileges required. Run PowerShell as Administrator."\n' +
-    '    Exit 1\n' +
-    '}\n\n' +
-    'Write-Host "[*] Executing WinSecure Hardening Plan (' + failing.length + ' fixes)..." -ForegroundColor Cyan\n';
+  var lines = [
+    '# =====================================================================',
+    '# WinSecure Automated Hardening Script',
+    '# Target Host: ' + (data.assessment_metadata ? data.assessment_metadata.target_host : 'Localhost'),
+    '# Assessment ID: ' + (data.assessment_metadata ? data.assessment_metadata.assessment_id : 'SCAN'),
+    '# =====================================================================',
+    '',
+    'if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {',
+    '    Write-Error "[!] Administrative privileges required. Run PowerShell as Administrator."',
+    '    Exit 1',
+    '}',
+    '',
+    'Write-Host "[*] Executing WinSecure Hardening Plan (' + failing.length + ' fixes)..." -ForegroundColor Cyan',
+    ''
+  ];
 
   for (var i = 0; i < failing.length; i++) {
     var f = failing[i];
-    script += '\n# Step ' + (i + 1) + ': ' + f.id + ' — ' + f.title + '\n' +
-      'Write-Host "  [*] Applying: ' + f.title + ' (' + f.id + ')..."\n' +
-      'try {\n' +
-      '    ' + f.remediation + '\n' +
-      '    Write-Host "    [OK] Remediated ' + f.id + '" -ForegroundColor Green\n' +
-      '} catch {\n' +
-      '    Write-Warning "    [!] Failed ' + f.id + ': $_"\n' +
-      '}\n';
+    lines.push('');
+    lines.push('# Step ' + (i + 1) + ': ' + f.id + ' - ' + f.title);
+    lines.push('Write-Host "  [*] Applying: ' + f.title + ' (' + f.id + ')..."');
+    lines.push('try {');
+    lines.push('    ' + (f.remediation || '# No remediation specified'));
+    lines.push('    Write-Host "    [OK] Remediated ' + f.id + '" -ForegroundColor Green');
+    lines.push('} catch {');
+    lines.push('    Write-Warning "    [!] Failed ' + f.id + ': $_"');
+    lines.push('}');
   }
 
+  var script = lines.join(String.fromCharCode(10));
   var blob = new Blob([script], { type: 'text/plain;charset=utf-8' });
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
   a.href = url;
-  a.download = 'WinSecure-Remediation-' + data.assessment_metadata.target_host + '.ps1';
+  a.download = 'WinSecure-Remediation-' + (data.assessment_metadata ? data.assessment_metadata.target_host : 'Host') + '.ps1';
   a.click();
   URL.revokeObjectURL(url);
   showToast('Master remediation script downloaded.');
