@@ -1,10 +1,11 @@
 """
-WinSecure Central Scan Execution Pipeline
+WinSecure Central Scan Execution Pipeline with Real-Time Event Streaming
 """
 import time
-from typing import Callable, Optional, List
+from typing import Callable, Optional, List, Dict, Any
 from winsecure.core.context import ScanContext
 from winsecure.core.environment import EnvironmentValidator
+from winsecure.engine.collector import ResultCollector
 from winsecure.collectors import (
     RegistryCollector,
     PowerShellCollector,
@@ -38,14 +39,21 @@ from winsecure.engine.validator import ScanValidator
 
 
 class ScanPipeline:
-    """Orchestrates the complete 8-step security assessment pipeline."""
+    """Orchestrates the complete 8-step security assessment pipeline with real-time test streaming."""
 
     def __init__(self, context: ScanContext):
         self.context = context
         self.metrics_collector = MetricsCollector()
+        self.result_collector = ResultCollector()
 
-    def run(self, progress_callback: Optional[Callable[[int, int, str], None]] = None) -> ScanResult:
+    def run(
+        self,
+        progress_callback: Optional[Callable[[int, int, str], None]] = None,
+        test_callback: Optional[Callable[[Finding, int, int, Dict[str, Any]], None]] = None,
+        module_callback: Optional[Callable[[int, int, str, str], None]] = None,
+    ) -> ScanResult:
         total_steps = 8
+        total_modules = len(ALL_SCANNERS)
 
         def notify(step_idx: int, desc: str):
             if progress_callback:
@@ -95,8 +103,13 @@ class ScanPipeline:
         notify(3, "Configuration assessment")
         all_findings: List[Finding] = []
         scanner_health_list: List[ScannerHealth] = []
+        
+        # Estimate 55 total checks across 32 modules
+        total_checks_expected = 55
+        self.result_collector.total_scheduled = total_checks_expected
+        test_index = 0
 
-        for scanner_cls in ALL_SCANNERS:
+        for mod_idx, scanner_cls in enumerate(ALL_SCANNERS, 1):
             s_name = scanner_cls.__name__
             t_start = time.perf_counter()
             s_health = ScannerHealth(
@@ -109,17 +122,21 @@ class ScanPipeline:
             try:
                 scanner_instance = scanner_cls(self.context)
                 meta = getattr(scanner_instance, "metadata", None)
+                mod_display_name = meta.name if meta else s_name
+                mod_category = meta.category if meta else "General"
+
                 if meta:
                     s_health.scanner_id = meta.id
                     s_health.name = meta.name
                     s_health.category = meta.category
                     s_health.requires_admin = meta.requires_admin
 
+                if module_callback:
+                    module_callback(mod_idx, total_modules, mod_display_name, mod_category)
+
                 # Check elevation restriction
                 if meta and meta.requires_admin and not self.context.is_admin and not self.context.config.fixture_path:
-                    # Execute accessible parts or mark as UNKNOWN/requires_admin
                     scanner_findings = scanner_instance.run()
-                    # If any findings returned as UNKNOWN due to permissions, record them
                     for f in scanner_findings:
                         if f.requires_admin and f.status == FindingStatus.UNKNOWN:
                             f.actual = "Requires administrative privileges"
@@ -127,6 +144,18 @@ class ScanPipeline:
                     scanner_findings = scanner_instance.run()
 
                 elapsed_ms = round((time.perf_counter() - t_start) * 1000.0, 2)
+                per_test_dur = round((elapsed_ms / 1000.0) / max(1, len(scanner_findings)), 3)
+
+                for f in scanner_findings:
+                    test_index += 1
+                    if f.duration == 0.0:
+                        f.duration = per_test_dur
+                    self.result_collector.add_finding(f)
+                    all_findings.append(f)
+
+                    if test_callback:
+                        test_callback(f, test_index, total_checks_expected, self.result_collector.get_stats())
+
                 s_health.execution_time_ms = elapsed_ms
                 s_health.checks_count = len(scanner_findings)
                 s_health.passed_count = sum(1 for f in scanner_findings if f.status == FindingStatus.PASS)
@@ -140,7 +169,6 @@ class ScanPipeline:
                 s_health.coverage_percent = round((evaluable / max(1, s_health.checks_count)) * 100.0, 1)
                 s_health.status = "COMPLETED"
 
-                all_findings.extend(scanner_findings)
             except Exception as e:
                 elapsed_ms = round((time.perf_counter() - t_start) * 1000.0, 2)
                 s_health.execution_time_ms = elapsed_ms
@@ -148,6 +176,7 @@ class ScanPipeline:
                 s_health.error_count = 1
                 s_health.errors.append(str(e))
                 self.context.add_error(s_name, str(e))
+                self.result_collector.add_error(s_name, str(e))
 
             scanner_health_list.append(s_health)
 
@@ -185,7 +214,7 @@ class ScanPipeline:
         restricted_checks = unknown_checks + error_checks
         coverage_pct = round((accessible_checks / max(1, total_checks)) * 100.0, 1)
 
-        # [7/8] Benchmarking & Historical Drift Comparison
+        # [7/8] Benchmarking & Metrics
         passed = sum(1 for f in self.context.findings if f.status == FindingStatus.PASS)
         failed = sum(1 for f in self.context.findings if f.status == FindingStatus.FAIL)
         warn = sum(1 for f in self.context.findings if f.status == FindingStatus.WARN)
@@ -223,7 +252,7 @@ class ScanPipeline:
         except Exception:
             drift_data = {"has_previous": False, "score_delta": 0.0, "message": "Initial scan — baseline established."}
 
-        # [7/8] Report generation (Deferred to Reporting Engine)
+        # [7/8] Report generation notification
         notify(7, "Report generation")
 
         # [8/8] Validation & Integrity
@@ -254,15 +283,14 @@ class ScanPipeline:
             errors=self.context.errors,
         )
 
-        # Validate result
         ScanValidator.validate_scan_result(scan_result)
 
-        # Persist to SQLite
+        # Save scan to SQLite database
         try:
             db_mgr = DatabaseManager(self.context.config.db_path)
             repo = ScanRepository(db_mgr)
-            repo.save_scan_result(scan_result)
+            repo.save_scan(scan_result)
         except Exception as e:
-            self.context.add_error("DatabasePersistence", str(e))
+            self.context.add_error("ScanRepository", f"Could not persist scan to SQLite: {e}")
 
         return scan_result

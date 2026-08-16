@@ -1,5 +1,5 @@
 """
-WinSecure Finding Data Model
+WinSecure Finding & Security Test Result Data Model
 """
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
@@ -57,6 +57,8 @@ class FindingStatus(str, Enum):
             "unknown": cls.UNKNOWN,
             "not_applicable": cls.NOT_APPLICABLE,
             "na": cls.NOT_APPLICABLE,
+            "skipped": cls.NOT_APPLICABLE,
+            "skip": cls.NOT_APPLICABLE,
             "error": cls.ERROR,
         }
         return val_map.get(value.lower(), cls.UNKNOWN)
@@ -83,14 +85,48 @@ class Finding:
     rationale: Optional[str] = None
     tags: List[str] = field(default_factory=list)
     timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    module: str = "General"
+    duration: float = 0.0
+    raw_output: Optional[Any] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def test_id(self) -> str:
+        return self.id
+
+    @property
+    def passed(self) -> bool:
+        return self.status == FindingStatus.PASS
+
+    @property
+    def failed(self) -> bool:
+        return self.status == FindingStatus.FAIL
+
+    @property
+    def skipped(self) -> bool:
+        return self.status == FindingStatus.NOT_APPLICABLE or self.status == FindingStatus.UNKNOWN
+
+    @property
+    def is_warn(self) -> bool:
+        return self.status == FindingStatus.WARN
+
+    @property
+    def is_error(self) -> bool:
+        return self.status == FindingStatus.ERROR
 
     def add_evidence(self, ev: Evidence) -> None:
         self.evidence.append(ev.to_dict())
 
     def to_dict(self) -> Dict[str, Any]:
         data = asdict(self)
+        data["test_id"] = self.id
         data["severity"] = self.severity.value if isinstance(self.severity, Severity) else str(self.severity)
         data["status"] = self.status.value if isinstance(self.status, FindingStatus) else str(self.status)
+        data["passed"] = self.passed
+        data["failed"] = self.failed
+        data["skipped"] = self.skipped
+        data["is_warn"] = self.is_warn
+        data["is_error"] = self.is_error
         return data
 
     @classmethod
@@ -102,8 +138,10 @@ class Finding:
         if isinstance(st, str):
             st = FindingStatus.from_string(st)
 
+        finding_id = data.get("id") or data.get("test_id") or "WIN-GEN-000"
+
         return cls(
-            id=data.get("id", "WIN-GEN-000"),
+            id=finding_id,
             title=data.get("title", "Untitled Finding"),
             category=data.get("category", "General"),
             severity=sev,
@@ -122,4 +160,8 @@ class Finding:
             rationale=data.get("rationale"),
             tags=data.get("tags", []),
             timestamp=data.get("timestamp", datetime.now(timezone.utc).isoformat()),
+            module=data.get("module", data.get("category", "General")),
+            duration=float(data.get("duration", 0.0)),
+            raw_output=data.get("raw_output"),
+            metadata=data.get("metadata", {}),
         )
