@@ -1077,7 +1077,7 @@
 
       <ul class="nav-links">
         <li><a href="#overview" class="nav-link">// OVERVIEW</a></li>
-        <li><a href="#modules" class="nav-link">// 30_MODULES</a></li>
+        <li><a href="#modules" class="nav-link">// 32_MODULES</a></li>
         <li><a href="#risk-model" class="nav-link">// RISK_MODEL</a></li>
         <li><a href="#compliance" class="nav-link">// COMPLIANCE</a></li>
         <li><a href="#comparison" class="nav-link">// BENCHMARK</a></li>
@@ -1096,7 +1096,7 @@
     <div class="container">
       <div class="hero-meta-badge">
         <span class="red-dot"></span>
-        <span class="matrix-decode" data-original="STATUS: SYSTEM_READY // 30_DOMAINS_ACTIVE // 100%_AIR_GAPPED">STATUS: SYSTEM_READY // 30_DOMAINS_ACTIVE // 100%_AIR_GAPPED</span>
+        <span class="matrix-decode" data-original="STATUS: SYSTEM_READY // 32_DOMAINS_ACTIVE // 100%_AIR_GAPPED">STATUS: SYSTEM_READY // 32_DOMAINS_ACTIVE // 100%_AIR_GAPPED</span>
       </div>
 
       <h1 class="hero-title">
@@ -1119,7 +1119,7 @@
         <!-- Glyph Hardware Interface Card -->
         <div class="glyph-card">
           <div class="glyph-header">
-            <span class="label-tech"><span class="red-dot"></span> GLYPH_MATRIX // 30_SCANNERS</span>
+            <span class="label-tech"><span class="red-dot"></span> GLYPH_MATRIX // 32_SCANNERS</span>
             <div class="glyph-controls">
               <button class="glyph-btn active" data-mode="DEFENSE" onclick="setGlyphMode('DEFENSE')">DEFENSE</button>
               <button class="glyph-btn" data-mode="THREATS" onclick="setGlyphMode('THREATS')">THREATS</button>
@@ -1132,7 +1132,7 @@
           </div>
           <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #a3a3a3; font-family: var(--font-dot);">
             <span id="radar-status-text">RADAR: PASSIVE_SCAN</span>
-            <span style="color: var(--accent-emerald);">30 MODULES ONLINE</span>
+            <span style="color: var(--accent-emerald);">32 MODULES ONLINE</span>
           </div>
         </div>
 
@@ -1155,7 +1155,7 @@
             <div style="color: #888888;">[SecOps@LAB-WIN-042:WinSecure]$ python -m winsecure scan</div>
             <div style="color: #38bdf8; margin-top: 4px;">[*] Initializing WinSecure Diagnostic Engine...</div>
             <div style="color: #10b981;">[✓] Target Host: LAB-WIN-042 (192.0.2.42)</div>
-            <div style="color: #ffffff;">[✓] 30 Diagnostic Security Modules Active.</div>
+            <div style="color: #ffffff;">[✓] 32 Diagnostic Security Modules Active.</div>
             <div style="color: #eab308; margin-top: 8px;">Click "AUDIT SCAN", "THREAT MATRIX", or "HARDENING FIX" to execute live simulation.</div>
           </div>
         </div>
@@ -1163,18 +1163,18 @@
     </div>
   </section>
 
-  <!-- Section 02: 30 Security Scanners Catalog -->
+  <!-- Section 02: 32 Security Scanners Catalog -->
   <section id="modules" class="section-padding" style="background: var(--bg-secondary);">
     <div class="container">
-      <span class="section-tag">(02) // SCANNER_CATALOG // 30_MODULES</span>
-      <h2 class="section-heading">30 DOMAIN DEFENSE MATRIX</h2>
+      <span class="section-tag">(02) // SCANNER_CATALOG // 32_MODULES</span>
+      <h2 class="section-heading">32 DOMAIN DEFENSE MATRIX</h2>
       <p class="section-description">
         Comprehensive configuration auditing covering firmware, kernel mitigations, identity stores, and network services. Click any card to inspect hacker mechanics, threat vectors, and hardening fixes.
       </p>
 
       <div class="module-filter-bar">
         <div class="filter-buttons">
-          <button class="filter-btn active" data-cat="ALL">ALL (30)</button>
+          <button class="filter-btn active" data-cat="ALL">ALL (32)</button>
           <button class="filter-btn" data-cat="System">System</button>
           <button class="filter-btn" data-cat="Defender">Defender</button>
           <button class="filter-btn" data-cat="Firewall">Firewall</button>
@@ -1182,8 +1182,10 @@
           <button class="filter-btn" data-cat="Registry">Registry</button>
           <button class="filter-btn" data-cat="Audit">Audit</button>
           <button class="filter-btn" data-cat="Crypto">Crypto</button>
+          <button class="filter-btn" data-cat="Network">Network</button>
+          <button class="filter-btn" data-cat="Software">Software</button>
         </div>
-        <input type="text" id="catalog-search-input" class="search-input" placeholder="Filter 30 modules...">
+        <input type="text" id="catalog-search-input" class="search-input" placeholder="Filter 32 modules...">
       </div>
 
       <div id="modules-grid" class="modules-grid"></div>
@@ -1309,7 +1311,7 @@ Security_Score = 100.0 - &Sigma; Deductions</pre>
               <td>Defensive Posture & Compliance</td>
               <td>1 Command (winsecure scan)</td>
               <td>100% Read-Only & Sanitized</td>
-              <td><strong>30 Domains</strong></td>
+              <td><strong>32 Domains</strong></td>
               <td>CIS, NIST, DISA, MS</td>
               <td>Interactive Offline Web</td>
             </tr>
@@ -1481,7 +1483,7 @@ python -m winsecure demo</pre>
             <div class="footer-col-title">// NAVIGATION</div>
             <ul class="footer-col-links">
               <li><a href="#overview">Overview</a></li>
-              <li><a href="#modules">30 Modules</a></li>
+              <li><a href="#modules">32 Modules</a></li>
               <li><a href="#risk-model">Risk Engine</a></li>
               <li><a href="#compliance">Compliance</a></li>
               <li><a href="#quickstart">Quickstart</a></li>
@@ -1544,11 +1546,11 @@ python -m winsecure demo</pre>
         id: "WS-SYSTEM",
         name: "Secure Boot & Firmware Integrity",
         category: "System",
-        desc: "Audits UEFI firmware mode, Secure Boot signature verification, and TPM 2.0 readiness.",
+        desc: "Audits UEFI firmware mode, Secure Boot signature verification, and TPM 2.0 hardware readiness.",
         threat: "Bootkits (BlackLotus), firmware rootkits, and unauthenticated kernel bootloader replacement.",
         attackScenario: "Attacker deploys an unverified EFI bootloader to disable Driver Signature Enforcement before the Windows kernel initializes.",
         auditCmd: "Confirm-SecureBootUEFI; Get-Tpm",
-        remediation: "Reboot into UEFI BIOS settings, enable Secure Boot, and activate discrete TPM 2.0.",
+        remediation: "Reboot into UEFI BIOS settings, enable Secure Boot, and activate discrete TPM 2.0 module.",
         cis: "CIS 1.1.1 (Level 1)",
         nist: "NIST SP 800-53 SI-7",
         disa: "WN11-00-000010"
@@ -1560,17 +1562,17 @@ python -m winsecure demo</pre>
         desc: "Verifies Real-time protection, IOAV, PUA mode, Cloud Telemetry, and exclusion hygiene.",
         threat: "Malware droppers, evasive loaders, and attackers staging payloads in excluded directories.",
         attackScenario: "Attacker adds C:\\Windows\\Temp to Defender exclusions via unauthorized registry modification to execute droppers undetected.",
-        auditCmd: "Get-MpPreference | Select-Object -ExpandProperty ExclusionPath",
-        remediation: "Set-MpPreference -DisableRealtimeMonitoring $false -PUAProtection Enabled -CloudProtectionLevel HighPlus",
+        auditCmd: "Get-MpPreference | Select-Object DisableRealtimeMonitoring, PUAProtection, MAPSReporting",
+        remediation: "Set-MpPreference -DisableRealtimeMonitoring $false -PUAProtection Enabled -MAPSReporting Advanced -CloudProtectionLevel HighPlus",
         cis: "CIS 2.3.1",
         nist: "NIST SP 800-53 SI-3",
         disa: "WN11-CC-000120"
       },
       {
         id: "WS-FIREWALL",
-        name: "Windows Defender Firewall",
+        name: "Windows Defender Firewall Boundary Profiles",
         category: "Firewall",
-        desc: "Enforces Domain, Private, and Public profile default inbound block rules.",
+        desc: "Enforces Domain, Private, and Public profile default inbound block rules and boundary filtering.",
         threat: "Inbound worm propagation, unauthorized listening sockets, and local subnet pivoting.",
         attackScenario: "Attacker connects directly to unauthenticated high-number listening ports exposed on public Wi-Fi networks.",
         auditCmd: "Get-NetFirewallProfile | Select-Object Name, Enabled, DefaultInboundAction",
@@ -1581,35 +1583,35 @@ python -m winsecure demo</pre>
       },
       {
         id: "WS-ACCOUNTS",
-        name: "Account Hardening & Lockouts",
+        name: "Local Account Hardening & Password Policies",
         category: "Accounts",
-        desc: "Audits built-in Administrator/Guest accounts and brute-force lockout thresholds.",
+        desc: "Audits built-in Administrator/Guest accounts, lockout thresholds, and minimum password lengths.",
         threat: "Automated brute-force attacks, credential stuffing, and guest account logon abuse.",
         attackScenario: "Adversary scripts password spray attacks against local Administrator accounts until the password is compromised.",
-        auditCmd: "net accounts; Get-LocalUser",
-        remediation: "net accounts /lockoutthreshold:5 /lockoutduration:30 /lockoutwindow:30",
+        auditCmd: "net accounts; Get-LocalUser | Select-Object Name, Enabled",
+        remediation: "net accounts /lockoutthreshold:5 /lockoutduration:30 /lockoutwindow:30; Disable-LocalUser -Name 'Guest'",
         cis: "CIS 2.3.1.1",
         nist: "NIST SP 800-53 AC-7",
         disa: "WN11-SO-000020"
       },
       {
-        id: "WS-REGISTRY",
-        name: "LSA Protection & RunAsPPL",
-        category: "Registry",
-        desc: "Validates Local Security Authority (LSASS) memory protection and credential caching policies.",
-        threat: "Credential dumping via Mimikatz, Sekurlsa, ProcDump, and LSASS memory reads.",
-        attackScenario: "Adversary executes unprivileged memory scraper to read Kerberos tickets and NTLM hashes directly from lsass.exe process memory.",
-        auditCmd: "Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name RunAsPPL",
-        remediation: "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name 'RunAsPPL' -Value 1 -Type DWord",
-        cis: "CIS 2.3.7.4",
-        nist: "NIST SP 800-53 IA-5",
-        disa: "WN11-RG-000020"
+        id: "WS-PRIVILEGES",
+        name: "User Rights Assignment & Privileges",
+        category: "Accounts",
+        desc: "Audits excessive local administrator group memberships, token rights, and SeDebugPrivilege assignments.",
+        threat: "Privilege escalation, token manipulation, and unauthorized debug access to system processes.",
+        attackScenario: "Attacker leverages assigned SeDebugPrivilege on low-privileged user account to open handle to LSASS and dump credentials.",
+        auditCmd: "Get-LocalGroupMember -Group 'Administrators'; whoami /priv",
+        remediation: "Remove unapproved accounts from local Administrators group and audit User Rights via Secedit /export.",
+        cis: "CIS 2.2.1",
+        nist: "NIST SP 800-53 AC-6",
+        disa: "WN11-UR-000010"
       },
       {
         id: "WS-SERVICES",
-        name: "Service Hijacking & Path Auditing",
+        name: "Service Hijacking & Binary Path Auditing",
         category: "System",
-        desc: "Scans service binary ImagePaths for unquoted spaces and weak directory ACL write permissions.",
+        desc: "Scans service binary ImagePaths for unquoted spaces and unprivileged service directory write permissions.",
         threat: "Local privilege escalation via binary planting (MITRE ATT&CK T1574.009).",
         attackScenario: "Attacker drops malicious binary named 'Program.exe' in C:\\ so the service executes attacker code with SYSTEM rights upon reboot.",
         auditCmd: "Get-WmiObject win32_service | Where-Object {$_.PathName -notmatch '^\"' -and $_.PathName -match ' '}",
@@ -1619,8 +1621,47 @@ python -m winsecure demo</pre>
         disa: "WN11-SV-000010"
       },
       {
+        id: "WS-STARTUP",
+        name: "Startup & Registry Autorun Persistence",
+        category: "System",
+        desc: "Audits Run, RunOnce, Startup folders, and Winlogon keys for unauthorized persistence vectors.",
+        threat: "Reboot persistence, malware staging, and unauthorized software autorun execution.",
+        attackScenario: "Adversary writes payload launcher into HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run to maintain access across reboots.",
+        auditCmd: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run', 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run'",
+        remediation: "Remove unrecognized registry entries from Run / RunOnce and restrict startup directory permissions.",
+        cis: "CIS 18.9.1",
+        nist: "NIST SP 800-53 CM-7",
+        disa: "WN11-RG-000050"
+      },
+      {
+        id: "WS-TASKS",
+        name: "Scheduled Tasks Security & Temp Execution",
+        category: "Audit",
+        desc: "Identifies scheduled tasks executing from user-writable temporary paths (%TEMP%, %APPDATA%, Public).",
+        threat: "Stealth persistence, evasion of standard inspection, and task scheduler privilege abuse.",
+        attackScenario: "Attacker creates hidden task triggering every 60 minutes pointing to malicious script stored in C:\\Users\\Public.",
+        auditCmd: "Get-ScheduledTask | Get-ScheduledTaskInfo",
+        remediation: "Audit scheduled task actions and re-target binaries to protected system directories with read-only ACLs.",
+        cis: "CIS 18.9.2",
+        nist: "NIST SP 800-53 SI-4",
+        disa: "WN11-ST-000010"
+      },
+      {
+        id: "WS-REGISTRY",
+        name: "Windows Registry Hardening & LSA Protection",
+        category: "Registry",
+        desc: "Validates Local Security Authority (LSASS) RunAsPPL protection, WDigest plaintext caching, and Safe DLL search.",
+        threat: "Credential dumping via Mimikatz, Sekurlsa, ProcDump, and LSASS memory reads.",
+        attackScenario: "Adversary executes unprivileged memory scraper to read Kerberos tickets and NTLM hashes directly from lsass.exe process memory.",
+        auditCmd: "Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name RunAsPPL",
+        remediation: "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name 'RunAsPPL' -Value 1 -Type DWord",
+        cis: "CIS 2.3.7.4",
+        nist: "NIST SP 800-53 IA-5",
+        disa: "WN11-RG-000020"
+      },
+      {
         id: "WS-POWERSHELL",
-        name: "PowerShell Script Block Logging",
+        name: "PowerShell Security & Script Block Logging",
         category: "Audit",
         desc: "Audits Script Block Logging (Event 4104), Transcription, and Constrained Language Mode.",
         threat: "Fileless memory-resident attacks, obfuscated download cradles, and AMSI bypasses.",
@@ -1632,35 +1673,74 @@ python -m winsecure demo</pre>
         disa: "WN11-CC-000310"
       },
       {
-        id: "WS-UAC",
-        name: "User Account Control (UAC) Subsystem",
-        category: "Accounts",
-        desc: "Enforces Admin Approval Mode, Secure Desktop elevation prompts, and auto-elevation filters.",
-        threat: "Silent UAC bypass exploits (fodhelper, eventvwr) spawning elevated processes without prompts.",
-        attackScenario: "Malware hijacks registry auto-elevation keys to run administrative commands without displaying a UAC consent dialog.",
-        auditCmd: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'",
-        remediation: "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -Name 'EnableLUA' -Value 1 -Type DWord",
-        cis: "CIS 2.3.17.1",
-        nist: "NIST SP 800-53 AC-6",
-        disa: "WN11-AC-000010"
+        id: "WS-AUDIT",
+        name: "Advanced Security Audit Policy Hardening",
+        category: "Audit",
+        desc: "Enforces Process Creation (Event 4688), CLI command-line argument logging, and Logon/Logoff auditing.",
+        threat: "Blind spots in SIEM / SOC detection, untracked process execution, and unlogged lateral movement.",
+        attackScenario: "Attacker runs malicious cmd commands with arguments that are omitted from event logs due to disabled command-line auditing.",
+        auditCmd: "auditpol /get /category:*",
+        remediation: "auditpol /set /subcategory:'Process Creation' /success:enable /failure:enable; Set-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit' -Name 'ProcessCreationIncludeCmdLine_Enabled' -Value 1 -Type DWord",
+        cis: "CIS 17.1.1",
+        nist: "NIST SP 800-53 AU-12",
+        disa: "WN11-AU-000010"
       },
       {
-        id: "WS-BITLOCKER",
-        name: "BitLocker Volume Encryption",
-        category: "Crypto",
-        desc: "Audits OS volume encryption status, AES-XTS cipher strength, and TPM hardware key protector.",
-        threat: "Offline physical hard drive extraction, Evil Maid hardware attacks, and cold boot memory dumps.",
-        attackScenario: "Attacker removes SSD from lost laptop and connects it to external chassis to extract unencrypted corporate documents.",
-        auditCmd: "manage-bde -status C:",
-        remediation: "Enable-BitLocker -MountPoint 'C:' -EncryptionMethod XtsAes256 -UsedSpaceOnly -TpmProtector",
-        cis: "CIS 18.8.4",
-        nist: "NIST SP 800-53 SC-28",
-        disa: "WN11-00-000030"
+        id: "WS-EVENTLOGS",
+        name: "Event Log Infrastructure & Retention",
+        category: "Audit",
+        desc: "Audits Security, System, and Application log maximum retention sizes (>1GB) and overwrite protection.",
+        threat: "Log wrapping, rapid log wiping by attackers, and premature loss of forensic evidence.",
+        attackScenario: "Attacker floods security log with benign events to force FIFO log rotation and overwrite lateral movement indicators.",
+        auditCmd: "Get-WinEvent -ListLog Security, System, Application | Select-Object LogName, MaximumSizeInBytes",
+        remediation: "Limit-EventLog -LogName Security -MaximumSize 1048576KB -OverflowAction OverwriteAsNeeded",
+        cis: "CIS 18.9.26",
+        nist: "NIST SP 800-53 AU-4",
+        disa: "WN11-EL-000010"
+      },
+      {
+        id: "WS-UPDATES",
+        name: "Windows Servicing & Patch State",
+        category: "System",
+        desc: "Audits pending reboots, Automatic Update policies, and critical security cumulative update installation state.",
+        threat: "Exploitation of known 1-day vulnerabilities (CVEs), missing security hotfixes, and delayed patching.",
+        attackScenario: "Adversary targets unpatched kernel privilege escalation flaw present on endpoint due to 90-day delayed patching.",
+        auditCmd: "Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 5",
+        remediation: "Configure Windows Update GPO to install security updates automatically and trigger pending system reboot.",
+        cis: "CIS 18.9.102",
+        nist: "NIST SP 800-53 SI-2",
+        disa: "WN11-WU-000010"
+      },
+      {
+        id: "WS-SMB",
+        name: "SMB Protocol & Server Security",
+        category: "Firewall",
+        desc: "Verifies SMBv1 removal, SMB Server packet signing requirements, and guest authentication blocking.",
+        threat: "MS17-010 EternalBlue remote code execution, NTLM relay attacks, and unauthenticated network shares.",
+        attackScenario: "Attacker intercepts unsigned SMB packets on local subnet and relays NTLM authentication to gain administrative access.",
+        auditCmd: "Get-SmbServerConfiguration | Select-Object EnableSMB1Protocol, RequireSecuritySignature, EnableGuestLogons",
+        remediation: "Set-SmbServerConfiguration -RequireSecuritySignature $true -EnableGuestLogons $false -Force; Disable-WindowsOptionalFeature -Online -FeatureName 'SMB1Protocol' -NoRestart",
+        cis: "CIS 18.4.11",
+        nist: "NIST SP 800-53 SC-8(1)",
+        disa: "WN11-CC-000190"
+      },
+      {
+        id: "WS-REMOTE",
+        name: "Remote Desktop (RDP) & NLA Hardening",
+        category: "Network",
+        desc: "Enforces Network Level Authentication (NLA) and high-grade RDP encryption (TLS 1.2+).",
+        threat: "BlueKeep (CVE-2019-0708) pre-authentication RCE, man-in-the-middle sniffing, and unauthorized RDP access.",
+        attackScenario: "Attacker connects to legacy RDP server without NLA, exploiting pre-auth heap corruption to achieve SYSTEM shell.",
+        auditCmd: "Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -Name UserAuthentication, SecurityLayer",
+        remediation: "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -Name 'UserAuthentication' -Value 1 -Type DWord",
+        cis: "CIS 18.9.65",
+        nist: "NIST SP 800-53 AC-17",
+        disa: "WN11-CC-000280"
       },
       {
         id: "WS-NETWORK",
-        name: "Legacy Protocols (LLMNR & NetBIOS)",
-        category: "Firewall",
+        name: "Network Exposure & Name Resolution",
+        category: "Network",
         desc: "Audits Link-Local Multicast Name Resolution (LLMNR) and NetBIOS broadcast listeners.",
         threat: "LLMNR / NBT-NS poisoning and NTLMv2 credential relay attacks via Responder.",
         attackScenario: "Attacker on local Wi-Fi runs Responder to poison multicast queries and intercept NetNTLM hashes for offline cracking.",
@@ -1671,17 +1751,95 @@ python -m winsecure demo</pre>
         disa: "WN11-CC-000180"
       },
       {
-        id: "WS-SMB",
-        name: "SMBv1 Driver & Protocol Hygiene",
-        category: "Firewall",
-        desc: "Verifies SMBv1 removal, SMB signing requirements, and SMB encryption enforcement.",
-        threat: "MS17-010 EternalBlue remote code execution, unauthenticated relay, and wormable ransomware.",
-        attackScenario: "Ransomware spreads laterally across subnets by exploiting legacy unpatched SMBv1 buffer overflows.",
-        auditCmd: "Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol",
-        remediation: "Disable-WindowsOptionalFeature -Online -FeatureName 'SMB1Protocol' -NoRestart",
-        cis: "CIS 18.4.11",
-        nist: "NIST SP 800-53 SC-8(1)",
-        disa: "WN11-CC-000190"
+        id: "WS-BITLOCKER",
+        name: "BitLocker Volume Encryption",
+        category: "Crypto",
+        desc: "Audits OS volume encryption status, AES-XTS 256-bit cipher strength, and TPM hardware key protector.",
+        threat: "Offline physical hard drive extraction, Evil Maid hardware attacks, and cold boot memory dumps.",
+        attackScenario: "Attacker removes SSD from lost laptop and connects it to external chassis to extract unencrypted corporate documents.",
+        auditCmd: "manage-bde -status C:",
+        remediation: "Enable-BitLocker -MountPoint 'C:' -EncryptionMethod XtsAes256 -UsedSpaceOnly -TpmProtector",
+        cis: "CIS 18.8.4",
+        nist: "NIST SP 800-53 SC-28",
+        disa: "WN11-00-000030"
+      },
+      {
+        id: "WS-UAC",
+        name: "User Account Control (UAC) Subsystem",
+        category: "Accounts",
+        desc: "Enforces Admin Approval Mode, Secure Desktop elevation prompts, and auto-elevation filters.",
+        threat: "Silent UAC bypass exploits (fodhelper, eventvwr) spawning elevated processes without prompts.",
+        attackScenario: "Malware hijacks registry auto-elevation keys to run administrative commands without displaying a UAC consent dialog.",
+        auditCmd: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' | Select-Object EnableLUA, PromptOnSecureDesktop, ConsentPromptBehaviorAdmin",
+        remediation: "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -Name 'EnableLUA' -Value 1 -Type DWord; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -Name 'PromptOnSecureDesktop' -Value 1 -Type DWord",
+        cis: "CIS 2.3.17.1",
+        nist: "NIST SP 800-53 AC-6",
+        disa: "WN11-AC-000010"
+      },
+      {
+        id: "WS-SMARTSCREEN",
+        name: "Defender SmartScreen Platform",
+        category: "Defender",
+        desc: "Audits SmartScreen reputation checks for Windows Explorer, edge downloads, and unrecognized app executions.",
+        threat: "Initial access execution of untrusted downloaded executables, phishing attachments, and trojans.",
+        attackScenario: "User downloads malicious executable from internet; missing SmartScreen check allows execution without reputation warning.",
+        auditCmd: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'EnableSmartScreen'",
+        remediation: "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'EnableSmartScreen' -Value 1 -Type DWord",
+        cis: "CIS 18.9.78",
+        nist: "NIST SP 800-53 SI-3",
+        disa: "WN11-CC-000350"
+      },
+      {
+        id: "WS-SOFTWARE",
+        name: "Installed Software Exposure & EOL",
+        category: "Software",
+        desc: "Scans installed third-party software registry hives for deprecated, vulnerable, or end-of-life runtimes (Java 7/8, Flash, Python 2).",
+        threat: "Client-side exploits targeting vulnerable desktop applications, browser plugins, and runtime libraries.",
+        attackScenario: "Attacker delivers weaponized PDF exploiting known arbitrary code execution bug in unpatched legacy PDF reader.",
+        auditCmd: "Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Select-Object DisplayName, DisplayVersion",
+        remediation: "Uninstall deprecated legacy runtimes and deploy automated patch management for third-party desktop utilities.",
+        cis: "CIS 2.1",
+        nist: "NIST SP 800-53 CM-8",
+        disa: "WN11-SW-000010"
+      },
+      {
+        id: "WS-APPLOCKER",
+        name: "Application Control & AppLocker",
+        category: "System",
+        desc: "Audits Application Identity service (AppIDSvc) status and Windows Defender Application Control (WDAC) whitelisting.",
+        threat: "Execution of unauthorized binaries, portable hacking tools (Mimikatz, Seatbelt), and unauthorized scripts.",
+        attackScenario: "Attacker downloads precompiled offensive binary to user temp folder and executes it directly due to absence of whitelisting rules.",
+        auditCmd: "Get-Service -Name AppIDSvc; Get-AppLockerPolicy -Effective",
+        remediation: "Set-Service -Name 'AppIDSvc' -StartupType Automatic -Status Running; Configure AppLocker / WDAC default deny rules.",
+        cis: "CIS 18.9.15",
+        nist: "NIST SP 800-53 CM-7(5)",
+        disa: "WN11-AC-000050"
+      },
+      {
+        id: "WS-VBS",
+        name: "Virtualization-Based Security (VBS) & HVCI",
+        category: "System",
+        desc: "Audits Hypervisor-Enforced Code Integrity (HVCI), Credential Guard, and Kernel DMA hardware isolation.",
+        threat: "Kernel-level exploit payloads, rootkits modifying kernel code pages, and pass-the-hash attacks.",
+        attackScenario: "Adversary exploits vulnerable signed third-party driver (BYOVD) to patch kernel data structures; blocked when HVCI is enforced.",
+        auditCmd: "Get-CimInstance -ClassName Win32_DeviceGuard -Namespace root\\Microsoft\\Windows\\DeviceGuard",
+        remediation: "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard' -Name 'EnableVirtualizationBasedSecurity' -Value 1 -Type DWord; Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -Name 'Enabled' -Value 1 -Type DWord",
+        cis: "CIS 18.9.34",
+        nist: "NIST SP 800-53 SC-39",
+        disa: "WN11-00-000050"
+      },
+      {
+        id: "WS-LAPS",
+        name: "Windows LAPS Password Rotation",
+        category: "Accounts",
+        desc: "Verifies Windows Local Administrator Password Solution (LAPS) automatic rotation and encryption policies.",
+        threat: "Lateral movement across domain workstations using identical shared local administrator passwords.",
+        attackScenario: "Attacker dumps local Administrator NTLM hash on Workstation A and uses Pass-the-Hash to compromise 500 other workstations.",
+        auditCmd: "Get-LapsDiagnostics; Get-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\LAPS'",
+        remediation: "Enable Windows LAPS policy in GPO/Intune to automatically rotate unique local administrator passwords with AES-256 encryption.",
+        cis: "CIS 2.3.1.5",
+        nist: "NIST SP 800-53 IA-5(1)",
+        disa: "WN11-LP-000010"
       },
       {
         id: "WS-ASR",
@@ -1695,6 +1853,110 @@ python -m winsecure demo</pre>
         cis: "CIS 2.3.1.6",
         nist: "NIST SP 800-53 SI-3",
         disa: "WN11-EP-000040"
+      },
+      {
+        id: "WS-EXPLOITGUARD",
+        name: "System Exploit Guard & Memory Mitigations",
+        category: "System",
+        desc: "Enforces Data Execution Prevention (DEP), mandatory ASLR, Control Flow Guard (CFG), and SEHOP.",
+        threat: "Buffer overflows, Return-Oriented Programming (ROP chains), and memory corruption exploits.",
+        attackScenario: "Exploit payload attempts to execute shellcode on stack; hardware DEP triggers immediate access violation termination.",
+        auditCmd: "Get-ProcessMitigation -System",
+        remediation: "Set-ProcessMitigation -System -Enable DEP, MandatoryASLR, BottomUpASLR, CFG, SEHOP",
+        cis: "CIS 18.9.36",
+        nist: "NIST SP 800-53 SC-39",
+        disa: "WN11-EP-000010"
+      },
+      {
+        id: "WS-SCHANNEL",
+        name: "Cryptography & Insecure TLS Protocols",
+        category: "Crypto",
+        desc: "Audits Schannel registry hives to ensure deprecated TLS 1.0, TLS 1.1, and weak ciphers (RC4, 3DES) are disabled.",
+        threat: "POODLE / BEAST cryptographic downgrade attacks and passive eavesdropping on encrypted traffic.",
+        attackScenario: "Man-in-the-middle attacker forces TLS downgrade to TLS 1.0 to decrypt corporate HTTPS sessions.",
+        auditCmd: "Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\TLS 1.0\\Server'",
+        remediation: "Disable TLS 1.0 and TLS 1.1 in Schannel registry; enforce TLS 1.2 and TLS 1.3 as exclusive protocols.",
+        cis: "CIS 18.4.1",
+        nist: "NIST SP 800-53 SC-13",
+        disa: "WN11-SC-000010"
+      },
+      {
+        id: "WS-KERBEROS",
+        name: "Kerberos Authentication & Encryption",
+        category: "Crypto",
+        desc: "Enforces modern AES-128 and AES-256 cipher suites and blocks legacy DES / RC4-HMAC Kerberos tickets.",
+        threat: "Kerberoasting, silver ticket forging, and offline dictionary cracking of RC4 service ticket hashes.",
+        attackScenario: "Attacker requests Kerberos TGS tickets encrypted with RC4-HMAC and cracks service account passwords offline within minutes.",
+        auditCmd: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\Parameters' -Name 'SupportedEncryptionTypes'",
+        remediation: "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\Parameters' -Name 'SupportedEncryptionTypes' -Value 0x7ffffff8 -Type DWord",
+        cis: "CIS 2.3.6.1",
+        nist: "NIST SP 800-53 IA-5",
+        disa: "WN11-SO-000140"
+      },
+      {
+        id: "WS-SANDBOX",
+        name: "Windows Sandbox & Hypervisor Isolation",
+        category: "System",
+        desc: "Audits Windows Hypervisor platform readiness and ephemeral container sandboxing capabilities.",
+        threat: "Host compromise from executing suspicious attachments, untrusted executables, or unknown scripts.",
+        attackScenario: "Analyst executes suspicious email attachment directly on host workstation instead of isolated disposable sandbox.",
+        auditCmd: "Get-WindowsOptionalFeature -Online -FeatureName 'Containers-DisposableClientVM'",
+        remediation: "Enable-WindowsOptionalFeature -Online -FeatureName 'Containers-DisposableClientVM' -All -NoRestart",
+        cis: "CIS 18.9.11",
+        nist: "NIST SP 800-53 SC-3",
+        disa: "WN11-SB-000010"
+      },
+      {
+        id: "WS-SPOOLER",
+        name: "Print Spooler Hardening (PrintNightmare)",
+        category: "System",
+        desc: "Audits Print Spooler service exposure and restricts Point and Print RPC elevation permissions.",
+        threat: "PrintNightmare (CVE-2021-34527 / CVE-2021-1675) remote code execution and local SYSTEM privilege elevation.",
+        attackScenario: "Attacker connects to Print Spooler RPC endpoint and delivers malicious print driver DLL executed as SYSTEM.",
+        auditCmd: "Get-Service -Name Spooler; Get-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Printers\\PointAndPrint'",
+        remediation: "Stop-Service -Name Spooler -Force; Set-Service -Name Spooler -StartupType Disabled (or restrict PointAndPrint via GPO)",
+        cis: "CIS 18.9.52",
+        nist: "NIST SP 800-53 CM-7",
+        disa: "WN11-00-000110"
+      },
+      {
+        id: "WS-BROWSER",
+        name: "Microsoft Edge Security Baseline",
+        category: "Software",
+        desc: "Enforces enterprise browser SmartScreen, download safety reputation, and disabled legacy extension sideloading.",
+        threat: "Drive-by downloads, malicious browser extension installation, and unverified file execution.",
+        attackScenario: "Phishing site prompts user to install malicious extension granting access to corporate session cookies.",
+        auditCmd: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Edge' -Name 'SmartScreenEnabled'",
+        remediation: "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Edge' -Name 'SmartScreenEnabled' -Value 1 -Type DWord",
+        cis: "CIS Edge Benchmark 1.1",
+        nist: "NIST SP 800-53 SC-18",
+        disa: "WN11-EP-000080"
+      },
+      {
+        id: "WS-AD",
+        name: "Active Directory Member & LDAP Signing",
+        category: "Network",
+        desc: "Enforces LDAP client signing (`LDAPClientIntegrity = 2`) and Netlogon secure channel session encryption.",
+        threat: "Man-in-the-middle ARP/DNS spoofing, unauthenticated LDAP query tampering, and session hijacking.",
+        attackScenario: "Attacker on domain network conducts ARP poisoning and intercepts unauthenticated LDAP bind packets to tamper with authorization.",
+        auditCmd: "Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\LDAP' -Name 'LDAPClientIntegrity'",
+        remediation: "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\LDAP' -Name 'LDAPClientIntegrity' -Value 2 -Type DWord",
+        cis: "CIS 2.3.11.1",
+        nist: "NIST SP 800-53 SC-8",
+        disa: "WN11-SO-000210"
+      },
+      {
+        id: "WS-SYSMON",
+        name: "Sysmon Advanced Kernel Telemetry",
+        category: "Audit",
+        desc: "Audits Microsoft System Monitor (Sysmon) kernel driver status for tracking process injection, pipe creation, and network connections.",
+        threat: "Evasion of standard event logs by sophisticated memory-only rootkits, DLL hollowing, and process hollowing.",
+        attackScenario: "Adversary injects malicious shellcode into explorer.exe; detected instantly by Sysmon Event ID 8 (CreateRemoteThread).",
+        auditCmd: "Get-Service -Name Sysmon, Sysmon64 -ErrorAction SilentlyContinue",
+        remediation: "Deploy Microsoft Sysmon with standard SwiftOnSecurity / Olaf Hartong modular XML configuration template.",
+        cis: "CIS Community Standard",
+        nist: "NIST SP 800-53 AU-12",
+        disa: "WN11-AU-000040"
       }
     ];
 
@@ -1770,7 +2032,7 @@ python -m winsecure demo</pre>
       if (!matrix) return;
 
       matrix.innerHTML = '';
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 32; i++) {
         const led = document.createElement('div');
         led.className = 'glyph-led';
         led.id = `led-${i}`;
@@ -1797,13 +2059,13 @@ python -m winsecure demo</pre>
 
       if (mode === 'DEFENSE') {
         if (status) status.textContent = "RADAR: PASSIVE_DEFENSE (ALL GREEN)";
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 32; i++) {
           const led = document.getElementById(`led-${i}`);
           if (led) led.className = 'glyph-led passed';
         }
       } else if (mode === 'THREATS') {
         if (status) status.textContent = "RADAR: 3 THREATS INTERCEPTED";
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 32; i++) {
           const led = document.getElementById(`led-${i}`);
           if (led) led.className = (i === 4 || i === 8 || i === 11) ? 'glyph-led warning' : 'glyph-led passed';
         }
@@ -1811,19 +2073,19 @@ python -m winsecure demo</pre>
         if (status) status.textContent = "RADAR: ACTIVE ROTATIONAL SWEEP";
         let sweepPos = 0;
         radarInterval = setInterval(() => {
-          for (let i = 0; i < 30; i++) {
+          for (let i = 0; i < 32; i++) {
             const led = document.getElementById(`led-${i}`);
             if (!led) continue;
-            const diff = (i - sweepPos + 30) % 30;
+            const diff = (i - sweepPos + 32) % 32;
             if (diff === 0) led.className = 'glyph-led radar';
             else if (diff === 1) led.className = 'glyph-led active';
             else led.className = 'glyph-led passed';
           }
-          sweepPos = (sweepPos + 1) % 30;
+          sweepPos = (sweepPos + 1) % 32;
         }, 80);
       } else if (mode === 'PULSE') {
         if (status) status.textContent = "RADAR: SYSTEM_PULSE_HEARTBEAT";
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 32; i++) {
           const led = document.getElementById(`led-${i}`);
           if (led) led.className = 'glyph-led active';
         }
@@ -1852,7 +2114,7 @@ python -m winsecure demo</pre>
           "[2/8] Auditing UEFI Secure Boot & TPM 2.0 Signature State... [OK]",
           "[3/8] Inspecting Defender Antivirus Real-time & PUA Shields... [OK]",
           "[4/8] Auditing Domain, Private & Public Firewall Block Rules... [OK]",
-          "[5/8] Scanning 30 Security Hives for LSA RunAsPPL Protection... [WARN]",
+          "[5/8] Scanning 32 Security Subsystems for LSA RunAsPPL Protection... [WARN]",
           "[6/8] Auditing Unquoted Windows Service Executable Paths... [OK]",
           "[7/8] Verifying PowerShell Script Block Logging (Event 4104)... [OK]",
           "[8/8] Calculating Deterministic Risk Penalty Deductions... [DONE]"
@@ -1865,7 +2127,7 @@ python -m winsecure demo</pre>
           "[!] THREAT T1574.009: Unquoted Service Binary Hijacking Risk Detected",
           "[!] THREAT T1003.001: LSASS Memory Scraper Vulnerability (RunAsPPL Inactive)",
           "[!] THREAT T1557.001: LLMNR / NetBIOS Multicast Poisoning Active",
-          "[✓] 27 / 30 Attack Vectors Neutralized by Baseline Protections"
+          "[✓] 29 / 32 Attack Vectors Neutralized by Baseline Protections"
         ];
       } else if (mode === 'fix') {
         commandText = 'python -m winsecure fix --remediate';
@@ -1905,7 +2167,7 @@ python -m winsecure demo</pre>
             <div style="color: #ffffff; font-weight: 700;">WINSECURE EXECUTION COMPLETE</div>
             <div style="color: #10b981; font-weight: 700;">========================================</div>
             <div style="color: #ffffff;">Target: LAB-WIN-042 (192.0.2.42)</div>
-            <div style="color: #ffffff;">Evaluated Controls: 30 Modules</div>
+            <div style="color: #ffffff;">Evaluated Controls: 32 Modules (55 Checks)</div>
             <div style="color: #10b981;">Security Score: 92.0 / 100 (EXCELLENT)</div>
           `;
           terminal.appendChild(summary);
