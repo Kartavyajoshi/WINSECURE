@@ -800,7 +800,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       <div class="header-actions">
         <!-- Direct Pointer Link to Main Website -->
-        <a href="../index.html" class="btn btn-outline btn-sm">
+        <a href="https://kartavyajoshi.github.io/WINSECURE/" target="_blank" class="btn btn-outline btn-sm">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           <span>Main Website</span>
         </a>
@@ -909,7 +909,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <footer style="text-align: center; padding: 24px 0 12px; font-size: 12.5px; color: var(--text-muted);">
       <div>WinSecure Assessment Platform &bull; Developed by <strong>Kartavya Joshi</strong></div>
       <div style="margin-top: 6px; display: flex; justify-content: center; gap: 16px;">
-        <a href="../index.html" style="color: var(--accent-blue); text-decoration: none;">&larr; Back to Main Website</a>
+        <a href="https://kartavyajoshi.github.io/WINSECURE/" target="_blank" style="color: var(--accent-blue); text-decoration: none;">&larr; Live Documentation & Website</a>
         <a href="https://github.com/Kartavyajoshi/WINSECURE" target="_blank" style="color: var(--accent-blue); text-decoration: none;">GitHub Repository</a>
       </div>
     </footer>

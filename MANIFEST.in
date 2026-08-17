@@ -6,8 +6,9 @@ include pyproject.toml
 # Include core winsecure templates and rules
 recursive-include winsecure *.json *.css *.js *.html
 
-# Exclude website file, tests, and local reports from pip package distributions
+# Exclude website docs, tests, and local reports from pip package distributions
 exclude index.html
+recursive-exclude docs *
 recursive-exclude tests *
 recursive-exclude benchmarks *
 recursive-exclude fixtures *

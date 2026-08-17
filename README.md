@@ -4,8 +4,11 @@
 [![Python: 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011%20%2F%20Server-lightgrey.svg)](https://microsoft.com/windows)
 [![Tests: Passing](https://img.shields.io/badge/Tests-43%20Passing-brightgreen.svg)](tests/)
+[![Docs: Live](https://img.shields.io/badge/Docs-Live%20Website-blueviolet.svg)](https://kartavyajoshi.github.io/WINSECURE/)
 
 WinSecure is a modular, automated cybersecurity configuration assessment, compliance verification, and threat-exposure analysis platform engineered for Microsoft Windows operating systems. It executes deterministic, non-destructive, read-only diagnostic inspections across core operating system subsystems, correlating low-level telemetry into prioritized risk metrics, compliance mappings, multi-format audit reports, and actionable remediation scripts.
+
+🌐 **Live Interactive Website & Threat Matrix**: [https://kartavyajoshi.github.io/WINSECURE/](https://kartavyajoshi.github.io/WINSECURE/)
 
 ---
 
