@@ -73,6 +73,11 @@ def create_cli_parser() -> argparse.ArgumentParser:
     compare_parser = subparsers.add_parser("compare", help="Display empirical comparison against previous versions and industry tools (v2.5)")
     compare_parser.add_argument("--json", action="store_true", help="Output comparative metrics as JSON")
 
+    # Command: gui (v2.5 — native desktop GUI application)
+    gui_parser = subparsers.add_parser("gui", help="Launch the WinSecure native desktop GUI control cockpit (v2.5)")
+    gui_parser.add_argument("--report-dir", "-d", default="./WinSecure-Report", help="Report directory (default: ./WinSecure-Report)")
+    gui_parser.add_argument("--scan", action="store_true", help="Automatically trigger a live scan upon launch")
+
     # Command: version
     subparsers.add_parser("version", help="Show WinSecure version and product metadata")
 

@@ -3,13 +3,14 @@
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 [![Python: 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011%20%2F%20Server-lightgrey.svg)](https://microsoft.com/windows)
-[![Tests: Passing](https://img.shields.io/badge/Tests-105%20Passing-brightgreen.svg)](tests/)
+[![Tests: Passing](https://img.shields.io/badge/Tests-108%20Passing-brightgreen.svg)](tests/)
 [![Docs: Live](https://img.shields.io/badge/Docs-Live%20Website-blueviolet.svg)](https://kartavyajoshi.github.io/WINSECURE/)
 [![Version: 2.5.0](https://img.shields.io/badge/Release-v2.5.0%20Aegis%20Prime-red.svg)](https://github.com/Kartavyajoshi/WINSECURE)
 
-WinSecure is a modular, automated cybersecurity configuration assessment, compliance verification, and threat-exposure analysis platform engineered for Microsoft Windows operating systems. It executes deterministic, non-destructive, read-only diagnostic inspections across 36 core operating system subsystems, correlating low-level telemetry into prioritized risk metrics, Bayesian attack graphs, ransomware resilience indices, Zero Trust maturity ratings, multi-format audit reports, and actionable remediation scripts.
+WinSecure is a modular, automated cybersecurity configuration assessment, compliance verification, and threat-exposure analysis platform engineered for Microsoft Windows operating systems. It executes deterministic, non-destructive, read-only diagnostic inspections across 36 core operating system subsystems, correlating low-level telemetry into prioritized risk metrics, Bayesian attack graphs, ransomware resilience indices, Zero Trust maturity ratings, interactive GUI charts, multi-format audit reports, and actionable remediation scripts.
 
 🌐 **Live Interactive Website & Threat Matrix**: [https://kartavyajoshi.github.io/WINSECURE/](https://kartavyajoshi.github.io/WINSECURE/)
+🖥️ **Native Desktop GUI**: Launch with `python run.py gui`
 
 ---
 
@@ -75,7 +76,10 @@ python run.py api --port 8443
 # 10. List installed plugins
 python run.py plugins
 
-# 11. Scan with SIEM export for one platform + remediation scripts + webhook
+# 11. Launch native desktop GUI control cockpit
+python run.py gui
+
+# 12. Scan with SIEM export for one platform + remediation scripts + webhook
 python run.py scan --siem splunk --emit-scripts --webhook https://example.com/hook
 ```
 
@@ -96,6 +100,8 @@ python run.py scan --siem splunk --emit-scripts --webhook https://example.com/ho
 | `--siem` | SIEM NDJSON export platform (`splunk`, `elastic`, `sentinel`, `all`) | `all` |
 | `--emit-scripts` | Write executable PowerShell remediation script bundles | `False` |
 | `--webhook` | Webhook URL to notify on scan completion (repeatable) | — |
+| `gui` | Launch the WinSecure native desktop GUI control cockpit (`--report-dir`, `--scan`) | — |
+| `compare` | Execute empirical comparative benchmarking against previous versions and industry tools | — |
 | `test` | Run complete unit and integration test suite | — |
 | `suite` | Run full verification suite in one command (tests + integrity + E2E fixture scan + plugins; `--benchmark` adds perf stage, `--skip-tests` skips unit stage) | — |
 | `benchmark` | Run performance and check throughput benchmarks | — |

@@ -84,6 +84,12 @@ def cmd_compare(args):
     return main(["compare"] + sys.argv[2:])
 
 
+def cmd_gui(args):
+    """Launch the WinSecure native desktop GUI control cockpit."""
+    from winsecure.cli.main import main
+    return main(["gui"] + sys.argv[2:])
+
+
 def cmd_suite(args):
     """Run the complete verification suite in one command."""
     script = os.path.join(
@@ -171,6 +177,11 @@ Examples:
     p_comp = subparsers.add_parser("compare", help="Run empirical comparison against previous versions & industry tools")
     p_comp.add_argument("--json", action="store_true", help="Output comparison metrics as JSON")
 
+    # v2.5: GUI command (Native Desktop GUI Application)
+    p_gui = subparsers.add_parser("gui", help="Launch WinSecure native desktop GUI control cockpit")
+    p_gui.add_argument("--report-dir", default="./WinSecure-Report", help="Report directory (default: ./WinSecure-Report)")
+    p_gui.add_argument("--scan", action="store_true", help="Trigger automatic scan on launch")
+
     # v2.2: Full verification suite command
     p_suite = subparsers.add_parser(
         "suite", help="Run full verification suite (tests + integrity + E2E + plugins)"
@@ -205,6 +216,8 @@ Examples:
         cmd_plugins(args)
     elif args.command == "compare":
         cmd_compare(args)
+    elif args.command == "gui":
+        cmd_gui(args)
     elif args.command == "suite":
         cmd_suite(args)
     else:

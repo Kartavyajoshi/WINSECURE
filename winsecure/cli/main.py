@@ -390,6 +390,14 @@ def main(argv=None):
         print(ComparativeEvaluationEngine.format_cli_comparison(), flush=True)
         return 0
 
+    # ---- v2.5: Native Desktop GUI Control Cockpit ------------------------
+    if args.command == "gui":
+        from winsecure.gui.app import launch_gui
+        report_dir = getattr(args, "report_dir", "./WinSecure-Report")
+        autostart = getattr(args, "scan", False)
+        launch_gui(report_dir=report_dir, autostart_scan=autostart)
+        return 0
+
     return 0
 
 
