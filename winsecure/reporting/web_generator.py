@@ -287,8 +287,8 @@ class WebReportGenerator:
             deep_dive = WebReportGenerator.deep_dive_url(f.id)
             deep_dive_link = (
                 f'<a href="{deep_dive}" target="_blank" rel="noopener" title="Full in-depth analysis on the live WinSecure knowledge base" '
-                f'onclick="event.stopPropagation()" style="font-family: var(--font-mono); font-size: 10px; color: #2563eb; text-decoration: none; margin-top: 3px; display: inline-block;">'
-                f'&#128218; DEEP-DIVE ANALYSIS &rarr;</a>'
+                f'onclick="event.stopPropagation()" style="font-family: var(--font-mono); font-size: 10px; color: #2563eb; text-decoration: none; margin-top: 3px; display: inline-flex; align-items: center; gap: 4px;">'
+                f'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-1px"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> DEEP-DIVE ANALYSIS &rarr;</a>'
             ) if deep_dive else ""
 
             row_html = f"""<tr class="finding-row" data-id="{html.escape(f.id)}" data-category="{html.escape(f.category)}" data-severity="{html.escape(sev_str)}" data-status="{html.escape(st_str)}" data-finding="{f_json_escaped}" onclick="openFindingModalFromRow(this)" style="cursor: pointer;">
@@ -340,7 +340,7 @@ class WebReportGenerator:
     </div>
     <pre style="font-family: var(--font-mono); font-size: 12px; color: #38bdf8; overflow-x: auto; white-space: pre-wrap; margin: 0;">{rem_escaped}</pre>
   </div>
-  {f'<a href="{WebReportGenerator.deep_dive_url(f.id)}" target="_blank" rel="noopener" style="display: inline-block; margin-top: 10px; font-family: var(--font-mono); font-size: 11.5px; color: #2563eb; text-decoration: none; font-weight: 600;">&#128218; FULL IN-DEPTH ANALYSIS: ATTACK CHAIN, GPO PATH &amp; VERIFICATION &rarr;</a>' if WebReportGenerator.deep_dive_url(f.id) else ''}
+  {f'<a href="{WebReportGenerator.deep_dive_url(f.id)}" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-family: var(--font-mono); font-size: 11.5px; color: #2563eb; text-decoration: none; font-weight: 600;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-1px"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> FULL IN-DEPTH ANALYSIS: ATTACK CHAIN, GPO PATH &amp; VERIFICATION &rarr;</a>' if WebReportGenerator.deep_dive_url(f.id) else ''}
 </div>"""
                 remediation_cards_html.append(r_html)
 
@@ -1037,7 +1037,7 @@ function renderModalContent(tabKey) {
 
   if (tabKey === 'tab-overview') {
     var kbLink = (DEEP_DIVE_IDS.indexOf(f.id) !== -1)
-      ? '<a href="' + SITE_URL + '#finding-' + encodeURIComponent(f.id) + '" target="_blank" rel="noopener" style="display: block; margin-top: 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 10px 14px; font-family: var(--font-mono); font-size: 12px; color: #1d4ed8; font-weight: 600; text-decoration: none;">&#128218; FULL IN-DEPTH ANALYSIS ON LIVE SITE &mdash; ATTACK KILL-CHAIN, GPO PATH &amp; VERIFICATION &rarr;</a>'
+      ? '<a href="' + SITE_URL + '#finding-' + encodeURIComponent(f.id) + '" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 10px 14px; font-family: var(--font-mono); font-size: 12px; color: #1d4ed8; font-weight: 600; text-decoration: none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> FULL IN-DEPTH ANALYSIS ON LIVE SITE &mdash; ATTACK KILL-CHAIN, GPO PATH &amp; VERIFICATION &rarr;</a>'
       : '';
     body.innerHTML = '<div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">' +
         '<span class="badge ' + getSeverityBadge(f.severity) + '">' + sevStr + '</span>' +
@@ -1097,8 +1097,8 @@ function showToast(msg) {
 
   var toast = document.createElement('div');
   toast.className = 'platform-toast';
-  toast.style.cssText = "position: fixed; bottom: 24px; right: 24px; background: #0f172a; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 3000; box-shadow: 0 10px 25px rgba(0,0,0,0.25);";
-  toast.textContent = '✓ ' + msg;
+  toast.style.cssText = "position: fixed; bottom: 24px; right: 24px; background: #0f172a; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 3000; box-shadow: 0 10px 25px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 8px;";
+  toast.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ' + escapeHtml(msg);
   document.body.appendChild(toast);
 
   setTimeout(function() {

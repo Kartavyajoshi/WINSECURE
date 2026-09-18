@@ -184,7 +184,7 @@ class WinSecureApp:
 
         self.btn_scan = tk.Button(
             right_box,
-            text="▶ Run System Scan",
+            text="Run System Scan",
             bg="#0ea5e9",
             fg="#ffffff",
             activebackground="#0284c7",
@@ -200,7 +200,7 @@ class WinSecureApp:
 
         btn_report = tk.Button(
             right_box,
-            text="🌐 Open HTML Report",
+            text="Open HTML Report",
             bg="#334155",
             fg="#f8fafc",
             activebackground="#475569",
@@ -220,27 +220,27 @@ class WinSecureApp:
 
         # Tab 1: Overview & Posture
         self.tab_overview = ttk.Frame(self.notebook)
-        self.notebook.add(self.tab_overview, text="📊 System Overview")
+        self.notebook.add(self.tab_overview, text="System Overview")
         self._build_tab_overview()
 
         # Tab 2: Visual Charts & Analytics
         self.tab_charts = ttk.Frame(self.notebook)
-        self.notebook.add(self.tab_charts, text="📈 Visual Charts & Analytics")
+        self.notebook.add(self.tab_charts, text="Visual Charts & Analytics")
         self._build_tab_charts()
 
         # Tab 3: Findings Explorer
         self.tab_findings = ttk.Frame(self.notebook)
-        self.notebook.add(self.tab_findings, text="🔍 Findings Explorer")
+        self.notebook.add(self.tab_findings, text="Findings Explorer")
         self._build_tab_findings()
 
         # Tab 4: Attack Paths & Choke Points
         self.tab_attacks = ttk.Frame(self.notebook)
-        self.notebook.add(self.tab_attacks, text="⚡ Attack Paths & Choke Points")
+        self.notebook.add(self.tab_attacks, text="Attack Paths & Choke Points")
         self._build_tab_attacks()
 
         # Tab 5: Remediation Studio
         self.tab_remedy = ttk.Frame(self.notebook)
-        self.notebook.add(self.tab_remedy, text="🛠 Remediation Studio")
+        self.notebook.add(self.tab_remedy, text="Remediation Studio")
         self._build_tab_remediation()
 
     def _build_tab_overview(self):
@@ -396,7 +396,7 @@ class WinSecureApp:
 
         btn_copy = tk.Button(
             detail_card,
-            text="📋 Copy Remediation Command",
+            text="Copy Remediation Command",
             bg="#0ea5e9",
             fg="#ffffff",
             font=("Segoe UI", 8, "bold"),
@@ -434,7 +434,7 @@ class WinSecureApp:
 
         btn_save = tk.Button(
             actions_bar,
-            text="💾 Save as .ps1 File",
+            text="Save as .ps1 File",
             bg="#10b981",
             fg="#ffffff",
             font=("Segoe UI", 9, "bold"),
@@ -447,7 +447,7 @@ class WinSecureApp:
 
         btn_copy_all = tk.Button(
             actions_bar,
-            text="📋 Copy Master Script",
+            text="Copy Master Script",
             bg="#0ea5e9",
             fg="#ffffff",
             font=("Segoe UI", 9, "bold"),
@@ -491,7 +491,7 @@ class WinSecureApp:
             return
 
         self.is_scanning = True
-        self.btn_scan.config(state="disabled", text="⏳ Scanning...")
+        self.btn_scan.config(state="disabled", text="Scanning...")
         self.progress.start(10)
         self.lbl_status.config(text="Live assessment executing across 36 modules...")
 
@@ -533,7 +533,7 @@ class WinSecureApp:
                 elif msg_type == "complete":
                     self.is_scanning = False
                     self.progress.stop()
-                    self.btn_scan.config(state="normal", text="▶ Run System Scan")
+                    self.btn_scan.config(state="normal", text="Run System Scan")
                     self.current_result = payload
                     self._update_ui_with_results(payload)
                     self.lbl_status.config(text="Scan Complete & Reports Generated!")
@@ -541,7 +541,7 @@ class WinSecureApp:
                 elif msg_type == "error":
                     self.is_scanning = False
                     self.progress.stop()
-                    self.btn_scan.config(state="normal", text="▶ Run System Scan")
+                    self.btn_scan.config(state="normal", text="Run System Scan")
                     self.lbl_status.config(text=f"Error: {payload}")
                     messagebox.showerror("Scan Error", f"Assessment failed: {payload}")
         finally:
