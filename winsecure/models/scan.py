@@ -91,6 +91,11 @@ class ScanResult:
     remediations: List[RemediationAction] = field(default_factory=list)
     anomalies: List[Dict[str, Any]] = field(default_factory=list)
     ai_insights: Dict[str, Any] = field(default_factory=dict)
+    attack_paths: List[Dict[str, Any]] = field(default_factory=list)
+    choke_points: List[Dict[str, Any]] = field(default_factory=list)
+    blast_radius_score: float = 0.0
+    ransomware_resilience: Dict[str, Any] = field(default_factory=dict)
+    zero_trust_maturity: Dict[str, Any] = field(default_factory=dict)
     comparison_data: Dict[str, Any] = field(default_factory=dict)
     drift_data: Dict[str, Any] = field(default_factory=dict)
     executive_summary: str = ""
@@ -117,6 +122,11 @@ class ScanResult:
             "remediations": [r.to_dict() for r in self.remediations],
             "anomalies": self.anomalies,
             "ai_insights": self.ai_insights,
+            "attack_paths": self.attack_paths,
+            "choke_points": self.choke_points,
+            "blast_radius_score": self.blast_radius_score,
+            "ransomware_resilience": self.ransomware_resilience,
+            "zero_trust_maturity": self.zero_trust_maturity,
             "comparison_data": self.comparison_data,
             "drift_data": self.drift_data,
             "executive_summary": self.executive_summary,

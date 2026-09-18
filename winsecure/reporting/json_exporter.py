@@ -37,23 +37,37 @@ class JsonExporter:
             "score_deductions": [d.to_dict() for d in result.score_deductions],
             "anomalies": result.anomalies,
             "ai_insights": result.ai_insights,
+            "attack_paths_count": len(result.attack_paths),
+            "blast_radius_score": result.blast_radius_score,
+            "choke_points": result.choke_points,
+            "ransomware_resilience": result.ransomware_resilience,
+            "zero_trust_maturity": result.zero_trust_maturity,
             "drift_data": result.drift_data,
             "errors_count": len(result.errors),
         }
         with open(summary_path, "w", encoding="utf-8") as f:
             json.dump(summary_dict, f, indent=2)
 
-        # 3. compliance.json
+        # 3. attack_paths.json
+        ap_path = os.path.join(data_dir, "attack_paths.json")
+        with open(ap_path, "w", encoding="utf-8") as f:
+            json.dump({
+                "blast_radius_score": result.blast_radius_score,
+                "attack_paths": result.attack_paths,
+                "choke_points": result.choke_points,
+            }, f, indent=2)
+
+        # 4. compliance.json
         compliance_path = os.path.join(data_dir, "compliance.json")
         with open(compliance_path, "w", encoding="utf-8") as f:
             json.dump([c.to_dict() for c in result.compliance_summaries], f, indent=2)
 
-        # 4. inventory.json
+        # 5. inventory.json
         inventory_path = os.path.join(data_dir, "inventory.json")
         with open(inventory_path, "w", encoding="utf-8") as f:
             json.dump(result.inventory.to_dict() if result.inventory else {}, f, indent=2)
 
-        # 5. comparison.json
+        # 6. comparison.json
         comparison_path = os.path.join(data_dir, "comparison.json")
         with open(comparison_path, "w", encoding="utf-8") as f:
             json.dump(result.comparison_data, f, indent=2)

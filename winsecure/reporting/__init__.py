@@ -10,6 +10,7 @@ from winsecure.reporting.markdown_exporter import MarkdownExporter
 from winsecure.reporting.web_generator import WebReportGenerator
 from winsecure.reporting.executive_report import ExecutiveReportGenerator
 from winsecure.reporting.technical_report import TechnicalReportGenerator
+from winsecure.reporting.siem_exporter import SiemExporter
 
 __all__ = [
     "ReportGenerator",
@@ -21,4 +22,5 @@ __all__ = [
     "WebReportGenerator",
     "ExecutiveReportGenerator",
     "TechnicalReportGenerator",
+    "SiemExporter",
 ]

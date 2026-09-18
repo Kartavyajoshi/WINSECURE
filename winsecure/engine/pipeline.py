@@ -26,8 +26,11 @@ from winsecure.collectors import (
 from winsecure.scanners import ALL_SCANNERS
 from winsecure.inventory import InventoryBuilder
 from winsecure.compliance import ComplianceEngine
+from winsecure.compliance.zero_trust import ZeroTrustEvaluator
 from winsecure.scoring import RiskEngine, AnomalyEngine
 from winsecure.analytics import ExecutiveAnalytics
+from winsecure.analytics.attack_path import AttackPathEngine
+from winsecure.analytics.ransomware_resilience import RansomwareResilienceEngine
 from winsecure.remediation import RemediationEngine
 from winsecure.comparison import ComparisonEngine
 from winsecure.benchmarking import MetricsCollector, ScanComparison
@@ -36,6 +39,7 @@ from winsecure.models.finding import Finding, FindingStatus
 from winsecure.models.module import ScannerHealth
 from winsecure.storage import DatabaseManager, ScanRepository
 from winsecure.engine.validator import ScanValidator
+from winsecure.version import __version__
 
 
 class ScanPipeline:
@@ -115,8 +119,8 @@ class ScanPipeline:
         all_findings: List[Finding] = []
         scanner_health_list: List[ScannerHealth] = []
         
-        # Estimate 55 total checks across 32 modules
-        total_checks_expected = 55
+        # Estimate 62 total checks across 36 modules
+        total_checks_expected = 62
         self.result_collector.total_scheduled = total_checks_expected
         test_index = 0
 
@@ -193,13 +197,27 @@ class ScanPipeline:
 
         self.context.findings = all_findings
 
-        # [4/8] Threat-exposure & Compliance assessment
+        # [4/8] Threat-exposure & Attack Path synthesis
         notify(4, "Threat-exposure analysis")
         self.context.anomalies = AnomalyEngine.detect_anomalies(self.context.findings)
+        
+        # Grounded in Bayesian attack graph research
+        ap_data = AttackPathEngine.analyze(self.context.findings)
+        self.context.attack_paths = ap_data.get("attack_paths", [])
+        self.context.choke_points = ap_data.get("choke_points", [])
+        self.context.blast_radius_score = ap_data.get("blast_radius_score", 0.0)
+
+        # Grounded in ShieldFS/UNVEIL ransomware resilience research
+        rr_data = RansomwareResilienceEngine.evaluate(self.context.findings, self.context.collected_artifacts)
+        self.context.ransomware_resilience = rr_data
 
         notify(5, "Compliance assessment")
         comp_engine = ComplianceEngine()
         self.context.compliance_summaries = comp_engine.evaluate(self.context.findings)
+
+        # Grounded in CISA ZTMM v2.0 Device Pillar
+        zt_data = ZeroTrustEvaluator.evaluate(self.context.findings)
+        self.context.zero_trust_maturity = zt_data
 
         # [6/8] Risk calculation & Prioritized Remediation
         notify(6, "Risk calculation")
@@ -271,7 +289,7 @@ class ScanPipeline:
         scan_result = ScanResult(
             scan_id=self.context.scan_id,
             timestamp=self.context.start_time_iso,
-            winsecure_version="1.0.0",
+            winsecure_version=__version__,
             profile=self.context.config.profile,
             is_admin=self.context.is_admin,
             security_score=self.context.security_score,
@@ -288,6 +306,11 @@ class ScanPipeline:
             remediations=self.context.remediations,
             anomalies=self.context.anomalies,
             ai_insights=self.context.ai_insights,
+            attack_paths=self.context.attack_paths,
+            choke_points=self.context.choke_points,
+            blast_radius_score=self.context.blast_radius_score,
+            ransomware_resilience=self.context.ransomware_resilience,
+            zero_trust_maturity=self.context.zero_trust_maturity,
             comparison_data=comparison_matrix,
             drift_data=drift_data,
             executive_summary=self.context.executive_summary,
@@ -300,7 +323,7 @@ class ScanPipeline:
         try:
             db_mgr = DatabaseManager(self.context.config.db_path)
             repo = ScanRepository(db_mgr)
-            repo.save_scan(scan_result)
+            repo.save_scan_result(scan_result)
         except Exception as e:
             self.context.add_error("ScanRepository", f"Could not persist scan to SQLite: {e}")
 

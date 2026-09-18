@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WinSecure — Pure Defense. Nothing Hidden.</title>
+  <title>WinSecure ΓÇö Pure Defense. Nothing Hidden.</title>
   <style>
     /* ==========================================================================
-       WinSecure — Cyber-Hacker Defensive Security Platform (Nothing Tech Style)
+       WinSecure ΓÇö Cyber-Hacker Defensive Security Platform (Nothing Tech Style)
        Monochrome, High-Tech HUD, CRT Scanlines, Matrix Radar & Laser Telemetry
        100% Zero Overflow, Fluid Responsive, Air-Gapped Ready
        ========================================================================== */
@@ -1062,6 +1062,27 @@
       .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
       .hero-title { font-size: 30px; }
     }
+
+    /* Finding Deep-Dive Knowledge Base */
+    .deepdive-list { display: flex; flex-direction: column; gap: 14px; }
+    .deepdive-card { background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-sm); overflow: hidden; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+    .deepdive-card:hover { border-color: var(--accent-nothing-red); }
+    .deepdive-card.open { border-color: var(--accent-nothing-red); box-shadow: 0 4px 18px rgba(153, 27, 27, 0.08); }
+    .deepdive-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 18px; cursor: pointer; flex-wrap: wrap; }
+    .deepdive-title-id { font-family: var(--font-mono); font-size: 11.5px; color: var(--accent-nothing-red); font-weight: 700; letter-spacing: 0.4px; }
+    .deepdive-title-name { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-top: 3px; }
+    .deepdive-chevron { font-family: var(--font-mono); color: var(--text-muted); font-size: 11.5px; white-space: nowrap; }
+    .deepdive-body { display: none; padding: 0 18px 18px; border-top: 1px dashed var(--border-light); margin-top: 0; }
+    .deepdive-card.open .deepdive-body { display: block; }
+    .deepdive-label { font-size: 10.5px; letter-spacing: 1.4px; font-weight: 800; color: var(--text-muted); margin: 18px 0 6px; text-transform: uppercase; }
+    .deepdive-text { font-size: 13.5px; color: var(--text-secondary); line-height: 1.7; }
+    .attack-chain { list-style: none; padding: 0; margin: 0; counter-reset: chainstep; }
+    .attack-chain li { position: relative; padding: 7px 0 7px 36px; font-size: 13px; color: var(--text-secondary); line-height: 1.65; border-bottom: 1px dashed var(--border-light); }
+    .attack-chain li:last-child { border-bottom: none; }
+    .attack-chain li::before { counter-increment: chainstep; content: counter(chainstep, decimal-leading-zero); position: absolute; left: 0; top: 7px; font-family: var(--font-mono); font-size: 11px; color: var(--accent-nothing-red); font-weight: 800; }
+    .deepdive-pre { font-family: var(--font-mono); background: #0a0a0a; color: #10b981; padding: 12px 14px; border-radius: var(--radius-sm); font-size: 12px; line-height: 1.65; overflow-x: auto; margin: 0; white-space: pre-wrap; }
+    .deepdive-pre.cmd { color: #38bdf8; }
+    .deepdive-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
   </style>
 </head>
 <body class="dot-bg">
@@ -1078,6 +1099,7 @@
       <ul class="nav-links">
         <li><a href="#overview" class="nav-link">// OVERVIEW</a></li>
         <li><a href="#modules" class="nav-link">// 32_MODULES</a></li>
+        <li><a href="#findings" class="nav-link">// FINDINGS_DB</a></li>
         <li><a href="#risk-model" class="nav-link">// RISK_MODEL</a></li>
         <li><a href="#compliance" class="nav-link">// COMPLIANCE</a></li>
         <li><a href="#comparison" class="nav-link">// BENCHMARK</a></li>
@@ -1154,8 +1176,8 @@
           <div id="terminal-screen" class="terminal-body">
             <div style="color: #888888;">[SecOps@LAB-WIN-042:WinSecure]$ python -m winsecure scan</div>
             <div style="color: #38bdf8; margin-top: 4px;">[*] Initializing WinSecure Diagnostic Engine...</div>
-            <div style="color: #10b981;">[✓] Target Host: LAB-WIN-042 (192.0.2.42)</div>
-            <div style="color: #ffffff;">[✓] 32 Diagnostic Security Modules Active.</div>
+            <div style="color: #10b981;">[Γ£ô] Target Host: LAB-WIN-042 (192.0.2.42)</div>
+            <div style="color: #ffffff;">[Γ£ô] 32 Diagnostic Security Modules Active.</div>
             <div style="color: #eab308; margin-top: 8px;">Click "AUDIT SCAN", "THREAT MATRIX", or "HARDENING FIX" to execute live simulation.</div>
           </div>
         </div>
@@ -1192,10 +1214,27 @@
     </div>
   </section>
 
-  <!-- Section 03: Mathematical Risk Deduction Model -->
+  <!-- Section 03: Finding Deep-Dive Knowledge Base -->
+  <section id="findings" class="section-padding">
+    <div class="container">
+      <span class="section-tag">(03) // KNOWLEDGE_BASE // FINDING_ANATOMY</span>
+      <h2 class="section-heading">FINDING DEEP-DIVE KNOWLEDGE BASE</h2>
+      <p class="section-description">
+        Full anatomy of WinSecure's highest-impact findings: exactly what each check verifies under the hood, the step-by-step attacker kill-chain an insecure configuration enables, business blast radius, in-depth remediation (PowerShell + Group Policy), and post-fix verification. Every generated WinSecure assessment report links its findings directly to the analyses below.
+      </p>
+
+      <div class="module-filter-bar">
+        <input type="text" id="findings-search-input" class="search-input" placeholder="Filter deep-dives by ID, title, or MITRE technique...">
+      </div>
+
+      <div id="findings-deepdive-list" class="deepdive-list"></div>
+    </div>
+  </section>
+
+  <!-- Section 04: Mathematical Risk Deduction Model -->
   <section id="risk-model" class="section-padding">
     <div class="container">
-      <span class="section-tag">(03) // RISK_ENGINE // DEDUCTION_FORMULA</span>
+      <span class="section-tag">(04) // RISK_ENGINE // DEDUCTION_FORMULA</span>
       <h2 class="section-heading">MATHEMATICAL RISK DEDUCTION MODEL</h2>
       <p class="section-description">
         Deterministic scoring based on evaluated control weights, detection confidence, and asset criticality.
@@ -1252,7 +1291,7 @@ Security_Score = 100.0 - &Sigma; Deductions</pre>
   <!-- Section 04: Compliance Baseline Mapping -->
   <section id="compliance" class="section-padding" style="background: var(--bg-secondary);">
     <div class="container">
-      <span class="section-tag">(04) // COMPLIANCE // STANDARDS_MAPPING</span>
+      <span class="section-tag">(05) // COMPLIANCE // STANDARDS_MAPPING</span>
       <h2 class="section-heading">CONSENSUS FRAMEWORK ALIGNMENT</h2>
       <p class="section-description">
         Every diagnostic check maps directly to authoritative industry frameworks and technical controls.
@@ -1286,7 +1325,7 @@ Security_Score = 100.0 - &Sigma; Deductions</pre>
   <!-- Section 05: Benchmark Comparison -->
   <section id="comparison" class="section-padding">
     <div class="container">
-      <span class="section-tag">(05) // COMPARATIVE_ANALYSIS // TOOL_BENCHMARK</span>
+      <span class="section-tag">(06) // COMPARATIVE_ANALYSIS // TOOL_BENCHMARK</span>
       <h2 class="section-heading">HOW WINSECURE COMPARES</h2>
       <p class="section-description">
         How WinSecure compares against consumer tweak tools, GPO comparators, AD auditors, and generic SCAP engines.
@@ -1364,7 +1403,7 @@ Security_Score = 100.0 - &Sigma; Deductions</pre>
   <!-- Section 06: GitHub & Open Source Community -->
   <section id="github" class="section-padding" style="background: var(--bg-secondary);">
     <div class="container">
-      <span class="section-tag">(06) // GITHUB_REPOSITORY // OPEN_SOURCE</span>
+      <span class="section-tag">(07) // GITHUB_REPOSITORY // OPEN_SOURCE</span>
       <h2 class="section-heading">OPEN SOURCE & DEVELOPER HUB</h2>
       <p class="section-description">
         WinSecure is fully open source under the Apache-2.0 license. Developed by <strong class="brand-name-animated matrix-decode" data-original="Kartavya Joshi">Kartavya Joshi</strong>. Star, fork, contribute, or clone the repository directly.
@@ -1415,7 +1454,7 @@ Security_Score = 100.0 - &Sigma; Deductions</pre>
   <!-- Section 07: Quickstart Commands -->
   <section id="quickstart" class="section-padding">
     <div class="container">
-      <span class="section-tag">(07) // QUICKSTART // RUN_COMMANDS</span>
+      <span class="section-tag">(08) // QUICKSTART // RUN_COMMANDS</span>
       <h2 class="section-heading">HOW TO RUN WINSECURE</h2>
       <p class="section-description">
         Install and run WinSecure with zero cloud configuration:
@@ -1449,7 +1488,7 @@ python -m winsecure demo</pre>
   <!-- Legal, Fair Use & Trademark Disclaimers Section -->
   <section class="section-padding" style="background: var(--bg-primary); border-top: 1px solid var(--border-light);">
     <div class="container">
-      <span class="section-tag">(08) // LEGAL_NOTICES // FAIR_USE</span>
+      <span class="section-tag">(09) // LEGAL_NOTICES // FAIR_USE</span>
       <h2 class="section-heading">LEGAL, FAIR USE & ORIGINAL AUTHORSHIP NOTICE</h2>
       
       <div class="feature-card" style="background: var(--bg-secondary); border-left: 4px solid var(--text-primary); margin-top: 16px;">
@@ -1511,7 +1550,7 @@ python -m winsecure demo</pre>
       </div>
 
       <div class="footer-bottom">
-        <span class="matrix-decode" data-original="WINSECURE // DEVELOPED BY KARTAVYA JOSHI // v1.0.0">WINSECURE // DEVELOPED BY KARTAVYA JOSHI // v1.0.0</span>
+        <span class="matrix-decode" data-original="WINSECURE // DEVELOPED BY KARTAVYA JOSHI // v2.0.0">WINSECURE // DEVELOPED BY KARTAVYA JOSHI // v2.0.0</span>
         <span>100% OFFLINE & AIR-GAPPED</span>
         <span>RELEASED UNDER APACHE-2.0 LICENSE</span>
       </div>
@@ -1537,7 +1576,7 @@ python -m winsecure demo</pre>
 
   <script>
     /* ==========================================================================
-       WinSecure — Cyber-Hacker Defensive Security Engine (Nothing Tech Style)
+       WinSecure ΓÇö Cyber-Hacker Defensive Security Engine (Nothing Tech Style)
        Interactive Modals, Radar Sweeps, Terminal Streaming, Decoders & Risk Model
        ========================================================================== */
 
@@ -1960,6 +1999,337 @@ python -m winsecure demo</pre>
       }
     ];
 
+    // =====================================================================
+    // FINDING DEEP-DIVE KNOWLEDGE BASE
+    // In-depth anatomy of WinSecure's highest-impact findings. Generated
+    // assessment reports deep-link here via #finding-<ID> anchors.
+    // =====================================================================
+    const FINDING_DEEP_DIVES = [
+      {
+        id: "WS-FW-001", module: "WS-FIREWALL", severity: "CRITICAL",
+        name: "Public Firewall Profile is Disabled",
+        mitre: "T1562.004", mitreName: "Impair Defenses: Disable or Modify System Firewall",
+        compliance: "CIS Win11 9.3.1 · NIST SP 800-53 SC-7 · DISA STIG WN11-FW-000010",
+        what: "Windows assigns every network interface one of three firewall profiles (Domain, Private, Public). The Public profile governs all networks Windows classifies as untrusted — hotel Wi-Fi, coffee shops, airports, conference networks. WinSecure verifies the profile is both enabled and enforcing a deny-by-default inbound policy by reading the effective configuration via Get-NetFirewallProfile and cross-checking the policy keys under HKLM:\\SOFTWARE\\Policies\\Microsoft\\WindowsFirewall\\PublicProfile. When the profile is disabled, Windows performs zero stateful packet inspection on that interface: no connection tracking, no stealth-mode port behavior, no inbound filtering of any kind.",
+        howChecked: "Get-NetFirewallProfile -Profile Public | Select-Object Name, Enabled, DefaultInboundAction",
+        attackChain: [
+          "An endpoint joins hotel / airport Wi-Fi. NLA automatically classifies the network as Public — exactly the profile that is now disabled.",
+          "With no firewall filtering on the interface, every listening socket on the host becomes directly reachable by any device on the same subnet: SMB (445), RDP (3389), WinRM (5985/5986), mDNS/LLMNR responders, and every development server the user has running.",
+          "An attacker on the same subnet runs a silent masscan sweep of the segment and builds a map of every reachable service — no exploit needed yet, just pure reconnaissance that should have been impossible.",
+          "The attacker picks the weakest exposed surface: an unauthenticated SMB share, an RDP logon prompt for credential spraying, or an LLMNR poison + NTLM relay (Responder → ntlmrelayx) that harvests credentials with zero user interaction.",
+          "Initial access achieved. From one laptop on public Wi-Fi, the attacker now has a foothold inside the corporate endpoint — the same class of subnet worm propagation that made EternalBlue / WannaCry globally destructive in 2017."
+        ],
+        impact: "Complete loss of network boundary defense on untrusted networks. Any adjacent device gains direct reachability to every listening service on the host, enabling unauthenticated initial access, credential relay, and worm-style propagation — with zero user interaction required.",
+        fixPowershell: "Set-NetFirewallProfile -Profile Public -Enabled True\nSet-NetFirewallProfile -Profile Public -DefaultInboundAction Block -DefaultOutboundAction Allow",
+        fixGpo: "Computer Configuration → Administrative Templates → Network → Windows Firewall → Windows Firewall: Public profile → 'Protect all network connections' = Enabled; 'Windows Firewall: Public: Inbound connections' = Block",
+        verify: "Get-NetFirewallProfile -Profile Public   # Enabled: True, DefaultInboundAction: Block — or re-run: python run.py scan"
+      },
+      {
+        id: "WS-FW-004", module: "WS-FIREWALL", severity: "CRITICAL",
+        name: "Default Inbound Action is Allowed on Public Profile",
+        mitre: "T1562.004", mitreName: "Impair Defenses: Disable or Modify System Firewall",
+        compliance: "CIS Win11 9.3.2 · NIST SP 800-53 SC-7(5) Deny by Default",
+        what: "This is the stealthier twin of WS-FW-001: the firewall appears enabled in every management console, yet its default inbound policy is flipped from Block to Allow. In this state the firewall evaluates explicit rules but permits anything not explicitly blocked — the inverse of a secure deny-by-default posture. A single GPO typo, an over-permissive installer, or an attacker with admin rights (T1562.004) can produce this state while every dashboard still shows the firewall as 'On'. WinSecure reads DefaultInboundAction directly from the effective profile configuration to catch exactly this deception.",
+        howChecked: "Get-NetFirewallProfile -Profile Public | Select-Object Name, Enabled, DefaultInboundAction",
+        attackChain: [
+          "Firewall status checks pass — the profile shows Enabled in Windows Security Center, so compliance dashboards report green.",
+          "In reality every listening port without an explicit blocking rule is wide open: the default verdict for unsolicited inbound SYN packets is Allow.",
+          "An attacker on the same network scans the host; every service that would normally be silently dropped (stealth-mode) instead answers, revealing the full attack surface.",
+          "The attacker exploits the most attractive responder — an exposed development API, an unauthenticated file share, or RDP for password spraying — obtaining initial access through a firewall that never technically turned off."
+        ],
+        impact: "Deny-by-default is the foundation of boundary security; flipping the default silently converts the firewall into an allow-mostly passthrough. The host remains fully exposed on untrusted networks while appearing compliant to shallow status checks.",
+        fixPowershell: "Set-NetFirewallProfile -Profile Public -DefaultInboundAction Block",
+        fixGpo: "Computer Configuration → Administrative Templates → Network → Windows Firewall → 'Windows Firewall: Public: Inbound connections' = Block",
+        verify: "Get-NetFirewallProfile -Profile Public | Select DefaultInboundAction   # must read 'Block'"
+      },
+      {
+        id: "WS-DEF-001", module: "WS-DEFENDER", severity: "CRITICAL",
+        name: "Microsoft Defender Real-Time Protection is Disabled",
+        mitre: "T1562.001", mitreName: "Impair Defenses: Disable or Modify Tools",
+        compliance: "CIS Win11 2.3.1 · NIST SP 800-53 SI-3 · DISA STIG WN11-CC-000120",
+        what: "Real-time protection (RTP) is Defender's on-access scanning engine: it inspects every file open, process launch, and registry write as it happens, before execution completes. Disabling it converts Defender into a periodic on-demand scanner at best. WinSecure checks both the runtime state (Get-MpComputerStatus.RealTimeProtectionEnabled) and the policy backdoor that malware and misconfigured GPOs use — DisableAntiSpyware under HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender — because an attacker who flips RTP off as their first post-exploitation action will otherwise show a healthy UI.",
+        howChecked: "Get-MpComputerStatus | Select-Object RealTimeProtectionEnabled, AntivirusEnabled, AMServiceEnabled",
+        attackChain: [
+          "A phishing email delivers a macro-laden document or a signed-but-malicious loader. With RTP disabled, no on-access scan intercepts the payload at write or launch time.",
+          "The dropper executes unimpeded, copies itself to a persistent location (Startup folder, Run key, scheduled task) and — critically — disables remaining Defender telemetry, matching T1562.001 as one of the most-observed adversary actions in incident data.",
+          "With no behavioral sensors firing, ransomware can begin mass file encryption and only trigger human notice when documents start failing to open.",
+          "When the IR team finally images the machine, on-access inspection never recorded the execution lineage — the attack effectively happened off the record."
+        ],
+        impact: "The endpoint's primary always-on malware interception layer is gone: droppers, loaders, and ransomware execute without inspection, and the resulting infections leave far thinner forensic evidence for incident response.",
+        fixPowershell: "Set-MpPreference -DisableRealtimeMonitoring $false\nSet-MpPreference -PUAProtection Enabled -MAPSReporting Advanced -SubmitSamplesConsent SendSafeSamples",
+        fixGpo: "Computer Configuration → Administrative Templates → Windows Components → Microsoft Defender Antivirus → 'Turn off real-time protection' = Disabled; Real-time protection → Turn on behavior monitoring = Enabled",
+        verify: "Get-MpComputerStatus | Select RealTimeProtectionEnabled   # must be True"
+      },
+      {
+        id: "WS-REG-001", module: "WS-REGISTRY", severity: "HIGH",
+        name: "LSA Protection (RunAsPPL) is Disabled — Credential Dumping Exposed",
+        mitre: "T1003.001", mitreName: "OS Credential Dumping: LSASS Memory",
+        compliance: "CIS Win11 2.3.7.4 · NIST SP 800-53 IA-5 · DISA STIG WN11-RG-000020",
+        what: "The Local Security Authority Subsystem Service (LSASS) is the single most credential-dense process on any Windows machine: it caches NT password hashes, Kerberos tickets, and plaintext credentials of every interactive logon session. RunAsPPL launches LSASS as a Protected Process Light, which strips PROCESS_VM_READ access from every non-PPL process — even ones running as SYSTEM and even with SeDebugPrivilege. Without it, any code executing with admin rights can open a raw memory handle to lsass.exe. WinSecure reads HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa → RunAsPPL and requires the value 1.",
+        howChecked: "Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name RunAsPPL   # expected: 1",
+        attackChain: [
+          "An attacker obtains local administrator rights on one endpoint — via phishing, a vulnerable service, or a pass-the-hash from WS-LAPS-001 below.",
+          "They run a credential dumper: Mimikatz sekurlsa::logonpasswords, comsvcs MiniDump, Task Manager's LSASS dump, or a bespoke scraper. Without PPL, Windows happily grants the memory-read handle.",
+          "The dump yields NT hashes and Kerberos TGTs of every user who has logged on to that machine — including, on workstations of IT staff, privileged domain accounts.",
+          "Using pass-the-hash / pass-the-ticket (T1550), the attacker authenticates to file servers, domain controllers, and other workstations — no password cracking, no MFA prompt, nothing logged as a failed logon.",
+          "One compromised laptop becomes domain-wide access. This is the standard escalation path from single-endpoint compromise to enterprise breach."
+        ],
+        impact: "Every credential that touches the machine is extractable in seconds by any admin-level process. PPL is one of the cheapest, highest-leverage defenses against the single most common post-exploitation technique in real intrusions.",
+        fixPowershell: "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name RunAsPPL -Value 1 -Type DWord\n# UEFI-based systems should also enable Credential Guard for virtualization-backed isolation",
+        fixGpo: "Computer Configuration → Administrative Templates → System → Local Security Authority → 'Configure LSASS to run as a protected process' = Enabled (with UEFI lock for tamper resistance)",
+        verify: "Reboot, then: Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa | Select RunAsPPL   # 1 — task manager / procdump must now fail to open LSASS"
+      },
+      {
+        id: "WS-REG-002", module: "WS-REGISTRY", severity: "CRITICAL",
+        name: "WDigest Plaintext Credential Caching is Enabled",
+        mitre: "T1003.001", mitreName: "OS Credential Dumping: LSASS Memory",
+        compliance: "CIS Win11 2.3.11 · NIST SP 800-53 IA-5(1)",
+        what: "The WDigest authentication provider is a legacy protocol that — uniquely among Windows credential providers — must keep the user's plaintext password in LSASS memory to function. Microsoft disabled it by default starting Windows 8.1/Server 2012 R2, but attackers re-enable it via the registry precisely so they can later harvest readable passwords. WinSecure requires UseLogonCredential = 0 under HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest. If this value is 1 (or the key was re-created by tooling), every logon stores a plaintext password waiting to be dumped.",
+        howChecked: "Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest' -Name UseLogonCredential   # expected: 0",
+        attackChain: [
+          "Attacker with admin rights silently flips UseLogonCredential to 1 — no reboot, no alert, no functional change the user can perceive.",
+          "They wait. Every subsequent interactive logon (user unlocks the screen, RDP session, RunAs prompt) writes that user's actual plaintext password into LSASS memory.",
+          "Hours or days later, the attacker dumps LSASS once. Instead of NT hashes that must be cracked offline, they obtain cleartext domain passwords — including ones that would survive hash-only attacks (long, complex, not-reused).",
+          "Plaintext credentials unlock everything hash-based attacks cannot: web portals, VPN without SSO, email, and any non-Windows system sharing the password."
+        ],
+        impact: "Converts future credential dumps from 'offline-cracking project' into 'readable passwords on demand.' Combined with WS-REG-001 (no PPL), the machine becomes a plaintext password collector for the adversary.",
+        fixPowershell: "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest' -Name UseLogonCredential -Value 0 -Type DWord",
+        fixGpo: "Computer Configuration → Administrative Templates → System → Credentials Delegation → 'Do not allow storage of network credentials' + explicit WDigest hardening via registry preferences deploying UseLogonCredential=0",
+        verify: "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest | Select UseLogonCredential   # 0"
+      },
+      {
+        id: "WS-SMB-001", module: "WS-SMB", severity: "CRITICAL",
+        name: "SMBv1 Legacy Protocol is Enabled",
+        mitre: "T1210", mitreName: "Exploitation of Remote Services",
+        compliance: "CIS Win11 18.10.12.1 · NIST SP 800-53 CM-7 · DISA STIG WN11-SO-000100",
+        what: "SMBv1 is a 2006-era dialect with no modern signing, no encryption, no pre-authentication integrity, and a code base riddled with memory-corruption bugs. It is the protocol of EternalBlue (MS17-010), the exploit behind WannaCry and NotPetya — the two most damaging cyber events in history. Microsoft has shipped SMBv1 disabled by default since 1709 and removes it outright on current builds; any machine still answering SMBv1 is either running a stale image or had it re-enabled for an ancient device. WinSecure tests the live server configuration (Get-SmbServerConfiguration.EnableSMB1Protocol) plus the optional-feature state.",
+        howChecked: "Get-SmbServerConfiguration | Select-Object EnableSMB1Protocol; Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol",
+        attackChain: [
+          "An attacker anywhere on a reachable network sends SMBv1 probes to port 445; the host answers in the legacy dialect, fingerprinting itself as vulnerable-class.",
+          "Eternal-family exploits (EternalBlue, and modern re-implementations) trigger pre-authentication kernel memory corruption — no credentials needed at any step.",
+          "The exploit yields SYSTEM on the first hop. WannaCry then self-propagated exactly this way: scan → exploit → encrypt → scan, doubling every few hours to 200,000+ machines across 150 countries in a single weekend.",
+          "Even absent a working exploit, SMBv1's absent signing enforcement enables man-in-the-middle relay of captured authentication (combined with WS-SMB-002)."
+        ],
+        impact: "Unauthenticated remote-code-execution exposure on the network — the literal mechanism of the most destructive ransomware outbreaks in history. SMBv1 offers zero functional benefit on modern networks and pure risk.",
+        fixPowershell: "Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force\nDisable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart   # full removal; reboot required",
+        fixGpo: "Computer Configuration → Administrative Templates → Network → SMB Server → 'Configure SMB v1 server' = Disabled; and remove the SMB1Protocol optional feature from the image",
+        verify: "Get-SmbServerConfiguration | Select EnableSMB1Protocol   # False — WinSecure marks WS-SMB-001 PASS on the next scan"
+      },
+      {
+        id: "WS-RDP-001", module: "WS-REMOTE", severity: "HIGH",
+        name: "Remote Desktop Enabled Without Network Level Authentication (NLA)",
+        mitre: "T1021.001", mitreName: "Remote Services: Remote Desktop Protocol",
+        compliance: "CIS Win11 18.9.58.3 · NIST SP 800-53 AC-17 · DISA STIG WN11-CC-000032",
+        what: "Without NLA, a full Windows logon interface — graphics, winlogon, the authentication stack itself — is exposed to the network before any credential is verified. NLA moves authentication into the CredSSP/TLS layer so the remote desktop surface only materializes after a successful, certificate-validated handshake. WinSecure reads HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp → UserAuthentication (plus the matching policy keys) and requires 1.",
+        howChecked: "Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -Name UserAuthentication   # expected: 1",
+        attackChain: [
+          "An attacker port-scans for 3389 and finds the pre-authentication logon UI fully rendered and reachable — the entire RDP attack surface with zero credentials.",
+          "They run automated credential spraying against the logon dialog itself (Crowbar, hydra RDP modules): thousands of password guesses against the real authentication stack. Every guess hits the host's CPU, and lockout policies often don't apply the way they do interactively.",
+          "Pre-auth worms have a wider field day: BlueKeep (CVE-2019-0708) executed code before authentication ever started, exactly the class of vulnerability that NLA fences off.",
+          "One valid credential later, the attacker owns an interactive graphical session — mouse, keyboard, and the user's full desktop."
+        ],
+        impact: "The host's most credential-hungry, historically vulnerable service is exposed unauthenticated to the network: password-spray target, pre-auth exploit surface, and help-desk for every future RDP vulnerability.",
+        fixPowershell: "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -Name UserAuthentication -Value 1 -Type DWord\nSet-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -Name SecurityLayer -Value 2 -Type DWord   # require TLS",
+        fixGpo: "Computer Configuration → Administrative Templates → Windows Components → Remote Desktop Services → Remote Desktop Session Host → Security → 'Require user authentication for remote connections by using Network Level Authentication' = Enabled; 'Require use of specific security layer' = SSL",
+        verify: "Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' | Select UserAuthentication, SecurityLayer"
+      },
+      {
+        id: "WS-ENC-001", module: "WS-BITLOCKER", severity: "HIGH",
+        name: "BitLocker Device Encryption is Disabled on OS Volume",
+        mitre: "T1005", mitreName: "Data from Local System",
+        compliance: "CIS Win11 1.5.1 · NIST SP 800-53 SC-28 · DISA STIG WN11-00-000031",
+        what: "Without full-volume encryption, every file on the disk is stored in plaintext — Windows permissions only apply while Windows is running. BitLocker with a TPM 2.0 protector (ideally TPM+PIN) encrypts the OS volume at rest and measures boot integrity, so the disk is unreadable outside the validated machine. WinSecure queries the BitLocker management objects (Get-BitLockerVolume) for the OS volume protection status and cross-checks TPM readiness.",
+        howChecked: "Get-BitLockerVolume -MountPoint $env:SystemDrive | Select-Object VolumeStatus, ProtectionStatus; Get-Tpm",
+        attackChain: [
+          "A laptop is left in an airport, stolen from a car, or decommissioned to a scrap vendor without sanitization.",
+          "The attacker removes the drive (or boots a live USB on the machine): with no encryption, NTFS is mounted like any external disk — every document, browser-stored password database, and cached domain credential readable in minutes.",
+          "The SAM/SYSTEM hives yield local password hashes, and cached domain logon data feeds offline cracking — the machine's domain identity is now the attacker's.",
+          "Nothing about this appears in any log, because the attack never booted the OS. Disk-level theft is invisible to EDR."
+        ],
+        impact: "Physical possession becomes total data compromise: full filesystem access plus cached-credential extraction, with zero telemetry and no possibility of remote wiping.",
+        fixPowershell: "Add-BitLockerKeyProtector -MountPoint $env:SystemDrive -TpmProtector\n# Stronger: -PinProtector (TPM+PIN) — then enable + backup recovery key:\n# Enable-BitLocker -MountPoint $env:SystemDrive -EncryptionMethod XtsAes256 -TpmProtector\nmanage-bde -backup (Get-BitLockerVolume -MountPoint $env:SystemDrive).KeyProtector[0].KeyProtectorId $env:SystemDrive   # escrow to AD/Entra",
+        fixGpo: "Computer Configuration → Administrative Templates → Windows Components → BitLocker Drive Encryption → Operating System Drives: 'Require additional authentication at startup' = TPM+PIN; recovery key escrow to Active Directory / Entra ID = Required",
+        verify: "Get-BitLockerVolume -MountPoint $env:SystemDrive | Select VolumeStatus, ProtectionStatus   # FullyEncrypted / On"
+      },
+      {
+        id: "WS-UAC-001", module: "WS-UAC", severity: "CRITICAL",
+        name: "User Account Control (UAC) is Completely Disabled",
+        mitre: "T1548.002", mitreName: "Abuse Elevation Control Mechanism: Bypass UAC",
+        compliance: "CIS Win11 2.3.17.1 · NIST SP 800-53 AC-6 · DISA STIG WN11-CC-000037",
+        what: "UAC is the boundary that keeps standard-user processes standard: without an explicit consent elevation, processes inherit the user's limited token even when the account is an administrator. With EnableLUA=0 (or consent behavior set to elevate-without-prompting), every process the user launches runs with the full administrator token — silently. WinSecure checks the master switch (HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System → EnableLUA) and the ConsentPromptBehaviorAdmin policy for silent-elevation configurations.",
+        howChecked: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' | Select-Object EnableLUA, ConsentPromptBehaviorAdmin",
+        attackChain: [
+          "The user — a local admin, as most developers and engineers are — browses to a compromised site or opens an emailed 'invoice.pdf.exe'.",
+          "The malware process launches. With UAC disabled there is no consent dialog and no filtered token: the payload simply runs with full administrator privileges from the first instruction.",
+          "Full admin means immediate hostile capability: disable Defender real-time protection (WS-DEF-001), flip WDigest on (WS-REG-002), install a kernel driver, tamper with the event logs — every other finding on this page becomes trivially reachable.",
+          "The single security speed bump that would have shown the user a consent prompt — the one moment a human might have noticed — never happens."
+        ],
+        impact: "Every process runs fully privileged by default: the separation between 'the user clicked something' and 'the machine is compromised' disappears entirely, and all downstream admin-gated attacks become zero-effort.",
+        fixPowershell: "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -Name EnableLUA -Value 1 -Type DWord\nSet-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -Name ConsentPromptBehaviorAdmin -Value 2 -Type DWord   # prompt on secure desktop",
+        fixGpo: "Computer Configuration → Windows Settings → Security Settings → Local Policies → Security Options: 'User Account Control: Run all administrators in Admin Approval Mode' = Enabled; 'Behavior of the elevation prompt' = Prompt for consent on the secure desktop",
+        verify: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' | Select EnableLUA   # 1 (reboot to apply)"
+      },
+      {
+        id: "WS-PS-001", module: "WS-POWERSHELL", severity: "HIGH",
+        name: "PowerShell Script Block Logging is Disabled",
+        mitre: "T1059.001", mitreName: "Command and Scripting Interpreter: PowerShell",
+        compliance: "CIS Win11 18.9.47.2 · NIST SP 800-53 AU-12 · DISA STIG WN11-CC-000111",
+        what: "PowerShell is the primary native attack language on Windows: download cradles, credential dumping wrappers, lateral movement tooling and living-off-the-land abuse all speak it, and it ships on every endpoint. Script Block Logging (Event ID 4104) records the de-obfuscated source of every script block as the engine compiles it — meaning attackers' obfuscation is stripped before logging. Without it, an attacker's entire PowerShell campaign executes with essentially no command-level forensic trail. WinSecure requires EnableScriptBlockLogging = 1 under HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging.",
+        howChecked: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging' -Name EnableScriptBlockLogging   # expected: 1",
+        attackChain: [
+          "An attacker with a foothold (via any finding above) reaches for PowerShell: Invoke-Mimikatz, a PowerView domain recon sweep, or an encoded-command download cradle.",
+          "Each command is obfuscated — base64, format-string munging, XOR-wrapped payloads — to defeat naive detection.",
+          "With 4104 logging off, the script content is never recorded: SIEM dashboards show at most a process-start event for powershell.exe, and IR analysts later find nothing reconstructable.",
+          "The attacker maintains persistence and moves laterally for months inside a command blind spot — industry post-mortems repeatedly find PowerShell abuse dominating intrusions precisely because so many fleets run unlogged."
+        ],
+        impact: "Removes the single richest forensic signal of native Windows intrusion activity: attackers keep full offensive capability while the environment loses its ability to see, alert on, or reconstruct what ran.",
+        fixPowershell: "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging' -Name EnableScriptBlockLogging -Value 1 -Type DWord",
+        fixGpo: "Computer Configuration → Administrative Templates → Windows Components → Windows PowerShell → 'Turn on PowerShell Script Block Logging' = Enabled (log script block invocation + start/stop)",
+        verify: "wevtutil sl 'Microsoft-Windows-PowerShell/Operational' /e:true; then run a test script and confirm event 4104 appears — or re-run WinSecure"
+      },
+      {
+        id: "WS-AUD-001", module: "WS-AUDIT", severity: "HIGH",
+        name: "Process Creation Auditing is Not Configured (Event 4688)",
+        mitre: "T1059", mitreName: "Command and Scripting Interpreter",
+        compliance: "CIS Win11 17.x · NIST SP 800-53 AU-12 · DISA STIG WN11-AU-000040",
+        what: "Security Event 4688 is the OS-level record of every process start: who launched what, from where, with what command line (when command-line auditing is also on). It is the backbone of endpoint detection and post-incident forensics — the difference between 'we believe the attacker ran a dumper' and a court-ready timeline of execution. On default installs this subcategory is off. WinSecure reads the effective policy via auditpol and requires Success auditing on 'Process Creation' plus the command-line inclusion flag.",
+        howChecked: "auditpol /get /subcategory:'Process Creation'   # expected: Success",
+        attackChain: [
+          "An intrusion lands on the host through any initial-access vector and begins executing tooling — droppers, credential dumpers, living-off-the-land binaries.",
+          "With 4688 off, none of these executions generate security events. EDR may catch signatures it knows, but everything else — custom tools, LOLBins, novel loaders — leaves no trace in the audit log.",
+          "Weeks later the breach is discovered (usually by a third party). The IR team requests logs to answer the mandatory questions: what ran, when, and where did it spread?",
+          "The answer is a void. Scope cannot be established, dwell time cannot be bounded, and regulators asking for evidence receive silence — often converting an incident into a reportable disclosure failure."
+        ],
+        impact: "The endpoint executes blind and remembers nothing: detection engineering loses its foundational telemetry, and incident response loses the ability to scope, time, or prove what happened.",
+        fixPowershell: "auditpol /set /subcategory:'Process Creation' /success:enable\nSet-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit' -Name ProcessCreationIncludeCmdLine_Enabled -Value 1 -Type DWord",
+        fixGpo: "Computer Configuration → Windows Settings → Security Settings → Advanced Audit Policy Configuration → Detailed Tracking → 'Audit Process Creation' = Success; 'Include command line in process creation events' = Enabled",
+        verify: "auditpol /get /subcategory:'Process Creation'; then launch notepad.exe and confirm a 4688 event in the Security log"
+      },
+      {
+        id: "WS-LAPS-001", module: "WS-LAPS", severity: "HIGH",
+        name: "Local Administrator Password Solution (Windows LAPS) is Not Configured",
+        mitre: "T1078.003 / T1550.002", mitreName: "Valid Accounts: Local Accounts / Pass the Hash",
+        compliance: "CIS Win11 1.1.9 · NIST SP 800-53 IA-5 · Microsoft Security Baselines",
+        what: "Windows copies the local Administrator account and password to every machine imaged from the same build — meaning one shared password commonly guards thousands of endpoints across a fleet. Windows LAPS (the modern, Azure/AD-native successor to the legacy Microsoft LAPS) automates a unique, random, regularly-rotated local-admin password per machine, stored protected in Entra ID / on-prem AD and readable only by delegated groups. WinSecure checks the LAPS policy state (ADPolicy or LegacyADSchema) via the policy registry keys and the ms-LAPS-Password attributes in deployment.",
+        howChecked: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\Policies\LAPS' -ErrorAction SilentlyContinue; Get-LapsADPassword -Identity $env:COMPUTERNAME",
+        attackChain: [
+          "An attacker compromises any single endpoint and dumps the local SAM database (needs only admin on that one box).",
+          "The local Administrator NT hash they extract is valid on every other machine deployed from the same image — the shared-password fleet problem.",
+          "Pass-the-hash at scale: one credential, thousands of hosts, no password ever cracked, no failed logons generated, no MFA challenged (it's not a domain account).",
+          "The attacker pivots machine-to-machine until they reach a server holding domain privileges — the classic flat-network lateral movement path that turns one phishing click into domain dominance."
+        ],
+        impact: "Single-endpoint compromise expands to fleet-wide access: identical local admin credentials make every machine equivalent to every other, defeating segmentation and per-host hardening.",
+        fixPowershell: "# Deploy Windows LAPS policy via GPO/Intune; on the client verify:\nSet-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\Policies\LAPS' -Name BackupDirectory -Value 1   # 1 = AD, 2 = Entra ID\n# Rotation + complexity are enforced centrally; passwords expire automatically per policy",
+        fixGpo: "Computer Configuration → Administrative Templates → System → LAPS: Configure password backup directory = Active Directory / Entra ID; PasswordAgeDays = 30; Complexity = large letters+numbers+specials; authorize 'LAPS password readers' group only",
+        verify: "Get-LapsADPassword -Identity $env:COMPUTERNAME   # returns stored, timestamped, unique password for this machine only"
+      },
+      {
+        id: "WS-FW-002", module: "WS-FIREWALL", severity: "HIGH",
+        name: "Domain Firewall Profile is Disabled",
+        mitre: "T1562.004", mitreName: "Impair Defenses: Disable or Modify System Firewall",
+        compliance: "CIS Win11 9.1.1 · NIST SP 800-53 SC-7",
+        what: "The Domain profile activates whenever a domain-joined machine authenticates to its Active Directory domain — i.e., the corporate network itself. Many administrators disable it on the assumption the perimeter firewall provides protection, but the Domain profile is the control that contains lateral movement between peers: the perimeter sees nothing of east-west traffic. With it disabled, every workstation can reach every other workstation's listening services unrestricted. WinSecure verifies the Domain profile is enabled with inbound default Block via Get-NetFirewallProfile and the WindowsFirewall\\DomainProfile policy keys.",
+        howChecked: "Get-NetFirewallProfile -Profile Domain | Select-Object Name, Enabled, DefaultInboundAction",
+        attackChain: [
+          "One endpoint in the corporate office gets compromised (phishing, USB, vulnerable internal app).",
+          "Because the Domain firewall profile is fleet-disabled, that machine can now probe every other workstation and member server directly: SMB, RDP, WinRM, PS remoting — all reachable peer-to-peer.",
+          "The attacker harvests and relays credentials across the flat interior (LLMNR poisoning, SMB relay, pass-the-hash), hopping host to host inside a network that was assumed 'trusted'.",
+          "Containment fails: there is no host-level segmentation to slow the spread, so a single-patient outbreak becomes a subnet-wide one within hours."
+        ],
+        impact: "Removes host-level segmentation inside the corporate network: any compromised endpoint can directly attack every other endpoint, turning the 'trusted' internal network into a flat lateral-movement playground.",
+        fixPowershell: "Set-NetFirewallProfile -Profile Domain -Enabled True -DefaultInboundAction Block",
+        fixGpo: "Computer Configuration → Administrative Templates → Network → Windows Firewall → Domain profile → 'Protect all network connections' = Enabled; Inbound connections = Block",
+        verify: "Get-NetFirewallProfile -Profile Domain | Select Enabled, DefaultInboundAction"
+      }
+    ];
+
+    function toggleDeepDive(id) {
+      const card = document.getElementById('finding-' + id);
+      const chevron = document.getElementById('chevron-' + id);
+      if (!card) return;
+      card.classList.toggle('open');
+      if (chevron) chevron.textContent = card.classList.contains('open') ? '[-] COLLAPSE' : '[+] EXPAND';
+    }
+
+    function renderFindingDeepDives() {
+      const wrap = document.getElementById('findings-deepdive-list');
+      if (!wrap) return;
+
+      wrap.innerHTML = FINDING_DEEP_DIVES.map(d => {
+        const sevStyle = d.severity === 'CRITICAL'
+          ? 'background: #fee2e2; color: #991b1b;'
+          : 'background: #ffedd5; color: #9a3412;';
+        const chain = d.attackChain.map(step => `<li>${step}</li>`).join('');
+        return `
+        <div class="deepdive-card" id="finding-${d.id}">
+          <div class="deepdive-head" onclick="toggleDeepDive('${d.id}')">
+            <div>
+              <div class="deepdive-title-id">${d.id} // ${d.module} // MITRE ${d.mitre}</div>
+              <div class="deepdive-title-name">${d.name}</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span class="mod-category" style="${sevStyle}">${d.severity}</span>
+              <span class="deepdive-chevron" id="chevron-${d.id}">[+] EXPAND</span>
+            </div>
+          </div>
+          <div class="deepdive-body">
+            <div class="deepdive-label">What This Check Verifies Under the Hood</div>
+            <p class="deepdive-text">${d.what}</p>
+
+            <div class="deepdive-label">How WinSecure Audits It</div>
+            <pre class="deepdive-pre cmd">${escapeHtml(d.howChecked)}</pre>
+
+            <div class="deepdive-label">Attacker Kill-Chain When Misconfigured &mdash; ${d.mitreName} (${d.mitre})</div>
+            <ol class="attack-chain">${chain}</ol>
+
+            <div class="deepdive-label">Business Impact</div>
+            <p class="deepdive-text">${d.impact}</p>
+
+            <div class="grid-2" style="margin-top: 14px;">
+              <div>
+                <div class="deepdive-label" style="margin-top: 0;">PowerShell Remediation</div>
+                <pre class="deepdive-pre">${escapeHtml(d.fixPowershell)}</pre>
+              </div>
+              <div>
+                <div class="deepdive-label" style="margin-top: 0;">Group Policy Path</div>
+                <p class="deepdive-text" style="font-family: var(--font-mono); font-size: 12px; background: var(--bg-secondary); padding: 10px 12px; border: 1px solid var(--border-light); border-radius: var(--radius-xs);">${d.fixGpo}</p>
+              </div>
+            </div>
+
+            <div class="deepdive-label">Post-Fix Verification</div>
+            <pre class="deepdive-pre cmd">${escapeHtml(d.verify)}</pre>
+
+            <div class="deepdive-tags" style="margin-top: 14px;">
+              <span class="mod-category" style="background: var(--bg-secondary); color: var(--text-secondary);">${d.compliance}</span>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+      const search = document.getElementById('findings-search-input');
+      if (search) {
+        search.addEventListener('input', () => {
+          const q = search.value.toLowerCase();
+          document.querySelectorAll('.deepdive-card').forEach(card => {
+            const hit = card.textContent.toLowerCase().includes(q) || card.id.toLowerCase().includes(q);
+            card.style.display = hit ? '' : 'none';
+          });
+        });
+      }
+
+      handleFindingHash();
+    }
+
+    function handleFindingHash() {
+      const match = (location.hash || '').match(/^#finding-(.+)$/);
+      if (!match) return;
+      const card = document.getElementById('finding-' + match[1].toUpperCase());
+      if (!card) return;
+      if (!card.classList.contains('open')) toggleDeepDive(match[1].toUpperCase());
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    window.addEventListener('hashchange', handleFindingHash);
+
     let activeModalModule = null;
     let currentModalTab = 'tab-overview';
     let radarInterval = null;
@@ -1969,6 +2339,7 @@ python -m winsecure demo</pre>
       initModuleCatalog();
       initRiskCalculator();
       initTextDecoder();
+      renderFindingDeepDives();
     });
 
     // Cyber Text Decoder / Hacker Scramble Effect
@@ -2109,7 +2480,7 @@ python -m winsecure demo</pre>
         commandText = 'python -m winsecure scan';
         scanSteps = [
           "[SecOps@LAB-WIN-042:WinSecure]$ " + commandText,
-          "[*] Initializing WinSecure Diagnostic Engine v1.0.0...",
+          "[*] Initializing WinSecure Diagnostic Engine v2.0.0...",
           "[1/8] Discovering System Architecture (x64 Windows 11 Enterprise)... [OK]",
           "[2/8] Auditing UEFI Secure Boot & TPM 2.0 Signature State... [OK]",
           "[3/8] Inspecting Defender Antivirus Real-time & PUA Shields... [OK]",
@@ -2127,7 +2498,7 @@ python -m winsecure demo</pre>
           "[!] THREAT T1574.009: Unquoted Service Binary Hijacking Risk Detected",
           "[!] THREAT T1003.001: LSASS Memory Scraper Vulnerability (RunAsPPL Inactive)",
           "[!] THREAT T1557.001: LLMNR / NetBIOS Multicast Poisoning Active",
-          "[✓] 29 / 32 Attack Vectors Neutralized by Baseline Protections"
+          "[Γ£ô] 29 / 32 Attack Vectors Neutralized by Baseline Protections"
         ];
       } else if (mode === 'fix') {
         commandText = 'python -m winsecure fix --remediate';
@@ -2137,7 +2508,7 @@ python -m winsecure demo</pre>
           "[+] Synthesizing: Set-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa -Name RunAsPPL -Value 1",
           "[+] Synthesizing: Set-ItemProperty HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient -Name EnableMulticast -Value 0",
           "[+] Synthesizing: Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol",
-          "[✓] Hardening Blueprint Prepared: 3 Critical Corrective Actions Synthesized"
+          "[Γ£ô] Hardening Blueprint Prepared: 3 Critical Corrective Actions Synthesized"
         ];
       }
 
@@ -2149,7 +2520,7 @@ python -m winsecure demo</pre>
           if (text.includes('[SecOps@')) div.style.color = '#888888';
           else if (text.includes('[WARN]')) div.style.color = '#f59e0b';
           else if (text.includes('[!]')) div.style.color = '#ef4444';
-          else if (text.includes('[OK]') || text.includes('[✓]')) div.style.color = '#10b981';
+          else if (text.includes('[OK]') || text.includes('[Γ£ô]')) div.style.color = '#10b981';
           else if (text.includes('[+]')) div.style.color = '#38bdf8';
           else div.style.color = '#ffffff';
           div.textContent = text;
@@ -2227,7 +2598,7 @@ python -m winsecure demo</pre>
             </div>
             <div class="mod-name">${m.name}</div>
             <p class="mod-desc">${m.desc}</p>
-            <div class="mod-threat-tag">⚡ Threat: ${m.threat}</div>
+            <div class="mod-threat-tag">ΓÜí Threat: ${m.threat}</div>
           </div>
           <div class="mod-bottom">
             <span>${m.cis}</span>
@@ -2271,6 +2642,14 @@ python -m winsecure demo</pre>
       if (!body) return;
 
       if (tabKey === 'tab-overview') {
+        const relatedDives = FINDING_DEEP_DIVES.filter(d => d.module === mod.id);
+        const divesHtml = relatedDives.length ? `
+          <div style="margin-top: 16px; background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius-sm); padding: 12px 14px;">
+            <div class="label-tech" style="color: #991b1b; margin-bottom: 8px;">FINDING DEEP-DIVES // KNOWLEDGE_BASE</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              ${relatedDives.map(d => `<a href="#finding-${d.id}" onclick="closeCyberModal()" class="mod-category" style="background: #ffffff; color: #991b1b; text-decoration: none; border: 1px solid #fecaca;">${d.id} &rarr; FULL ANALYSIS</a>`).join('')}
+            </div>
+          </div>` : '';
         body.innerHTML = `
           <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
             <span class="mod-category" style="background: var(--bg-dark); color: #ffffff;">CAT: ${mod.category.toUpperCase()}</span>
@@ -2289,14 +2668,15 @@ python -m winsecure demo</pre>
             </div>
             <div style="background: var(--bg-secondary); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
               <div class="label-tech" style="color: #166534; margin-bottom: 4px;">DEFENSIVE STATUS</div>
-              <div style="font-size: 13px; font-weight: 600; color: #166534; margin-top: 4px;">✓ Monitored by WinSecure Engine</div>
+              <div style="font-size: 13px; font-weight: 600; color: #166534; margin-top: 4px;">Γ£ô Monitored by WinSecure Engine</div>
             </div>
           </div>
+          ${divesHtml}
         `;
       } else if (tabKey === 'tab-hacker') {
         body.innerHTML = `
           <div style="background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid var(--accent-nothing-red); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 16px;">
-            <div class="label-tech" style="color: #991b1b; margin-bottom: 6px;">⚡ ATTACKER EXPLOITATION SCENARIO</div>
+            <div class="label-tech" style="color: #991b1b; margin-bottom: 6px;">ΓÜí ATTACKER EXPLOITATION SCENARIO</div>
             <p style="font-size: 13.5px; color: #7f1d1d; line-height: 1.6; margin: 0;">${mod.attackScenario}</p>
           </div>
           <h4 class="label-tech" style="color: var(--text-primary); margin-bottom: 6px;">DEFENSIVE IMPACT</h4>
@@ -2389,7 +2769,7 @@ python -m winsecure demo</pre>
       const toast = document.createElement('div');
       toast.className = 'platform-toast';
       toast.style.cssText = "position: fixed; bottom: 24px; right: 24px; background: #0a0a0a; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 12px; font-weight: 700; z-index: 3000; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid #333333;";
-      toast.textContent = `✓ ${msg}`;
+      toast.textContent = `Γ£ô ${msg}`;
       document.body.appendChild(toast);
 
       setTimeout(() => {

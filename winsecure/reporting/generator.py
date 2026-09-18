@@ -1,6 +1,7 @@
 """
 WinSecure Master Report Generator Orchestrator
 """
+import logging
 import os
 from winsecure.models.scan import ScanResult
 from winsecure.reporting.json_exporter import JsonExporter
@@ -11,13 +12,14 @@ from winsecure.reporting.markdown_exporter import MarkdownExporter
 from winsecure.reporting.web_generator import WebReportGenerator
 from winsecure.reporting.executive_report import ExecutiveReportGenerator
 from winsecure.reporting.technical_report import TechnicalReportGenerator
+from winsecure.reporting.siem_exporter import SiemExporter
 
 
 class ReportGenerator:
     """Coordinates the generation of JSON, CSV, SARIF, Markdown, Executive, Technical, and Web Reports."""
 
     @staticmethod
-    def generate_all(result: ScanResult, output_dir: str) -> str:
+    def generate_all(result: ScanResult, output_dir: str, siem: str = "all") -> str:
         os.makedirs(output_dir, exist_ok=True)
 
         # 1. Machine JSON Telemetry
@@ -32,14 +34,21 @@ class ReportGenerator:
         # 4. MITRE ATT&CK Matrix Export
         MitreAttackExporter.export(result, output_dir)
 
-        # 5. Markdown Audit Summary
+        # 5. SIEM NDJSON Exports (Splunk / Elastic / Sentinel)
+        try:
+            for platform in SiemExporter.resolve_platforms(siem):
+                SiemExporter.export(result, output_dir, platform)
+        except Exception as e:
+            logging.getLogger("winsecure").warning(f"SIEM export skipped: {e}")
+
+        # 6. Markdown Audit Summary
         MarkdownExporter.export(result, output_dir)
 
-        # 6. Standalone Executive & Technical HTML Reports
+        # 7. Standalone Executive & Technical HTML Reports
         ExecutiveReportGenerator.generate(result, output_dir)
         TechnicalReportGenerator.generate(result, output_dir)
 
-        # 7. Master Interactive Web Report Dashboard
+        # 8. Master Interactive Web Report Dashboard
         index_path = WebReportGenerator.generate(result, output_dir)
 
         return index_path

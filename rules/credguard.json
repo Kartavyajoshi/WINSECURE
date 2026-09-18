@@ -1,0 +1,50 @@
+[
+  {
+    "id": "WS-CG-001",
+    "title": "Virtualization-Based Credential Guard (LSA Isolated User Mode) is Disabled",
+    "category": "Credential Defense",
+    "severity": "Critical",
+    "description": "Windows Defender Credential Guard isolates NTLM password hashes and Kerberos Ticket Granting Tickets (TGTs) in a virtualized container (VBS Isolated User Mode), shielding them even from administrative code execution.",
+    "expected": "LsaCfgFlags = 1 or 2 (Enabled with UEFI Lock)",
+    "impact": "If an attacker achieves local SYSTEM or administrator privileges, they can dump credentials directly from LSASS memory using Mimikatz or procdump.",
+    "remediation_guidance": "Enable Credential Guard via Group Policy: Computer Configuration > Administrative Templates > System > Device Guard > Turn On Virtualization Based Security > Credential Guard Configuration.",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "value": "LsaCfgFlags",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {
+        "framework": "CIS Windows 11 Enterprise",
+        "version": "5.0.1",
+        "control_id": "18.8.8.2",
+        "title": "Ensure Credential Guard is Enabled"
+      },
+      {
+        "framework": "DISA STIG",
+        "version": "V1R3",
+        "control_id": "WN11-CC-000045",
+        "title": "Virtualization Based Credential Guard"
+      },
+      {
+        "framework": "NIST SP 800-53",
+        "version": "Rev 5",
+        "control_id": "IA-5",
+        "title": "Authenticator Management"
+      }
+    ],
+    "mitre_attack": [
+      "T1003.001",
+      "T1550.002"
+    ],
+    "requires_admin": true,
+    "tags": [
+      "credential-guard",
+      "vbs",
+      "lsass",
+      "zero-trust"
+    ]
+  }
+]

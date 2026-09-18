@@ -1,0 +1,78 @@
+[
+  {
+    "id": "WS-CET-001",
+    "title": "Hardware-Enforced Stack Protection (CET) User Shadow Stacks Disabled",
+    "category": "Hardware Security",
+    "severity": "High",
+    "description": "Control-flow Enforcement Technology (CET) leverages CPU hardware capabilities (Intel Tiger Lake+, AMD Zen 3+) to maintain a protected shadow stack, preventing ROP (Return-Oriented Programming) exploits.",
+    "expected": "UserShadowStackEnabled = 1 (Strict Hardware Enforcement)",
+    "impact": "Memory corruption exploits can redirect call flows and execute arbitrary shellcode in userspace memory.",
+    "remediation_guidance": "Enable Hardware-Enforced Stack Protection via Windows Security > Exploit Protection or Group Policy.",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel",
+      "value": "MitigationOptions",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {
+        "framework": "NIST SP 800-53",
+        "version": "Rev 5",
+        "control_id": "SI-16",
+        "title": "Memory Protection"
+      },
+      {
+        "framework": "CIS Windows 11 Enterprise",
+        "version": "5.0.1",
+        "control_id": "18.9.16.1",
+        "title": "Configure Exploit Protection Hardware Shadow Stacks"
+      }
+    ],
+    "mitre_attack": [
+      "T1068",
+      "T1203"
+    ],
+    "requires_admin": true,
+    "tags": [
+      "cet",
+      "hardware",
+      "shadow-stack",
+      "cfi"
+    ]
+  },
+  {
+    "id": "WS-CET-002",
+    "title": "Arbitrary Code Guard (ACG) & Strict Exploit Mitigations Unenforced",
+    "category": "Hardware Security",
+    "severity": "Medium",
+    "description": "Arbitrary Code Guard (ACG) prevents dynamic code generation and prohibits modification of executable memory pages (W^X violation prevention).",
+    "expected": "ArbitraryCodeGuard = 1 (Enforced for High-Risk Subsystems)",
+    "impact": "Injected code can execute arbitrary dynamic payloads within trusted processes.",
+    "remediation_guidance": "Enforce Arbitrary Code Guard (ACG) system-wide or per-application in Exploit Protection settings.",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SOFTWARE\\Policies\\Microsoft\\Windows\\ExploitProtection",
+      "value": "ArbitraryCodeGuard",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {
+        "framework": "NIST SP 800-53",
+        "version": "Rev 5",
+        "control_id": "SI-16",
+        "title": "Memory Protection"
+      }
+    ],
+    "mitre_attack": [
+      "T1055"
+    ],
+    "requires_admin": true,
+    "tags": [
+      "acg",
+      "exploit-guard",
+      "mitigations"
+    ]
+  }
+]

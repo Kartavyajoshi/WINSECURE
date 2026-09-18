@@ -1,0 +1,84 @@
+[
+  {
+    "id": "WS-LOL-001",
+    "title": "Windows Defender Application Control (WDAC) Recommended Block Rules Unenforced",
+    "category": "Application Control",
+    "severity": "High",
+    "description": "Microsoft's WDAC Recommended Block Rules list blocks known Living-off-the-Land Binaries (LOLBins) such as certutil, mshta, regsvr32, cscript, and wmic from being abused by non-elevated threat actors.",
+    "expected": "WDAC Recommended Block Rules Policy Deployed and Enforced",
+    "impact": "Attackers can abuse legitimate signed Windows binaries to bypass antivirus and execute remote staging commands.",
+    "remediation_guidance": "Deploy Microsoft Recommended Driver and Application Block Rules via Windows Defender Application Control.",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SOFTWARE\\Policies\\Microsoft\\Windows\\DeviceGuard",
+      "value": "RecommendedBlockRules",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {
+        "framework": "CIS Windows 11 Enterprise",
+        "version": "5.0.1",
+        "control_id": "18.8.4.1",
+        "title": "Ensure Microsoft Recommended Block Rules is Enforced"
+      },
+      {
+        "framework": "NIST SP 800-53",
+        "version": "Rev 5",
+        "control_id": "CM-7",
+        "title": "Least Functionality"
+      }
+    ],
+    "mitre_attack": [
+      "T1218",
+      "T1218.005",
+      "T1218.010"
+    ],
+    "requires_admin": true,
+    "tags": [
+      "wdac",
+      "lolbins",
+      "application-control"
+    ]
+  },
+  {
+    "id": "WS-LOL-002",
+    "title": "PowerShell Constrained Language Mode (CLM) Disabled for Standard User Sessions",
+    "category": "Application Control",
+    "severity": "High",
+    "description": "PowerShell Constrained Language Mode restricts language elements that can be used to invoke arbitrary Windows APIs, COM objects, or unapproved .NET types.",
+    "expected": "__PSLockdownPolicy = 4 (ConstrainedLanguage)",
+    "impact": "Standard users and adversaries can execute custom C# scripts and invoke raw Win32 APIs directly from PowerShell.",
+    "remediation_guidance": "Configure system-wide PowerShell Constrained Language Mode or pair AppLocker / WDAC with PowerShell lockdown.",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment",
+      "value": "__PSLockdownPolicy",
+      "expected": 4
+    },
+    "compliance_mappings": [
+      {
+        "framework": "CIS Windows 11 Enterprise",
+        "version": "5.0.1",
+        "control_id": "18.9.30.2",
+        "title": "Ensure PowerShell Constrained Language Mode is Active"
+      },
+      {
+        "framework": "DISA STIG",
+        "version": "V1R3",
+        "control_id": "WN11-CC-000310",
+        "title": "PowerShell Constrained Language"
+      }
+    ],
+    "mitre_attack": [
+      "T1059.001"
+    ],
+    "requires_admin": false,
+    "tags": [
+      "powershell",
+      "clm",
+      "hardening"
+    ]
+  }
+]

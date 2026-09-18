@@ -5,13 +5,35 @@ Focused directly on Findings, Telemetry, and PowerShell Remediation with link to
 import os
 import json
 import html
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from winsecure.models.scan import ScanResult
 from winsecure.models.finding import Finding, FindingStatus, Severity
 
 
 class WebReportGenerator:
     """Generates a modern, dedicated findings & remediation cybersecurity report."""
+
+    # Live documentation site — finding IDs below have full deep-dive analyses there
+    SITE_URL = "https://kartavyajoshi.github.io/WINSECURE/"
+    DEEP_DIVE_FINDING_IDS = frozenset({
+        "WS-FW-001", "WS-FW-002", "WS-FW-004",
+        "WS-DEF-001",
+        "WS-REG-001", "WS-REG-002",
+        "WS-SMB-001",
+        "WS-RDP-001",
+        "WS-ENC-001",
+        "WS-UAC-001",
+        "WS-PS-001",
+        "WS-AUD-001",
+        "WS-LAPS-001",
+    })
+
+    @classmethod
+    def deep_dive_url(cls, finding_id: str) -> Optional[str]:
+        """Returns the live-site knowledge-base URL for a finding, if one exists."""
+        if finding_id in cls.DEEP_DIVE_FINDING_IDS:
+            return f"{cls.SITE_URL}#finding-{finding_id}"
+        return None
 
     @staticmethod
     def generate(result: ScanResult, output_dir: str) -> str:
@@ -80,6 +102,12 @@ class WebReportGenerator:
                         break
 
             f_json_escaped = html.escape(json.dumps(f.to_dict(), default=str))
+            deep_dive = WebReportGenerator.deep_dive_url(f.id)
+            deep_dive_link = (
+                f'<a href="{deep_dive}" target="_blank" rel="noopener" title="Full in-depth analysis on the live WinSecure knowledge base" '
+                f'onclick="event.stopPropagation()" style="font-family: var(--font-mono); font-size: 10px; color: #2563eb; text-decoration: none; margin-top: 3px; display: inline-block;">'
+                f'&#128218; DEEP-DIVE ANALYSIS &rarr;</a>'
+            ) if deep_dive else ""
 
             row_html = f"""<tr class="finding-row" data-id="{html.escape(f.id)}" data-category="{html.escape(f.category)}" data-severity="{html.escape(sev_str)}" data-status="{html.escape(st_str)}" data-finding="{f_json_escaped}" onclick="openFindingModalFromRow(this)" style="cursor: pointer;">
   <td><strong style="font-family: var(--font-mono); color: var(--text-primary);">{html.escape(f.id)}</strong></td>
@@ -87,6 +115,7 @@ class WebReportGenerator:
   <td>
     <div style="font-weight: 600; color: var(--text-primary);">{html.escape(f.title)}</div>
     <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">{html.escape(f.actual or f.expected)}</div>
+    {deep_dive_link}
   </td>
   <td><span class="badge {sev_badge_class}">{html.escape(sev_str.upper())}</span></td>
   <td><span class="badge {status_badge_class}">{html.escape(st_str)}</span></td>
@@ -129,6 +158,7 @@ class WebReportGenerator:
     </div>
     <pre style="font-family: var(--font-mono); font-size: 12px; color: #38bdf8; overflow-x: auto; white-space: pre-wrap; margin: 0;">{rem_escaped}</pre>
   </div>
+  {f'<a href="{WebReportGenerator.deep_dive_url(f.id)}" target="_blank" rel="noopener" style="display: inline-block; margin-top: 10px; font-family: var(--font-mono); font-size: 11.5px; color: #2563eb; text-decoration: none; font-weight: 600;">&#128218; FULL IN-DEPTH ANALYSIS: ATTACK CHAIN, GPO PATH &amp; VERIFICATION &rarr;</a>' if WebReportGenerator.deep_dive_url(f.id) else ''}
 </div>"""
                 remediation_cards_html.append(r_html)
 
@@ -504,6 +534,9 @@ html, body {
    WinSecure — Client-Side Findings Report Engine
    ========================================================================== */
 
+var SITE_URL = '__SITE_URL__';
+var DEEP_DIVE_IDS = __DEEP_DIVE_IDS_JSON__;
+
 var activeFindingFilter = 'ALL';
 var currentActiveFinding = null;
 var currentModalTab = 'tab-overview';
@@ -603,6 +636,9 @@ function renderModalContent(tabKey) {
   var stStr = String(f.status || 'PASS');
 
   if (tabKey === 'tab-overview') {
+    var kbLink = (DEEP_DIVE_IDS.indexOf(f.id) !== -1)
+      ? '<a href="' + SITE_URL + '#finding-' + encodeURIComponent(f.id) + '" target="_blank" rel="noopener" style="display: block; margin-top: 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 10px 14px; font-family: var(--font-mono); font-size: 12px; color: #1d4ed8; font-weight: 600; text-decoration: none;">&#128218; FULL IN-DEPTH ANALYSIS ON LIVE SITE &mdash; ATTACK KILL-CHAIN, GPO PATH &amp; VERIFICATION &rarr;</a>'
+      : '';
     body.innerHTML = '<div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">' +
         '<span class="badge ' + getSeverityBadge(f.severity) + '">' + sevStr + '</span>' +
         '<span class="badge ' + (stStr === 'PASS' ? 'badge-pass' : 'badge-crit') + '">' + stStr + '</span>' +
@@ -613,7 +649,8 @@ function renderModalContent(tabKey) {
       '<h4 style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">EVIDENCE / ACTUAL STATE</h4>' +
       '<p style="font-size: 13.5px; color: var(--text-primary); font-weight: 600; margin-bottom: 16px;">' + escapeHtml(f.actual) + '</p>' +
       '<h4 style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">IMPACT & POSTURE RISK</h4>' +
-      '<p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">' + escapeHtml(f.impact || f.description) + '</p>';
+      '<p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">' + escapeHtml(f.impact || f.description) + '</p>' +
+      kbLink;
   } else if (tabKey === 'tab-threat') {
     body.innerHTML = '<div style="background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #dc2626; padding: 14px; border-radius: 6px; margin-bottom: 14px;">' +
         '<div style="font-size: 12px; font-weight: 700; color: #991b1b; margin-bottom: 4px;">ATTACKER EXPLOITATION VECTOR</div>' +
@@ -759,6 +796,13 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 """
+
+        # Inject live-site knowledge base constants into the report engine
+        js_content = (
+            js_content
+            .replace("__SITE_URL__", WebReportGenerator.SITE_URL)
+            .replace("__DEEP_DIVE_IDS_JSON__", json.dumps(sorted(WebReportGenerator.DEEP_DIVE_FINDING_IDS)))
+        )
 
         # Write separate report.css and report.js files
         with open(css_path, "w", encoding="utf-8") as f:

@@ -9,7 +9,8 @@
       "RunAsPPL": 1,
       "LmCompatibilityLevel": 5,
       "NoLMHash": 1,
-      "RestrictAnonymous": 1
+      "RestrictAnonymous": 1,
+      "LsaCfgFlags": 1
     },
     "HKLM\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest": {
       "UseLogonCredential": 0
@@ -60,6 +61,24 @@
     },
     "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge": {
       "SmartScreenEnabled": 1
+    },
+    "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Windows Defender Exploit Guard\\Controlled Folder Access": {
+      "EnableControlledFolderAccess": 1
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SystemRestore": {
+      "DisableSR": 0
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel": {
+      "MitigationOptions": 1
+    },
+    "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\ExploitProtection": {
+      "ArbitraryCodeGuard": 1
+    },
+    "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DeviceGuard": {
+      "RecommendedBlockRules": 1
+    },
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment": {
+      "__PSLockdownPolicy": 4
     }
   },
   "defender": {
@@ -73,7 +92,8 @@
     "Preferences": {
       "PUAProtection": 1,
       "ExclusionPath": [],
-      "AttackSurfaceReductionRules_Actions": [1, 1]
+      "AttackSurfaceReductionRules_Actions": [1, 1],
+      "EnableControlledFolderAccess": 1
     }
   },
   "firewall": {

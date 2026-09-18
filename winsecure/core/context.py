@@ -40,6 +40,11 @@ class ScanContext:
     score_deductions: List[ScoreDeduction] = field(default_factory=list)
     anomalies: List[Dict[str, Any]] = field(default_factory=list)
     ai_insights: Dict[str, Any] = field(default_factory=dict)
+    attack_paths: List[Dict[str, Any]] = field(default_factory=list)
+    choke_points: List[Dict[str, Any]] = field(default_factory=list)
+    blast_radius_score: float = 0.0
+    ransomware_resilience: Dict[str, Any] = field(default_factory=dict)
+    zero_trust_maturity: Dict[str, Any] = field(default_factory=dict)
     executive_summary: str = ""
     errors: List[Dict[str, str]] = field(default_factory=list)
     

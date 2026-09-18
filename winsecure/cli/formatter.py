@@ -172,7 +172,7 @@ class CliFormatter:
         output_dir = os.path.dirname(os.path.abspath(report_path))
         print(colorize("\nGenerated Reports & Artifacts:", Colors.BOLD), flush=True)
         print(f"  * Interactive HTML Dashboard : {colorize(report_path, Colors.CYAN + Colors.UNDERLINE)}", flush=True)
-        print(f"  * Machine JSON Telemetry    : {colorize(os.path.join(output_dir, 'scan_results.json'), Colors.CYAN)}", flush=True)
+        print(f"  * Machine JSON Telemetry    : {colorize(os.path.join(output_dir, 'scan_result.json'), Colors.CYAN)}", flush=True)
         print(f"  * CSV Finding Matrix        : {colorize(os.path.join(output_dir, 'findings.csv'), Colors.CYAN)}", flush=True)
         print(f"  * Markdown Audit Summary    : {colorize(os.path.join(output_dir, 'report.md'), Colors.CYAN)}", flush=True)
         print(f"  * Execution Audit Log       : {colorize('logs/latest.log', Colors.CYAN)}\n", flush=True)

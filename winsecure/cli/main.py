@@ -45,6 +45,8 @@ def main(argv=None):
         site_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "docs", "site")
         if not os.path.exists(site_dir):
             site_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "web")
+        if not os.path.exists(site_dir):
+            site_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         print("[*] Launching WinSecure Synthetic Demonstration Platform...", flush=True)
         print("[*] Target Host: LAB-WIN-042 (Security Assessment Lab)", flush=True)
         print("[*] Demonstration Mode: 100% Synthetic Assessment Data", flush=True)
@@ -123,6 +125,18 @@ def main(argv=None):
         CliFormatter.print_banner()
         CliFormatter.print_scan_init(context)
 
+        # ---- v2.1: Plugin subsystem -------------------------------------
+        from winsecure.plugins.loader import PluginRegistry
+        plugin_registry = PluginRegistry()
+        plugin_dirs = [os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "plugins"
+        )]
+        plugin_registry.discover(plugin_dirs)
+        if plugin_registry.plugins:
+            print(colorize(f"[*] Plugins loaded: {', '.join(plugin_registry.plugins.keys())}", Colors.CYAN), flush=True)
+            plugin_registry.dispatch_init(context)
+            plugin_registry.dispatch_pre_scan(context)
+
         # Pre-Flight Self-Diagnostic Subsystem Check
         self_check_results = HealthChecker.run_self_check(config)
         CliFormatter.print_self_check(self_check_results)
@@ -165,9 +179,75 @@ def main(argv=None):
         CliFormatter.print_live_progress(final_stats)
         print("------------------------------------------------------------", flush=True)
 
+        # ---- v2.1: Plugin post_scan / post_finding hooks -----------------
+        # post_scan lets plugins mutate the ScanResult (e.g. anonymize host data)
+        # before reports are generated; post_finding filters each finding dict.
+        if plugin_registry.plugins:
+            from winsecure.plugins.base import PluginHook
+            scan_result = plugin_registry.dispatch_post_scan(scan_result)
+
+            if plugin_registry.has_hook_subscribers(PluginHook.POST_FINDING):
+                from winsecure.models.finding import Finding as FindingModel
+                updated = []
+                for finding in scan_result.findings:
+                    enriched = plugin_registry.dispatch_post_finding(finding.to_dict(), context)
+                    try:
+                        updated.append(FindingModel.from_dict(enriched))
+                    except Exception as e:
+                        logger.warning(f"Plugin post_finding output rejected for {finding.id}: {e}")
+                        updated.append(finding)
+                scan_result.findings = updated
+
         # Generate complete report website and machine exports
-        index_path = ReportGenerator.generate_all(scan_result, config.output_dir)
+        index_path = ReportGenerator.generate_all(
+            scan_result, config.output_dir, siem=getattr(args, "siem", "all")
+        )
         logger.info(f"Reports generated successfully at {config.output_dir}")
+
+        # ---- v2.1: Plugin on_report hook (report URL distribution) ------
+        if plugin_registry.plugins:
+            report_info = {
+                "index_url": "file://" + index_path.replace("\\", "/"),
+                "output_dir": config.output_dir,
+                "scan_id": scan_result.scan_id,
+                "score": scan_result.security_score,
+                "risk_level": scan_result.risk_level.value if hasattr(scan_result.risk_level, "value") else str(scan_result.risk_level),
+            }
+            plugin_registry.dispatch_on_report(report_info)
+            for err in plugin_registry.load_errors:
+                logger.warning(f"Plugin issue [{err.get('plugin')}]: {err.get('error')}")
+
+        # ---- v2: Auto-remediation script emission -----------------------
+        if getattr(args, "emit_scripts", False):
+            try:
+                from winsecure.remediation.script_generator import RemediationScriptGenerator
+                script_info = RemediationScriptGenerator(config.output_dir).generate_bundle(scan_result)
+                print(colorize(
+                    f"\n[*] Remediation Scripts: {script_info['script_count']} bundles -> {script_info['scripts_directory']}",
+                    Colors.CYAN,
+                ), flush=True)
+                logger.info(f"Remediation scripts emitted: {script_info['run_all_script']}")
+            except Exception as e:
+                logger.warning(f"Remediation script generation failed: {e}")
+
+        # ---- v2: Webhook notifications ----------------------------------
+        webhook_urls = getattr(args, "webhook", None) or []
+        if webhook_urls:
+            from winsecure.cli.api_server import WebhookDispatcher
+            dispatcher = WebhookDispatcher()
+            for url in webhook_urls:
+                dispatcher.register(url)
+            delivery_results = dispatcher.notify_scan_complete({
+                "scan_id": scan_result.scan_id,
+                "security_score": scan_result.security_score,
+                "risk_level": scan_result.risk_level.value if hasattr(scan_result.risk_level, "value") else str(scan_result.risk_level),
+                "profile": scan_result.profile,
+                "total_findings": len(scan_result.findings),
+                "report_url": index_path,
+            })
+            for r in delivery_results:
+                state = colorize("DELIVERED", Colors.GREEN) if r["delivered"] else colorize(f"FAILED ({r.get('error')})", Colors.YELLOW)
+                print(f"[*] Webhook {r['url']}: {state}", flush=True)
 
         # Post-Flight Diagnostic Verification
         post_ok, post_msg = HealthChecker.post_flight_check(scan_result, index_path)
@@ -186,6 +266,128 @@ def main(argv=None):
                 open_browser=True,
             )
 
+        return 0
+
+    # ---- v2: REST API & webhook server ----------------------------------
+    if args.command == "api":
+        from winsecure.cli.api_server import ApiServer
+        db_path = args.db
+        if not db_path:
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            db_path = os.path.join(base_dir, "logs", "winsecure_history.db")
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        server = ApiServer(
+            db_path=db_path,
+            port=args.port,
+            host=args.host,
+            api_token=args.token,
+        )
+        for url in (args.webhook or []):
+            server.webhook_dispatcher.register(url)
+        try:
+            server.start(open_browser=not args.no_browser)
+        except KeyboardInterrupt:
+            pass
+        except OSError as e:
+            print(colorize(f"[!] API server failed to start: {e}", Colors.RED), flush=True)
+            return 1
+        finally:
+            server.stop()
+        return 0
+
+    # ---- v2: Drift & trend analysis --------------------------------------
+    if args.command == "trend":
+        from winsecure.analytics.drift_trend import DriftTrendEngine
+        db_path = args.db
+        if not db_path:
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            db_path = os.path.join(base_dir, "logs", "winsecure_history.db")
+
+        if not os.path.exists(db_path):
+            print(colorize("[!] No scan history database found. Run 'winsecure scan' first.", Colors.YELLOW), flush=True)
+            return 1
+
+        engine = DriftTrendEngine(db_path)
+        try:
+            report = engine.build_full_report(limit=args.limit)
+        finally:
+            engine.close()
+
+        if args.json:
+            print(json.dumps(report, indent=2), flush=True)
+            return 0
+
+        if not report.get("has_history"):
+            print(colorize(f"[!] {report.get('message')}", Colors.YELLOW), flush=True)
+            return 1
+
+        print(colorize(f"\n[*] WinSecure Posture Trend Analysis ({report['scans_analyzed']} scans)", Colors.BOLD), flush=True)
+        print(colorize("------------------------------------------------------------", Colors.DIM), flush=True)
+        direction = report["direction"]
+        dir_color = Colors.GREEN if direction == "IMPROVING" else (Colors.RED if direction == "DECLINING" else Colors.CYAN)
+        print(f"  Trend Direction:   {colorize(direction, dir_color + Colors.BOLD)}", flush=True)
+        net_change_str = f"{report['net_change']:+.1f} pts"
+        print(f"  Net Change:        {colorize(net_change_str, dir_color)}  (first {report['first_score']} -> last {report['last_score']})", flush=True)
+        print(f"  Average Score:     {report['average_score']}", flush=True)
+        print(f"  Best / Worst:      {report['best_score']} / {report['worst_score']}", flush=True)
+        print(f"  Volatility Range:  {report['volatility']} pts", flush=True)
+        print(f"  Improving Steps:   {report['improving_steps']}", flush=True)
+        print(f"  Declining Steps:   {report['declining_steps']}", flush=True)
+        recurring = report.get("recurring_failures") or []
+        if recurring:
+            print(colorize("\n  Recurring Failures (chronic defects):", Colors.BOLD), flush=True)
+            for entry in recurring[:10]:
+                print(f"    * {entry['finding_id'].ljust(14)} failed {entry['occurrences']}x across history", flush=True)
+        else:
+            print(colorize("\n  No chronic recurring failures detected.", Colors.GREEN), flush=True)
+        print(colorize("------------------------------------------------------------", Colors.DIM), flush=True)
+        return 0
+
+    # ---- v2.1: Plugin management -----------------------------------------
+    if args.command == "plugins":
+        from winsecure.plugins.loader import PluginRegistry
+        registry = PluginRegistry()
+        plugin_dirs = [os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "plugins"
+        )]
+        registry.discover(plugin_dirs)
+        listing = registry.list_plugins()
+
+        if args.json:
+            print(json.dumps({"plugins": listing, "load_errors": registry.load_errors}, indent=2), flush=True)
+            return 0
+
+        if not listing:
+            print(colorize("[!] No plugins found in ./plugins directory.", Colors.YELLOW), flush=True)
+            return 0
+
+        print(colorize(f"\n[*] WinSecure Plugin Registry ({len(listing)} loaded)", Colors.BOLD), flush=True)
+        print(colorize("------------------------------------------------------------", Colors.DIM), flush=True)
+        for p in listing:
+            state = colorize("ENABLED ", Colors.GREEN) if p["enabled"] else colorize("DISABLED", Colors.YELLOW)
+            print(f"  {p['plugin_id'].ljust(20)} v{p['version'].ljust(8)} {state}  {p['name']}", flush=True)
+            if p.get("description"):
+                print(f"  {'':20} {p['description'][:70]}", flush=True)
+            if p.get("hooks"):
+                print(f"  {'':20} hooks: {', '.join(p['hooks'])}", flush=True)
+        for err in registry.load_errors:
+            print(colorize(f"  [!] Load error [{err.get('plugin')}]: {err.get('error')}", Colors.RED), flush=True)
+        print(colorize("------------------------------------------------------------", Colors.DIM), flush=True)
+        return 0
+
+    # ---- v2.5: Empirical Comparative Benchmarking ------------------------
+    if args.command == "compare":
+        from winsecure.comparison.evaluation import ComparativeEvaluationEngine
+        if getattr(args, "json", False):
+            payload = {
+                "version_evolution": ComparativeEvaluationEngine.get_version_evolution(),
+                "industry_benchmark": ComparativeEvaluationEngine.get_industry_benchmark(),
+            }
+            print(json.dumps(payload, indent=2), flush=True)
+            return 0
+
+        print(ComparativeEvaluationEngine.format_cli_comparison(), flush=True)
         return 0
 
     return 0

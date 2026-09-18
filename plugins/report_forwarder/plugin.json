@@ -1,0 +1,14 @@
+{
+  "id": "report-forwarder",
+  "name": "Report URL Forwarder",
+  "version": "1.0.0",
+  "author": "WinSecure Team",
+  "description": "Forwards the generated report dashboard URL and scan summary to any HTTP endpoint when a scan completes.",
+  "entrypoint": "plugin.py",
+  "class": "ReportForwarderPlugin",
+  "config": {
+    "enabled": true,
+    "endpoint_url": "",
+    "extra_headers": {}
+  }
+}

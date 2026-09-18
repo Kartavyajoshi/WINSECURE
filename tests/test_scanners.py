@@ -1,5 +1,5 @@
 """
-Comprehensive Unit Tests for All 32 Scanner Modules (PASS, FAIL, UNKNOWN, ERROR Fixtures)
+Comprehensive Unit Tests for All 36 Scanner Modules (PASS, FAIL, UNKNOWN, ERROR Fixtures)
 """
 import unittest
 from winsecure.core.config import ScanConfig
@@ -14,6 +14,7 @@ from winsecure.scanners import (
     ExploitGuardScanner, SchannelScanner, KerberosScanner,
     SandboxScanner, SpoolerScanner, BrowserScanner,
     ADScanner, SysmonScanner,
+    RansomwareScanner, CETScanner, LOLBinsScanner, CredentialGuardScanner,
     ALL_SCANNERS
 )
 from winsecure.models import FindingStatus, Severity
@@ -24,7 +25,7 @@ class TestAllScanners(unittest.TestCase):
         self.config = ScanConfig()
 
     def test_scanner_count(self):
-        self.assertEqual(len(ALL_SCANNERS), 32)
+        self.assertEqual(len(ALL_SCANNERS), 36)
 
     def test_defender_scanner_all_states(self):
         # 1. PASS
@@ -117,6 +118,36 @@ class TestAllScanners(unittest.TestCase):
         }
         self.assertTrue(all(f.status == FindingStatus.PASS for f in ADScanner(ctx).run()))
         self.assertTrue(all(f.status == FindingStatus.PASS for f in SysmonScanner(ctx).run()))
+
+    def test_research_scanners_all_states(self):
+        ctx = ScanContext(self.config)
+        ctx.collected_artifacts["registry"] = {
+            r"HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\Controlled Folder Access": {
+                "EnableControlledFolderAccess": 1
+            },
+            r"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore": {"DisableSR": 0},
+            r"HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel": {"MitigationOptions": 1},
+            r"HKLM\SOFTWARE\Policies\Microsoft\Windows\ExploitProtection": {"ArbitraryCodeGuard": 1},
+            r"HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard": {"RecommendedBlockRules": 1},
+            r"HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment": {"__PSLockdownPolicy": 4},
+            r"HKLM\SYSTEM\CurrentControlSet\Control\Lsa": {"LsaCfgFlags": 1},
+        }
+        ctx.collected_artifacts["defender"] = {
+            "Preferences": {"EnableControlledFolderAccess": 1}
+        }
+        
+        # Test all 4 new scanners pass with secure configuration
+        rsm_findings = RansomwareScanner(ctx).run()
+        self.assertTrue(all(f.status == FindingStatus.PASS for f in rsm_findings))
+
+        cet_findings = CETScanner(ctx).run()
+        self.assertTrue(all(f.status == FindingStatus.PASS for f in cet_findings))
+
+        lol_findings = LOLBinsScanner(ctx).run()
+        self.assertTrue(all(f.status == FindingStatus.PASS for f in lol_findings))
+
+        cg_findings = CredentialGuardScanner(ctx).run()
+        self.assertTrue(all(f.status == FindingStatus.PASS for f in cg_findings))
 
 
 if __name__ == "__main__":

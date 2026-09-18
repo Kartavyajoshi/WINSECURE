@@ -1,0 +1,85 @@
+[
+  {
+    "id": "WS-RSM-001",
+    "title": "Defender Controlled Folder Access (CFA) Anti-Ransomware Shielding is Disabled",
+    "category": "Ransomware Defense",
+    "severity": "Critical",
+    "description": "Controlled Folder Access intercepts and blocks unauthorized processes from modifying, encrypting, or overwriting files in protected directories.",
+    "expected": "EnableControlledFolderAccess = 1 (Enabled)",
+    "impact": "Unmonitored ransomware execution can rapidly encrypt user documents, desktop items, and local databases.",
+    "remediation_guidance": "Enable Defender Controlled Folder Access in Block mode via PowerShell or Group Policy.",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Windows Defender Exploit Guard\\Controlled Folder Access",
+      "value": "EnableControlledFolderAccess",
+      "expected": 1
+    },
+    "compliance_mappings": [
+      {
+        "framework": "CIS Windows 11 Enterprise",
+        "version": "5.0.1",
+        "control_id": "18.9.15.1",
+        "title": "Ensure Controlled Folder Access is Enabled"
+      },
+      {
+        "framework": "NIST SP 800-53",
+        "version": "Rev 5",
+        "control_id": "SI-3",
+        "title": "Malicious Code Protection"
+      }
+    ],
+    "mitre_attack": [
+      "T1486",
+      "T1562.001"
+    ],
+    "requires_admin": true,
+    "tags": [
+      "ransomware",
+      "defender",
+      "shieldfs",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "WS-RSM-002",
+    "title": "Volume Shadow Copy Service (VSS) Deletion Protection & System Restore Disabled",
+    "category": "Ransomware Defense",
+    "severity": "High",
+    "description": "Modern ransomware strains proactively delete Volume Shadow Copies via 'vssadmin delete shadows' and 'wmic shadowcopy delete' to eliminate unassisted file recovery.",
+    "expected": "VSS Service Configured and System Restore Active on OS Drive",
+    "impact": "In the event of ransomware encryption or disk compromise, point-in-time snapshot recovery is impossible.",
+    "remediation_guidance": "Enable System Restore on OS drive and restrict VSSAdmin execution to SYSTEM/elevated administrators.",
+    "check_type": "registry",
+    "check_params": {
+      "hive": "HKLM",
+      "subkey": "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SystemRestore",
+      "value": "DisableSR",
+      "expected": 0
+    },
+    "compliance_mappings": [
+      {
+        "framework": "NIST SP 800-53",
+        "version": "Rev 5",
+        "control_id": "CP-9",
+        "title": "System Backup"
+      },
+      {
+        "framework": "CIS Windows 11 Enterprise",
+        "version": "5.0.1",
+        "control_id": "18.8.19.1",
+        "title": "Configure System Restore and Shadow Storage"
+      }
+    ],
+    "mitre_attack": [
+      "T1490"
+    ],
+    "requires_admin": true,
+    "tags": [
+      "ransomware",
+      "vss",
+      "resilience",
+      "recovery"
+    ]
+  }
+]

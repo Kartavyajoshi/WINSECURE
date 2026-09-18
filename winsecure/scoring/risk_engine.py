@@ -27,6 +27,10 @@ class RiskEngine:
     CATEGORY_WEIGHTS = {
         "Defender": 1.2,
         "Firewall": 1.2,
+        "Ransomware Defense": 1.25,
+        "Credential Defense": 1.25,
+        "Hardware Security": 1.15,
+        "Application Control": 1.1,
         "UAC": 1.15,
         "SMB": 1.15,
         "Remote Access": 1.1,

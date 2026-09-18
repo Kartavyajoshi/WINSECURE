@@ -64,4 +64,12 @@ SUPPORTED_FRAMEWORKS: Dict[str, FrameworkInfo] = {
         url="https://public.cyber.mil/stigs/",
         description="Department of Defense cybersecurity configuration standards for military systems."
     ),
+    "cisa_ztmm": FrameworkInfo(
+        id="cisa_ztmm",
+        name="CISA Zero Trust Maturity Model (ZTMM) Device Pillar",
+        version="2.0",
+        authority="Cybersecurity and Infrastructure Security Agency (CISA)",
+        url="https://www.cisa.gov/zero-trust-maturity-model",
+        description="Guidance for assessing zero-trust device maturity, visibility, and dynamic policy enforcement."
+    ),
 }

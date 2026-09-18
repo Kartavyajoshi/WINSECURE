@@ -34,6 +34,10 @@ from winsecure.scanners.spooler_scanner import SpoolerScanner
 from winsecure.scanners.browser_scanner import BrowserScanner
 from winsecure.scanners.ad_scanner import ADScanner
 from winsecure.scanners.sysmon_scanner import SysmonScanner
+from winsecure.scanners.ransomware_scanner import RansomwareScanner
+from winsecure.scanners.cet_scanner import CETScanner
+from winsecure.scanners.lolbins_scanner import LOLBinsScanner
+from winsecure.scanners.credguard_scanner import CredentialGuardScanner
 
 ALL_SCANNERS = [
     DefenderScanner,
@@ -68,6 +72,10 @@ ALL_SCANNERS = [
     BrowserScanner,
     ADScanner,
     SysmonScanner,
+    RansomwareScanner,
+    CETScanner,
+    LOLBinsScanner,
+    CredentialGuardScanner,
 ]
 
 __all__ = [
@@ -104,5 +112,9 @@ __all__ = [
     "BrowserScanner",
     "ADScanner",
     "SysmonScanner",
+    "RansomwareScanner",
+    "CETScanner",
+    "LOLBinsScanner",
+    "CredentialGuardScanner",
     "ALL_SCANNERS",
 ]

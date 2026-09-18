@@ -31,6 +31,8 @@ def cmd_demo(args):
     site_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs", "site")
     if not os.path.exists(site_dir):
         site_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
+    if not os.path.exists(site_dir):
+        site_dir = os.path.dirname(os.path.abspath(__file__))
 
     start_server(
         directory=site_dir,
@@ -58,6 +60,45 @@ def cmd_test(args):
     sys.exit(res.returncode)
 
 
+def cmd_trend(args):
+    """Run historical drift & trend analysis."""
+    from winsecure.cli.main import main
+    return main(["trend"] + sys.argv[2:])
+
+
+def cmd_api(args):
+    """Launch REST API & webhook server."""
+    from winsecure.cli.main import main
+    return main(["api"] + sys.argv[2:])
+
+
+def cmd_plugins(args):
+    """List installed WinSecure plugins."""
+    from winsecure.cli.main import main
+    return main(["plugins"] + sys.argv[2:])
+
+
+def cmd_compare(args):
+    """Execute empirical comparative benchmarking against previous versions and industry tools."""
+    from winsecure.cli.main import main
+    return main(["compare"] + sys.argv[2:])
+
+
+def cmd_suite(args):
+    """Run the complete verification suite in one command."""
+    script = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "scripts", "run_suite.py"
+    )
+    print("[*] Running WinSecure Full Verification Suite...")
+    cmd = [sys.executable, script]
+    if args.skip_tests:
+        cmd.append("--skip-tests")
+    if args.benchmark:
+        cmd.append("--benchmark")
+    res = subprocess.run(cmd)
+    sys.exit(res.returncode)
+
+
 def cmd_serve(args):
     """Host an existing assessment report directory."""
     from winsecure.cli.server import start_server
@@ -77,9 +118,13 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python run.py demo                      # Launch synthetic demonstration dashboard
+  python run.py                           # Run live security scan (verbose streaming)
   python run.py scan --profile full       # Execute full system security scan
+  python run.py trend                     # Analyze posture trends across history
+  python run.py api --token SECRET        # Start REST API & webhook server
+  python run.py plugins                   # List installed plugins
   python run.py benchmark                 # Run synthetic benchmark throughput tests
+  python run.py suite                     # Run EVERYTHING: tests + integrity + E2E + plugins
   python run.py test                      # Run unit test suite
   python run.py serve --dir ./docs/site   # Host platform documentation portal
         """,
@@ -113,15 +158,32 @@ Examples:
     p_serve.add_argument("--port", type=int, default=8080, help="Port to bind server")
     p_serve.add_argument("--no-browser", action="store_true", help="Do not automatically open browser")
 
-    # Default to demo if no command provided
+    # v2: Trend command
+    subparsers.add_parser("trend", help="Analyze posture drift & trends across scan history")
+
+    # v2: API command
+    subparsers.add_parser("api", help="Launch REST API & webhook server")
+
+    # v2.1: Plugins command
+    subparsers.add_parser("plugins", help="List installed WinSecure plugins")
+
+    # v2.5: Compare command (Empirical comparative benchmark)
+    p_comp = subparsers.add_parser("compare", help="Run empirical comparison against previous versions & industry tools")
+    p_comp.add_argument("--json", action="store_true", help="Output comparison metrics as JSON")
+
+    # v2.2: Full verification suite command
+    p_suite = subparsers.add_parser(
+        "suite", help="Run full verification suite (tests + integrity + E2E + plugins)"
+    )
+    p_suite.add_argument("--skip-tests", action="store_true", help="Skip the unit test stage")
+    p_suite.add_argument("--benchmark", action="store_true", help="Also run a 2-iteration benchmark stage")
+
+    # No arguments -> run a live scan with previous verbose streaming style
     if len(sys.argv) == 1:
-        parser.print_help()
-        print("\n[*] Defaulting to Demo Mode:")
-        class DefaultArgs:
-            port = 8080
-            no_browser = False
-        cmd_demo(DefaultArgs())
-        return
+        print("[*] WinSecure — no arguments given, starting live security scan (verbose)...")
+        print("[*] Use 'python run.py --help' to see all commands.\n")
+        from winsecure.cli.main import main as cli_main
+        return cli_main(["scan", "--verbose"])
 
     args, unknown = parser.parse_known_args()
 
@@ -135,6 +197,16 @@ Examples:
         cmd_test(args)
     elif args.command == "serve":
         cmd_serve(args)
+    elif args.command == "trend":
+        cmd_trend(args)
+    elif args.command == "api":
+        cmd_api(args)
+    elif args.command == "plugins":
+        cmd_plugins(args)
+    elif args.command == "compare":
+        cmd_compare(args)
+    elif args.command == "suite":
+        cmd_suite(args)
     else:
         parser.print_help()
 
