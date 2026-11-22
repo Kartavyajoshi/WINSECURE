@@ -31,6 +31,7 @@ test_output/
 
 # Local Logs & Generated Reports
 logs/
+reports/
 WinSecure-Report/
 WinSecure-Report-Test/
 report_output/

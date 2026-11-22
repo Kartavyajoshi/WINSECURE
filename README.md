@@ -9,8 +9,20 @@
 
 WinSecure is a modular, automated cybersecurity configuration assessment, compliance verification, and threat-exposure analysis platform engineered for Microsoft Windows operating systems. It executes deterministic, non-destructive, read-only diagnostic inspections across 36 core operating system subsystems, correlating low-level telemetry into prioritized risk metrics, Bayesian attack graphs, ransomware resilience indices, Zero Trust maturity ratings, interactive GUI charts, multi-format audit reports, and actionable remediation scripts.
 
-🌐 **Live Interactive Website & Threat Matrix**: [https://kartavyajoshi.github.io/WINSECURE/](https://kartavyajoshi.github.io/WINSECURE/)
+🌐 **Live Interactive Website & Threat Matrix**: [https://kartavyajoshi.github.io/WINSECURE/](https://kartavyajoshi.github.io/WINSECURE/)  
 🖥️ **Native Desktop GUI**: Launch with `python run.py gui`
+
+---
+
+## Visual Tour & Interface Cockpit
+
+| Interactive Assessment Dashboard | Live Threat Matrix & Simulator |
+| :---: | :---: |
+| ![Assessment Dashboard](docs/screenshots/01_assessment_dashboard.png) | ![Platform Landing](docs/screenshots/03_platform_landing.png) |
+
+| 36 Core Security Modules Matrix | Native Desktop GUI Cockpit |
+| :---: | :---: |
+| ![Modules Catalog](docs/screenshots/04_modules_catalog.png) | ![Desktop GUI Cockpit](docs/screenshots/05_desktop_gui_cockpit.png) |
 
 ---
 
