@@ -5,7 +5,7 @@
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011%20%2F%20Server-lightgrey.svg)](https://microsoft.com/windows)
 [![Tests: Passing](https://img.shields.io/badge/Tests-108%20Passing-brightgreen.svg)](tests/)
 [![Docs: Live](https://img.shields.io/badge/Docs-Live%20Website-blueviolet.svg)](https://kartavyajoshi.github.io/WINSECURE/)
-[![Version: 2.5.0](https://img.shields.io/badge/Release-v2.5.0%20Aegis%20Prime-red.svg)](https://github.com/Kartavyajoshi/WINSECURE)
+[![Version: 2.6.0](https://img.shields.io/badge/Release-v2.6.0%20Aegis%20Vanguard-red.svg)](https://github.com/Kartavyajoshi/WINSECURE)
 
 WinSecure is a modular, automated cybersecurity configuration assessment, compliance verification, and threat-exposure analysis platform engineered for Microsoft Windows operating systems. It executes deterministic, non-destructive, read-only diagnostic inspections across 36 core operating system subsystems, correlating low-level telemetry into prioritized risk metrics, Bayesian attack graphs, ransomware resilience indices, Zero Trust maturity ratings, interactive GUI charts, multi-format audit reports, and actionable remediation scripts.
 
@@ -189,7 +189,7 @@ WinSecure audits 36 core Windows defense subsystems:
 
 ## 6. Academic Research Foundations & Literature Citations
 
-WinSecure v2.5.0 integrates principles from top-tier peer-reviewed cybersecurity literature:
+WinSecure v2.6.0 integrates principles from top-tier peer-reviewed cybersecurity literature:
 
 | Research Domain | Seminal Literature Citation | Key Algorithmic Impact |
 | :--- | :--- | :--- |

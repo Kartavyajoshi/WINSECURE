@@ -3,8 +3,8 @@ WinSecure Version and Product Information
 """
 
 __product_name__ = "WinSecure"
-__version__ = "2.5.0"
-__codename__ = "Aegis Prime"
+__version__ = "2.6.0"
+__codename__ = "Aegis Vanguard"
 __author__ = "Kartavya Joshi"
 __description__ = "Windows Security Configuration, Compliance & Threat Exposure Assessment Platform"
 __license__ = "Apache-2.0"
